@@ -1,4 +1,4 @@
-#fine
+# Geography
 tblGEO2Continents
 tblGEO2Regions
 tblGEO2RegionsMANI
@@ -7,29 +7,44 @@ tblGEO2SubRegionsUN
 tblRLG3Religions
 tblRLG4ReligionSubdivisions
 tblGEO3Countries
-# unsorted
+# tblGEO4StatesProvinces: loading requires removal of 'CREATE UNIQUE INDEX "tblGEO4StatesProvinces_ROG3_idx"' from mdb-schema output  (perhaps the key should be ROG3 + ROG4, or just ROG4?)
 tblGEO4StatesProvinces
+# tlbGEO5DistrictsCounties: Several missing foreign keys, violating constraint tblGEO5DistrictsCounties_ROG4_fk (all starting with UG)
 tblGEO5DistrictsCounties
+# tblGEOCities: Duplicate PP_ID for one row: GNS-3714993 (Ha Noi and Ho Chi Minh City)
 tblGEOCities
 tblGEOCitiesLanguageTypes
-tblGEOCitiesReligions
 tblGEOCitiesReligionTypes
+# tblGEOCitiesReligions: Duplicate key on tblGEOCities causes violation of foreign key constraint for CityID-682 
+tblGEOCitiesReligions
+# tblGEOCitiesLanguages: Duplicate key on tblGEOCities causes violation of foreign key constraint for CityID-682
+tblGEOCitiesLanguages
+# Languages
 tblLNG3Languages
 tblLNG4Dialects
 tblLNG6LanguageAlternateNames
+# tblLNG7DialectAlternateNames: loading requires removal of 'CREATE UNIQUE INDEX "tblLNG7DialectAlternateNames_ROL4_idx" ON "tblLNG7DialectAlternateNames" ("ROL4");' from mdb-schema output (perhaps the index should be on ROL4 + AlternateDialectName?)
 tblLNG7DialectAlternateNames
-tbllnkLNGtoPEOGEO
+# Peoples
+tblPEO1AffinityBlocs
+tblPEO2PeopleClusters
+# tblPEO3PeopleGroups: About 30 duplicate keys where PeopName already exists e.g. Zialo. 
+tblPEO3PeopleGroups
+# tblPEO6AlternateNames: Duplicate keys on tblPEO3PeopleGroups causes violation of foreign key constraint for about 30 PeopleID3 (more than 30 violations in this table, though)
+tblPEO6AlternateNames
+# Progress Status
+tblProgressStatusTypes
+tblProgressStatusValues
+# Link tables
+# Unprocessed below this line
+# tlbLnkPEOtoGEO: loading requires removal of 'CREATE UNIQUE INDEX "tblLnkPEOtoGEO_ROG3_idx" ON "tblLnkPEOtoGEO" ("ROG3");' from mdb-schema output (perhaps the index should be on ROL3 + PeopleID3)
+# tlbLnkPEOtoGEO: Duplicate keys on tblPEO3PeopleGroups causes violation of foreign key constraint for about 30 PeopleID3 (e.g. 20592)
 tblLnkPEOtoGEO
+tbllnkLNGtoPEOGEO
+# tblLnkPEOtoGEOLocationInCountry: loading requires removal of 'CREATE UNIQUE INDEX "tblLnkPEOtoGEOLocationInCountry_ROG3_idx" ON "tblLnkPEOtoGEOLocationInCountry" ("ROG3");' from mdb-schema output (perhaps the index should be on PeopleID3 or PeopleID3 + ROG3?)
 tblLnkPEOtoGEOLocationInCountry
 tblLnkPEOtoGEOProgressStatus
 tblLnkPEOtoGEOReligions
 tblLnkPEOtoGEOReligionSubdivision
-tblPEO1AffinityBlocs
-tblPEO2PeopleClusters
-tblPEO3PeopleGroups
-tblPEO6AlternateNames
-tblProgressStatusTypes
-tblProgressStatusValues
-tblGEOCitiesLanguages
 tblLnkGEOtoLNG
 tblLnkPEOtoGEOStateProvince
