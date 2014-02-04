@@ -15,6 +15,8 @@ mdb-schema ~/Downloads/JPHarvestFieldDataOnly.mdb postgres |
 	grep -v 'CREATE UNIQUE INDEX "tblLNG7DialectAlternateNames_ROL4_idx"' |
 	grep -v 'CREATE UNIQUE INDEX "tblLnkPEOtoGEO_ROG3_idx")' |
 	grep -v 'CREATE UNIQUE INDEX "tblLnkPEOtoGEOLocationInCountry_ROG3_idx"' |
+	grep -v 'CREATE UNIQUE INDEX "tblGEOCities_PP_ID_idx" ON "tblGEOCities" ("PP_ID")' |
+	grep -v 'CREATE UNIQUE INDEX "tblPEO2PeopleGroups_PeopName_idx" ON "tblPEO3PeopleGroups" ("PeopName")' |
 	psql jpharvest
 
 for i in $(grep -v "^#" jpharvest-table-insertion-order.txt); do
