@@ -9,7 +9,7 @@ tblRLG4ReligionSubdivisions
 tblGEO3Countries
 # tblGEO4StatesProvinces: loading requires removal of 'CREATE UNIQUE INDEX "tblGEO4StatesProvinces_ROG3_idx"' from mdb-schema output  (perhaps the key should be ROG3 + ROG4, or just ROG4?)
 tblGEO4StatesProvinces
-# tlbGEO5DistrictsCounties: Several missing foreign keys, violating constraint tblGEO5DistrictsCounties_ROG4_fk (all starting with UG)
+# tblGEO5DistrictsCounties: Several missing foreign keys, violating constraint tblGEO5DistrictsCounties_ROG4_fk (all starting with UG)
 tblGEO5DistrictsCounties
 # tblGEOCities: Duplicate PP_ID for one row: GNS-3714993 (Ha Noi and Ho Chi Minh City) - workaround by removal of 'CREATE UNIQUE INDEX "tblGEOCities_PP_ID_idx" ON "tblGEOCities" ("PP_ID")' (field not used)
 #               Better to change Ho Chi Minh City to have the correct value, GNS-3730078... sometime.

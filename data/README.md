@@ -9,22 +9,36 @@ http://www.joshuaproject.net
 http://www.joshuaproject.net/assets/data/jpharvfielddataonly.zip (MS Access)
 Install mdbtools
 psql -c "create database jpharvest"
-# decided not to use egrep for readability
+# UNIQUE constraints cause violations of integrity constraints, and are
+#  quite possibly due to a bug in mdbtools (perhaps because I don't understand
+#  the mdb schema too, so change them so that the uniqueness constraint
+#  is removed
+# - MSysNavPaneGroup tables are removed as they're not necessary
+# - There are a few errors for missing unique constraints on three tables,
+#   tblLnkPEOtoGEO, tblLnkPEOtoGEOReligions and tblProgressStatusValues
+# - There are 2 errors for duplicate constraint declarations for constraints,
+#   tblLnkPEOtoGEOProgressStatus_StatusType_fk and tblLNG6LanguageAlternateNames_ROL3_fk
+#
+# Otherwise it should be error free
 mdb-schema ~/Downloads/JPHarvestFieldDataOnly.mdb postgres |
-	grep -v 'CREATE UNIQUE INDEX "tblGEO4StatesProvinces_ROG3_idx"' |
-	grep -v 'CREATE UNIQUE INDEX "tblLNG7DialectAlternateNames_ROL4_idx"' |
-	grep -v 'CREATE UNIQUE INDEX "tblLnkPEOtoGEO_ROG3_idx")' |
-	grep -v 'CREATE UNIQUE INDEX "tblLnkPEOtoGEOLocationInCountry_ROG3_idx"' |
-	grep -v 'CREATE UNIQUE INDEX "tblGEOCities_PP_ID_idx" ON "tblGEOCities" ("PP_ID")' |
-	grep -v 'CREATE UNIQUE INDEX "tblPEO2PeopleGroups_PeopName_idx" ON "tblPEO3PeopleGroups" ("PeopName")' |
-	psql jpharvest
+	sed 's/^CREATE UNIQUE INDEX/CREATE INDEX/' |
+	psql jpharvest |
+	awk '/^(NOTICE|ERROR|WARN)/' | grep -v 'MSysNavPaneGroup'
 
+# We use gnu-sed here, because BSD sed doesn't have \U or \L to allow
+#  case changes
+# - Change to date format (mdb-tools exports this db in MDY format)
+# - Fix some case sensitivity issues (mixed case to upper case)
+#   (these changes will land from upstream by march or april 2014)
 for i in $(grep -v "^#" jpharvest-table-insertion-order.txt); do
-	echo "Ready to process $i. Enter to start";
-	read;
-	mdb-export -I postgres -q \' ~/Downloads/JPHarvestFieldDataOnly.mdb $i | sed '1i\
-set DateStyle="MDY";' | 
-	psql jpharvest | awk '/INSERT 0 1/ {c++;}; /^[^I]/ {print $0;} END {print c " inserts";}'
+	#echo "Ready to process $i. Enter to start"; read;
+	echo -n "Processing $i... ";
+	mdb-export -I postgres -q \' ~/Downloads/JPHarvestFieldDataOnly.mdb $i | gsed '1i\
+set DateStyle="MDY";
+s/\(RPz[a-z]\)/\U\1/;
+s/\(UG[yz][a-z]\)/\U\1/;
+' | 
+	psql jpharvest | awk '/INSERT 0 1/ {c++;}; /^[^IS]/ {print $0;}; /^$/ {}; END {print c " inserts";}'
 done
 
 WALS
