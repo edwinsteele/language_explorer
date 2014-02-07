@@ -41,6 +41,11 @@ s/\(UG[yz][a-z]\)/\U\1/;
 	psql jpharvest | awk '/INSERT 0 1/ {c++;}; /^[^IS]/ {print $0;}; /^$/ {}; END {print c " inserts";}'
 done
 
+# Need to update rows in tblLNG6LanguageAlternateNames where ROG3 is NULL (to allow SqlSoup to work)
+#  then add a primary key on (probably) ROG3+ROL3+LangAltName
+psql jpharvest -c 'delete from "tblLNG6LanguageAlternateNames" where "ROG3" is NULL;'
+psql jpharvest -c 'alter table "tblLNG6LanguageAlternateNames" add constraint "tblLNG6LanguageAlternateNames_pkey" PRIMARY KEY ("ROG3","ROL3", "LangAltName");'
+
 WALS
 ----
 http://wals.info
