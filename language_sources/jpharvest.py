@@ -7,6 +7,8 @@ __author__ = 'esteele'
 
 class JPHarvestAdapter(AbstractLanguageSource):
     SOURCE_NAME = "JP"
+    # For filtering out known matches that aren't indigenous
+    NON_INDIGENOUS_AU_LANGUAGES = []
 
     def __init__(self, db_url):
         self.db = sqlsoup.SQLSoup(db_url)
@@ -29,3 +31,11 @@ class JPHarvestAdapter(AbstractLanguageSource):
         return [l.LangAltName for l in
                 self.db.tblLNG6LanguageAlternateNames.filter(
                     self.db.tblLNG6LanguageAlternateNames.ROL3 == iso).all()]
+
+    def get_dialects_for_iso(self, iso):
+        """Language ISO also appears in tblLNG4Dialects. Not sure whether we
+        want to duplicate it all (if indeed it is duplicated). Haven't
+        investigated tblLNG7DialectAlternateNames
+        """
+        # For the momen
+        return []
