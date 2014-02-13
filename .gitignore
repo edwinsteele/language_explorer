@@ -1,6 +1,9 @@
 # Language explorer ethnologue web cache file location
 data/.cache
 
+# Mac stuffs
+.DS_Store
+
 *.py[cod]
 
 # PyCharm
