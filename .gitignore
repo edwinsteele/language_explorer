@@ -1,3 +1,6 @@
+# Language explorer ethnologue web cache file location
+data/.cache
+
 *.py[cod]
 
 # PyCharm
