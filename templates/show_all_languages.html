@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+<head>
+<title>Language Explorer: All Languages</title>
+</head>
+<body>
+<h1>All Languages</h1>
+
+<ul>
+{% for iso in iso_list %}
+    <li><a href="/language/iso639_3/{{ iso }}">{{ iso }}</a></li>
+{% endfor %}
+</ul>
+</body>
+</html>
