@@ -35,8 +35,6 @@ class AbstractLanguageSource(object):
 
 
 class CachingWebLanguageSource(AbstractLanguageSource):
-    CACHE_ROOT = "/Users/esteele/Code/language_explorer/data/.cache"
-
     def __init__(self, cache_root):
         self.cache_root = cache_root
         # TODO: make sure it exists
@@ -61,5 +59,4 @@ class CachingWebLanguageSource(AbstractLanguageSource):
             with open(cached_location, "wb") as f:
                 f.write(r.content)
             text = r.content
-        print "Returning text of length %s: %s" % (len(text), text[:100])
         return text

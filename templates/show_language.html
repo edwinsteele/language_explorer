@@ -1,25 +1,28 @@
 <!doctype html>
 <title>Language Explorer</title>
 <h1>Language: {{ iso639_3_code }}</h1>
+
+<h2>Primary Names</h2>
+{% for pn_source, pn_name_list in primary_names_dict.items() %}
+    <li>{{ pn_source }}:
+        {% for pn_name in pn_name_list %}
+            {{ pn_name }}
+        {% endfor %}</li>
+{% endfor %}
+
+<h2>Alternate Names</h2>
+{% for an_source, an_name_list in alternate_names_dict.items() %}
+    <li>{{ an_source }}:
+        {% for an_name in an_name_list %}
+            {{ an_name }},
+        {% endfor %}</li>
+{% endfor %}
+
 <ul>
   <li><a href="http://www.ethnologue.com/language/{{ iso639_3_code }}">Ethnologue</a></li>
   <li><a href="http://www.language-archives.org/language/{{ iso639_3_code }}">OLAC</a></li>
   <li><a href="http://www.sil.org/iso639-3/documentation.asp?id={{ iso639_3_code }}">SIL</a></li>
   <li><a href="http://multitree.org/codes/{{ iso639_3_code }}">Multitree</a></li>
-<!-- WALS -->
-{% for wals_code in wals_code_list %}
-  <li><a href="http://wals.info/languoid/lect/wals_code_{{ wals_code }}">WALS code: {{ wals_code }}</a></li>
-{% else %}
-  <li>No WALS codes associated with ISO code {{ iso639_3_code }}</li>
-{% endfor %}
-<!-- GLOTTOLOG -->
-{% for glottocode in glottocode_list %}
-    <li><a href="http://wals.info/languoid/lect/wals_code_{{ wals_code }}">WALS code: {{ wals_code }}</a></li>
-    <li><a href="http://glottolog.org/resource/languoid/id/{{ glottocode }}">Glottolog code: {{ glottocode }}</a></li>
-{% else %}
-    <li>No Glottolog codes associated with ISO code {{ iso639_3_code }}</li>
-{% endfor %}
-
   <li><form name="lang_code" action="http://www.joshuaproject.net/languages.php" method="post" style="display:inline;">
     <input type="hidden" name="rol3" value="{{ iso639_3_code }}"><input type="submit" value="Joshua Project" name="submit"/></form></li>
 </ul>
