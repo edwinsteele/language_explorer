@@ -10,9 +10,14 @@ class TestEthnologueAdapter(unittest.TestCase):
     def setUp(self):
         self.ethnologue = EthnologueAdapter(self.TEST_CACHE_ROOT)
 
-    def test_all_iso_keys_length(self):
+    def test_all_iso_keys(self):
         keys = self.ethnologue.get_language_iso_keys()
         self.assertEquals(len(keys), 390)
+        # Check no dupes
+        self.assertEquals(len(keys), len(list(set(keys))))
+        for key in keys:
+            self.assertIsInstance(key, basestring)
+            self.assertEquals(len(key), 3)
 
     def test_all_first_and_last_iso(self):
         keys = self.ethnologue.get_language_iso_keys()
