@@ -35,3 +35,14 @@ class TestWalsAdapter(unittest.TestCase):
         for iso, name in iso_primary_name_pairs:
             self.assertEquals(name,
                               self.wals.get_primary_name_for_iso(iso))
+
+    def test_wals_key_for_iso_retrieval(self):
+        iso_wals_pairs = [
+            ("kij", ["klv"]),  # normal
+            ("are", ["arr", "awe"]),  # multiple wals to single ISO where some
+                                      #  WALS have 2 ISOs
+            ("mpj", ["mnj", "mwa", "ylb"]),  # multiple wals to single ISO
+        ]
+        for iso, wals_list in iso_wals_pairs:
+            self.assertEquals(wals_list,
+                              self.wals.get_wals_keys_for_iso(iso))

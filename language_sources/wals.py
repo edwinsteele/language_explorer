@@ -56,3 +56,10 @@ class WalsAdapter(AbstractLanguageSource):
         #  has names from other sources, which are handled in fake sources
         #  that back the WALS database
         return []
+
+    def get_wals_keys_for_iso(self, iso):
+        return [l.id for l in self.session.query(wals3.models.WalsLanguage) \
+            .filter(wals3.models.WalsLanguage.pk ==
+                    wals3.models.Language.pk) \
+            .filter(wals3.models.WalsLanguage.iso_codes.
+            like('%%%s%%' % (iso,))).all()]

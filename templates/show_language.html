@@ -25,4 +25,8 @@
   <li><a href="http://multitree.org/codes/{{ iso639_3_code }}">Multitree</a></li>
   <li><form name="lang_code" action="http://www.joshuaproject.net/languages.php" method="post" style="display:inline;">
     <input type="hidden" name="rol3" value="{{ iso639_3_code }}"><input type="submit" value="Joshua Project" name="submit"/></form></li>
+  <li>WALS: {%  for wals_key in wals_keys %}
+      <a href="http://wals.info/languoid/lect/wals_code_{{ wals_key }}">{{ wals_key }}</a>
+      {% endfor %}
+  </li>
 </ul>
