@@ -63,3 +63,6 @@ class WalsAdapter(AbstractLanguageSource):
                     wals3.models.Language.pk) \
             .filter(wals3.models.WalsLanguage.iso_codes.
             like('%%%s%%' % (iso,))).all()]
+
+    def get_classification(self, iso):
+        return []

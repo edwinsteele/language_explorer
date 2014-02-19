@@ -17,6 +17,12 @@ class AbstractLanguageSource(object):
     def get_dialects_for_iso(self, iso):
         raise NotImplementedError
 
+    def get_classification(self, iso):
+        """
+        Returns a list of classifications, from Family, Genus, Subgenus etc
+        """
+        raise NotImplementedError
+
     def persist_language(self, persister, iso):
         primary_name = self.get_primary_name_for_iso(iso)
         logging.info("Persisting language entry for ISO %s (%s)",
@@ -32,6 +38,15 @@ class AbstractLanguageSource(object):
                          ", ".join(alternate_names))
         for alternate_name in alternate_names:
             persister.persist_alternate(iso, alternate_name, self.SOURCE_NAME)
+
+    def persist_classification(self, persister, iso):
+        classification_list = self.get_classification(iso)
+        if classification_list:
+            logging.info("Persisting classification for ISO %s (%s)",
+                         iso,
+                         ", ".join(classification_list))
+        persister.persist_classification(iso, classification_list,
+                                         self.SOURCE_NAME)
 
 
 class CachingWebLanguageSource(AbstractLanguageSource):

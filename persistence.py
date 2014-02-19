@@ -7,6 +7,7 @@ __author__ = 'esteele'
 class LanguagePersistence(object):
     ALIAS_TABLE = "language_alias"
     LANGUAGE_TABLE = "language"
+    CLASSIFICATION_TABLE = "classification"
     PRIMARY_NAME_TYPE = "p"
     ALTERNATE_NAME_TYPE = "a"
     DIALECT_TYPE = "d"
@@ -44,6 +45,15 @@ class LanguagePersistence(object):
             source=source,
         ), ["iso", "alias_type", "source", "name"])
 
+    def persist_classification(self, iso, c_list, source):
+        for c_idx, c_name in enumerate(c_list):
+            self.lang_db[self.CLASSIFICATION_TABLE].upsert(dict(
+                iso=iso,
+                source=source,
+                level=c_idx,
+                name=c_name,
+            ), ["iso", "source", "level"])
+
     def persist_language_status(self, iso, status):
         self.lang_db[self.LANGUAGE_TABLE].update(dict(
             iso=iso,
@@ -51,8 +61,9 @@ class LanguagePersistence(object):
         ), ['status'])
 
     def get_all_iso_codes(self):
-        a = sorted(list(set([row["iso"] for row in self.lang_db[self.ALIAS_TABLE].distinct("iso")])))
-        return a
+        return sorted(list(set(
+            [row["iso"] for row in
+             self.lang_db[self.ALIAS_TABLE].distinct("iso")])))
 
     def get_primary_names_by_iso(self, iso):
         """Return list of primary names from each data source"""
@@ -64,11 +75,19 @@ class LanguagePersistence(object):
         return d
 
     def get_alternate_names_by_iso(self, iso):
-        """Return list of primary names from each data source"""
+        """Return list of alternate names from each data source"""
         alternate_list = self.lang_db[self.ALIAS_TABLE] \
             .find(iso=iso, alias_type=self.ALTERNATE_NAME_TYPE)
         d = collections.defaultdict(list)
         for primary_row in alternate_list:
             d[primary_row["source"]].append(primary_row["name"])
             d[primary_row["source"]].sort()
+        return d
+
+    def get_classifications_by_iso(self, iso):
+        classification_list = self.lang_db[self.CLASSIFICATION_TABLE] \
+            .find(iso=iso, order_by=["iso", "level"])
+        d = collections.defaultdict(list)
+        for c_row in classification_list:
+            d[c_row["source"]].append(c_row["name"])
         return d

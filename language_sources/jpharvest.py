@@ -39,3 +39,6 @@ class JPHarvestAdapter(AbstractLanguageSource):
         """
         # For the momen
         return []
+
+    def get_classification(self, iso):
+        return []

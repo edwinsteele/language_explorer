@@ -19,6 +19,7 @@ def main():
         for lang in source.get_language_iso_keys():
             source.persist_language(p, lang)
             source.persist_alternate_names(p, lang)
+            source.persist_classification(p, lang)
 
 
 if __name__ == '__main__':

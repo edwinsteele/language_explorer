@@ -51,3 +51,14 @@ class EthnologueAdapter(CachingWebLanguageSource):
         print "Ethnologue '%s': Found dialects %s" % (iso, dialect_string,)
 
         return []
+
+    def get_classification(self, iso):
+        # everything seems to have a classification, but there are between
+        #  two and four classifications
+        soup = BeautifulSoup(self.get_text_from_url(
+            self.ONE_LANGUAGE_URL_TEMPLATE % (iso,)
+        ))
+        classification_string = soup\
+            .find(class_="field-name-language-classification-link") \
+            .find(class_="field-item").text
+        return [s.strip() for s in classification_string.split(",")]

@@ -46,3 +46,14 @@ class TestEthnologueAdapter(unittest.TestCase):
         for iso, alternate_list in iso_alternate_name_pairs:
             self.assertEquals(alternate_list,
                               self.ethnologue.get_alternate_names_for_iso(iso))
+
+    def test_classification_retrieval(self):
+        iso_classification_pairs = [
+            ("asf", ["Deaf sign language"]),  # 1 classification, and spaces
+            ("bcj", ["Australian", "Nyulnyulan"]),  # 2 classifications
+            ("amg", ["Australian", "Yiwaidjan", "Amaragic"]),  # 3
+            ("dax", ["Australian", "Pama-Nyungan", "Yuulngu", "Dhuwal"]),  # 4
+        ]
+        for iso, classification_list in iso_classification_pairs:
+            self.assertEquals(classification_list,
+                              self.ethnologue.get_classification(iso))
