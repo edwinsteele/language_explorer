@@ -58,11 +58,16 @@ class WalsAdapter(AbstractLanguageSource):
         return []
 
     def get_wals_keys_for_iso(self, iso):
-        return [l.id for l in self.session.query(wals3.models.WalsLanguage) \
-            .filter(wals3.models.WalsLanguage.pk ==
-                    wals3.models.Language.pk) \
-            .filter(wals3.models.WalsLanguage.iso_codes.
-            like('%%%s%%' % (iso,))).all()]
+        return [l.id for l in
+                self.session.query(wals3.models.WalsLanguage)
+                .filter(wals3.models.WalsLanguage.pk ==
+                        wals3.models.Language.pk)
+                .filter(wals3.models.WalsLanguage.iso_codes
+                .like('%%%s%%' % (iso,))).all()]
 
     def get_classification(self, iso):
+        """Not worth implementing this, as there are only Family and Genus
+        e.g. Australian, Pama-Nyungan
+        Which is insufficient to give any value
+        """
         return []

@@ -1,27 +1,21 @@
-import unittest
 import settings
 from wals import WalsAdapter
+from test_baseclasses import BaseAdapterTestCase
 
 __author__ = 'esteele'
 
 
-class TestWalsAdapter(unittest.TestCase):
+class TestWalsAdapter(BaseAdapterTestCase):
 
     def setUp(self):
-        self.wals = WalsAdapter(settings.WALS_DB_URL)
+        self.source = WalsAdapter(settings.WALS_DB_URL)
 
     def test_all_iso_keys(self):
-        keys = self.wals.get_language_iso_keys()
-
+        keys = self.source.get_language_iso_keys()
         self.assertEquals(len(keys), 154)
         self.assertEquals(keys[0], "adt")
         self.assertEquals(keys[-1], "zmu")
-
-        # Check no dupes
-        self.assertEquals(len(keys), len(list(set(keys))))
-        for key in keys:
-            self.assertIsInstance(key, basestring)
-            self.assertEquals(len(key), 3)
+        self._do_test_all_iso_keys_common()
 
     def test_primary_name_retrieval(self):
         iso_primary_name_pairs = [
@@ -32,9 +26,7 @@ class TestWalsAdapter(unittest.TestCase):
             ("are", "Arrernte (Western)"),  # Multiple WALS to single ISO and
                                             #  some WALS have 2 ISOs
         ]
-        for iso, name in iso_primary_name_pairs:
-            self.assertEquals(name,
-                              self.wals.get_primary_name_for_iso(iso))
+        self._do_test_primary_name_retrieval(iso_primary_name_pairs)
 
     def test_wals_key_for_iso_retrieval(self):
         iso_wals_pairs = [
@@ -45,4 +37,8 @@ class TestWalsAdapter(unittest.TestCase):
         ]
         for iso, wals_list in iso_wals_pairs:
             self.assertEquals(wals_list,
-                              self.wals.get_wals_keys_for_iso(iso))
+                              self.source.get_wals_keys_for_iso(iso))
+
+    def test_classification_retrieval(self):
+        # Not implemented
+        self.assertEquals([], self.source.get_classification("dummy"))

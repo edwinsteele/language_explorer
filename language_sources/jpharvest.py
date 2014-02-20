@@ -41,4 +41,5 @@ class JPHarvestAdapter(AbstractLanguageSource):
         return []
 
     def get_classification(self, iso):
+        """Can't be implemented. JPHarvest doesn't provide classification"""
         return []
