@@ -1,4 +1,5 @@
 import re
+import constants
 import itertools
 import wals3.models
 from sqlalchemy import create_engine
@@ -9,7 +10,7 @@ __author__ = 'esteele'
 
 
 class WalsAdapter(AbstractLanguageSource):
-    SOURCE_NAME = "WA"
+    SOURCE_NAME = constants.WALS_SOURCE_ABBREV
 
     def __init__(self, db_url):
         engine = create_engine(db_url)

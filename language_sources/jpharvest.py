@@ -1,3 +1,4 @@
+import constants
 from sqlalchemy import and_
 import sqlsoup
 from language_sources.base import AbstractLanguageSource
@@ -6,7 +7,7 @@ __author__ = 'esteele'
 
 
 class JPHarvestAdapter(AbstractLanguageSource):
-    SOURCE_NAME = "JP"
+    SOURCE_NAME = constants.JOSHUA_PROJECT_SOURCE_ABBREV
     # For filtering out known matches that aren't indigenous
     NON_INDIGENOUS_AU_LANGUAGES = []
 

@@ -1,14 +1,13 @@
 from ethnologue import EthnologueAdapter
 from test_baseclasses import BaseAdapterTestCase
+import settings
 
 __author__ = 'esteele'
 
 
 class TestEthnologueAdapter(BaseAdapterTestCase):
-    TEST_CACHE_ROOT = "/Users/esteele/Code/language_explorer/data/.cache"
-
     def setUp(self):
-        self.source = EthnologueAdapter(self.TEST_CACHE_ROOT)
+        self.source = EthnologueAdapter(settings.TEST_CACHE_ROOT)
 
     def test_all_iso_keys(self):
         keys = self.source.get_language_iso_keys()

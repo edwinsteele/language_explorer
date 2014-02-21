@@ -1,4 +1,5 @@
 import logging
+import constants
 from language_sources.base import CachingWebLanguageSource
 from bs4 import BeautifulSoup
 
@@ -8,7 +9,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 class EthnologueAdapter(CachingWebLanguageSource):
-    SOURCE_NAME = "EL"
+    SOURCE_NAME = constants.ETHNOLOGUE_SOURCE_ABBREV
     ALL_LANGUAGES_URL = "http://www.ethnologue.com/country/AU/languages"
     ONE_LANGUAGE_URL_TEMPLATE = "http://www.ethnologue.com/language/%s"
 
@@ -30,11 +31,11 @@ class EthnologueAdapter(CachingWebLanguageSource):
         return soup.find(id="page-title").text
 
     def get_alternate_names_for_iso(self, iso):
-        # Some don't have alternate names e.g. aid - robustify
         soup = BeautifulSoup(self.get_text_from_url(
             self.ONE_LANGUAGE_URL_TEMPLATE % (iso,)
         ))
         alt_base_div = soup.find(class_="field-name-field-alternate-names")
+        # Some don't have alternate names e.g. aid
         if alt_base_div:
             return [s.strip() for s in
                     alt_base_div.find(class_="field-item").text.split(",")]
