@@ -1,3 +1,4 @@
+import constants
 import collections
 import dataset
 
@@ -8,6 +9,7 @@ class LanguagePersistence(object):
     ALIAS_TABLE = "language_alias"
     LANGUAGE_TABLE = "language"
     CLASSIFICATION_TABLE = "classification"
+    TRANSLATION_TABLE = "translation"
     PRIMARY_NAME_TYPE = "p"
     ALTERNATE_NAME_TYPE = "a"
     DIALECT_TYPE = "d"
@@ -54,11 +56,13 @@ class LanguagePersistence(object):
                 name=c_name,
             ), ["iso", "source", "level"])
 
-    def persist_language_status(self, iso, status):
-        self.lang_db[self.LANGUAGE_TABLE].update(dict(
+    def persist_translation(self, iso, tr_dict, source):
+        self.lang_db[self.TRANSLATION_TABLE].upsert(dict(
             iso=iso,
-            status=status
-        ), ['status'])
+            source=source,
+            status=tr_dict[constants.TRANSLATION_STATE_STATE_KEY],
+            year=tr_dict[constants.TRANSLATION_STATE_YEAR_KEY],
+        ), ["iso", "source"])
 
     def get_all_iso_codes(self):
         return sorted(list(set(

@@ -72,3 +72,7 @@ class WalsAdapter(AbstractLanguageSource):
         Which is insufficient to give any value
         """
         return []
+
+    def get_translation_info_for_iso(self, iso):
+        """Not available in WALS"""
+        return {}

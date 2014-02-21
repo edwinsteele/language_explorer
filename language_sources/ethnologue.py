@@ -63,3 +63,7 @@ class EthnologueAdapter(CachingWebLanguageSource):
             .find(class_="field-name-language-classification-link") \
             .find(class_="field-item").text
         return [s.strip() for s in classification_string.split(",")]
+
+    def get_translation_info_for_iso(self, iso):
+        """To be implemented"""
+        return {}

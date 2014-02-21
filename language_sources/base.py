@@ -17,6 +17,9 @@ class AbstractLanguageSource(object):
     def get_dialects_for_iso(self, iso):
         raise NotImplementedError
 
+    def get_translation_info_for_iso(self, iso):
+        raise NotImplementedError
+
     def get_classification(self, iso):
         """
         Returns a list of classifications, from Family, Genus, Subgenus etc
@@ -47,6 +50,12 @@ class AbstractLanguageSource(object):
                          ", ".join(classification_list))
         persister.persist_classification(iso, classification_list,
                                          self.SOURCE_NAME)
+
+    def persist_translation(self, persister, iso):
+        translation_dict = self.get_translation_info_for_iso(iso)
+        if translation_dict:
+            persister.persist_translation(iso, translation_dict,
+                                          self.SOURCE_NAME)
 
 
 class CachingWebLanguageSource(AbstractLanguageSource):

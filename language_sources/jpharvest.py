@@ -44,3 +44,7 @@ class JPHarvestAdapter(AbstractLanguageSource):
     def get_classification(self, iso):
         """Can't be implemented. JPHarvest doesn't provide classification"""
         return []
+
+    def get_translation_info_for_iso(self, iso):
+        """Likely duplicates data in Ethnologue, so use that instead"""
+        return {}
