@@ -1,3 +1,4 @@
+import codecs
 import logging
 import os
 import requests
@@ -74,13 +75,13 @@ class CachingWebLanguageSource(AbstractLanguageSource):
     def get_text_from_url(self, url):
         cached_location = os.path.join(self.cache_root,
                                        self.generate_filename_from_url(url))
-        if os.path.exists(cached_location):
-            with open(cached_location, "r") as f:
-                text = f.read()
-        else:
+        if not os.path.exists(cached_location):
             print "retrieving url from the web: %s" % (url,)
             r = requests.get(url)
             with open(cached_location, "wb") as f:
                 f.write(r.content)
-            text = r.content
+        # Yeah, we're writing then reading if we don't have a cached copy
+        #  but it simplifies the unicode handling
+        with codecs.open(cached_location, "r", encoding="utf-8") as f:
+            text = f.read()
         return text

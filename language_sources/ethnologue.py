@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 import logging
+import re
 import constants
 from language_sources.base import CachingWebLanguageSource
 from bs4 import BeautifulSoup
@@ -24,7 +26,6 @@ class EthnologueAdapter(CachingWebLanguageSource):
         return keys
 
     def get_primary_name_for_iso(self, iso):
-        logging.info("Getting primary name for iso %s", iso)
         soup = BeautifulSoup(self.get_text_from_url(
             self.ONE_LANGUAGE_URL_TEMPLATE % (iso,)
         ))
@@ -65,5 +66,38 @@ class EthnologueAdapter(CachingWebLanguageSource):
         return [s.strip() for s in classification_string.split(",")]
 
     def get_translation_info_for_iso(self, iso):
-        """To be implemented"""
-        return {}
+        # convenience
+        STATE = constants.TRANSLATION_STATE_STATE_KEY
+        YEAR = constants.TRANSLATION_STATE_YEAR_KEY
+
+        d = {}
+        soup = BeautifulSoup(self.get_text_from_url(
+            self.ONE_LANGUAGE_URL_TEMPLATE % (iso,)
+        ))
+        lang_development_div = soup\
+            .find(class_="field-name-field-language-development")
+        if lang_development_div:
+            lang_development_string = lang_development_div \
+                .find(class_="field-item").text
+            # Note the long dash, not a hyphen
+            # We take the second year if there's a range, to put the emphasis
+            #  on recent translation efforts
+            ts_re = u'(?P<tr_state>Bible[ a-z]*): ' \
+                    u'([0-9]{4}–)?(?P<tr_year>[0-9]{4})'
+            mo = re.search(ts_re, lang_development_string)
+            if mo:
+                if "portions" in mo.group('tr_state'):
+                    # Ethnologue provides no distinction between one book & NT
+                    d[STATE] = constants.TRANSLATION_STATE_COMPLETE_BOOK
+                else:
+                    d[STATE] = constants.TRANSLATION_STATE_WHOLE_BIBLE
+                d[YEAR] = int(mo.group('tr_year'))
+            else:
+                logging.error("Language development str '%s' in unrecognised"
+                              " format", lang_development_string)
+                d[STATE] = constants.TRANSLATION_STATE_NO_RECORD
+                d[YEAR] = constants.TRANSLATION_STATE_UNKNOWN_YEAR
+        else:
+            d[STATE] = constants.TRANSLATION_STATE_NO_RECORD
+            d[YEAR] = constants.TRANSLATION_STATE_UNKNOWN_YEAR
+        return d

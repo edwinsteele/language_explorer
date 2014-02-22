@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+import constants
 from ethnologue import EthnologueAdapter
 from test_baseclasses import BaseAdapterTestCase
 import settings
@@ -20,7 +22,7 @@ class TestEthnologueAdapter(BaseAdapterTestCase):
         iso_primary_name_pairs = [
             ("dth", "Adithinngithigh"),  # normal
             ("yxu", "Yuyu"),  # normal
-            ("xmp", u"Kuku-Mu\u2019inh"),  # quotes
+            ("xmp", u"Kuku-Mu’inh"),  # quotes
             ("tcs", "Torres Strait Creole"),  # spaces
         ]
         self._do_test_primary_name_retrieval(iso_primary_name_pairs)
@@ -30,7 +32,7 @@ class TestEthnologueAdapter(BaseAdapterTestCase):
             ("dth", ["Adetingiti"]),  # One alternate
             ("yij", ["Jindjibandi", "Yinjtjipartnti"]),  # Two alternates
             ("aid", []),  # No alternates
-            ("dax", [u"Dha\u2019i", u"Dhay\u2019yi"]),  # Names with quotes
+            ("dax", [u"Dha’i", u"Dhay’yi"]),  # Names with quotes
             ("aer", ["Arunta", "Eastern Aranda", "Upper Aranda"]),  # Has spaces
         ]
         self._do_test_alternate_name_retrieval(iso_alternate_name_pairs)
@@ -43,3 +45,24 @@ class TestEthnologueAdapter(BaseAdapterTestCase):
             ("dax", ["Australian", "Pama-Nyungan", "Yuulngu", "Dhuwal"]),  # 4
         ]
         self._do_test_classification_retrieval(iso_classification_pairs)
+
+    def test_get_translation_info_for_iso(self):
+        # Convenience
+        STATE = constants.TRANSLATION_STATE_STATE_KEY
+        YEAR = constants.TRANSLATION_STATE_YEAR_KEY
+        iso_translation_pairs = [
+            ("tcs", {STATE: constants.TRANSLATION_STATE_COMPLETE_BOOK,
+                     YEAR: 1997}),  # Portions w/ one year. No other text
+            ("ulk", {STATE: constants.TRANSLATION_STATE_COMPLETE_BOOK,
+                     YEAR: 1994}),  # Portions w/ range. No other text.
+            ("aly", {STATE: constants.TRANSLATION_STATE_COMPLETE_BOOK,
+                     YEAR: 2003}),  # portions w/ range and other text.
+            ("rop", {STATE: constants.TRANSLATION_STATE_WHOLE_BIBLE,
+                     YEAR: 2007}),  # whole bible
+            ("gwm", {STATE: constants.TRANSLATION_STATE_NO_RECORD,
+                     YEAR: constants.TRANSLATION_STATE_UNKNOWN_YEAR}),
+            # gwm has no language development entry
+        ]
+        for iso, ts_dict in iso_translation_pairs:
+            self.assertEquals(ts_dict,
+                              self.source.get_translation_info_for_iso(iso))
