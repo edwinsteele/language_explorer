@@ -93,8 +93,7 @@ class EthnologueAdapter(CachingWebLanguageSource):
                     d[STATE] = constants.TRANSLATION_STATE_WHOLE_BIBLE
                 d[YEAR] = int(mo.group('tr_year'))
             else:
-                logging.error("Language development str '%s' in unrecognised"
-                              " format", lang_development_string)
+                # Some have language development divs but no mention of Bible
                 d[STATE] = constants.TRANSLATION_STATE_NO_RECORD
                 d[YEAR] = constants.TRANSLATION_STATE_UNKNOWN_YEAR
         else:

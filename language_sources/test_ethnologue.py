@@ -59,6 +59,9 @@ class TestEthnologueAdapter(BaseAdapterTestCase):
                      YEAR: 2003}),  # portions w/ range and other text.
             ("rop", {STATE: constants.TRANSLATION_STATE_WHOLE_BIBLE,
                      YEAR: 2007}),  # whole bible
+            ("adt", {STATE: constants.TRANSLATION_STATE_NO_RECORD,
+                     YEAR: constants.TRANSLATION_STATE_UNKNOWN_YEAR}),
+            # adt has Language development entry, but no mention of Bible
             ("gwm", {STATE: constants.TRANSLATION_STATE_NO_RECORD,
                      YEAR: constants.TRANSLATION_STATE_UNKNOWN_YEAR}),
             # gwm has no language development entry

@@ -17,12 +17,12 @@ def main():
     joshuaproject = JPHarvestAdapter(settings.JPHARVEST_DB_URL)
     fab = FindABibleAdapter(settings.CACHE_ROOT)
     wals = WalsAdapter(settings.WALS_DB_URL)
-    # for source in (ethnologue, joshuaproject, wals):
-    #     for lang in source.get_language_iso_keys():
-    #         source.persist_language(p, lang)
-    #         source.persist_alternate_names(p, lang)
-    #         source.persist_classification(p, lang)
-    #         source.persist_translation(p, lang)
+    for source in (ethnologue, joshuaproject, wals):
+        for lang in source.get_language_iso_keys():
+            source.persist_language(p, lang)
+            source.persist_alternate_names(p, lang)
+            source.persist_classification(p, lang)
+            source.persist_translation(p, lang)
 
     # FAB can't provide an ISO list, so ask the database!
     # For this reason, this must run after the db is populated with ISO codes
