@@ -27,3 +27,8 @@ class BaseAdapterTestCase(unittest.TestCase):
         for iso, classification_list in iso_classification_pairs:
             self.assertEquals(classification_list,
                               self.source.get_classification(iso))
+
+    def _do_test_get_translation_info(self, iso_translation_pairs):
+        for iso, ts_dict in iso_translation_pairs:
+            self.assertEquals(ts_dict,
+                              self.source.get_translation_info_for_iso(iso))

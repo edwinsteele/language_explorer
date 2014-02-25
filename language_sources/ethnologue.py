@@ -88,7 +88,7 @@ class EthnologueAdapter(CachingWebLanguageSource):
             if mo:
                 if "portions" in mo.group('tr_state'):
                     # Ethnologue provides no distinction between one book & NT
-                    d[STATE] = constants.TRANSLATION_STATE_COMPLETE_BOOK
+                    d[STATE] = constants.TRANSLATION_STATE_PORTIONS
                 else:
                     d[STATE] = constants.TRANSLATION_STATE_WHOLE_BIBLE
                 d[YEAR] = int(mo.group('tr_year'))

@@ -1,3 +1,4 @@
+import constants
 import settings
 from jpharvest import JPHarvestAdapter
 from test_baseclasses import BaseAdapterTestCase
@@ -40,3 +41,25 @@ class TestJPHarvestAdapter(BaseAdapterTestCase):
     def test_classification_retrieval(self):
         # Not implemented
         self.assertEquals([], self.source.get_classification("dummy"))
+
+    def test_get_translation_info_for_iso(self):
+        # Convenience
+        STATE = constants.TRANSLATION_STATE_STATE_KEY
+        YEAR = constants.TRANSLATION_STATE_YEAR_KEY
+        iso_translation_pairs = [
+            ("are", {STATE: constants.TRANSLATION_STATE_NEW_TESTAMENT,
+                     YEAR: 1956}),  # NT + portions date
+            ("dif", {STATE: constants.TRANSLATION_STATE_NEW_TESTAMENT,
+                     YEAR: 1897}),  # No portions date, only NT date
+            ("rop", {STATE: constants.TRANSLATION_STATE_WHOLE_BIBLE,
+                     YEAR: 2007}),  # Whole bible
+            ("aly", {STATE: constants.TRANSLATION_STATE_PORTIONS,
+                     YEAR: 2003}),  # Range in portions
+            ("adg", {STATE: constants.TRANSLATION_STATE_NO_SCRIPTURE,
+                     YEAR: constants.TRANSLATION_STATE_UNKNOWN_YEAR}),
+            # No matches
+            ("bdy", {STATE: constants.TRANSLATION_STATE_PORTIONS,
+                     YEAR: constants.TRANSLATION_STATE_POSITIVE_YEAR})
+            # bdy has no translation date
+        ]
+        self._do_test_get_translation_info(iso_translation_pairs)

@@ -51,11 +51,11 @@ class TestEthnologueAdapter(BaseAdapterTestCase):
         STATE = constants.TRANSLATION_STATE_STATE_KEY
         YEAR = constants.TRANSLATION_STATE_YEAR_KEY
         iso_translation_pairs = [
-            ("tcs", {STATE: constants.TRANSLATION_STATE_COMPLETE_BOOK,
+            ("tcs", {STATE: constants.TRANSLATION_STATE_PORTIONS,
                      YEAR: 1997}),  # Portions w/ one year. No other text
-            ("ulk", {STATE: constants.TRANSLATION_STATE_COMPLETE_BOOK,
+            ("ulk", {STATE: constants.TRANSLATION_STATE_PORTIONS,
                      YEAR: 1994}),  # Portions w/ range. No other text.
-            ("aly", {STATE: constants.TRANSLATION_STATE_COMPLETE_BOOK,
+            ("aly", {STATE: constants.TRANSLATION_STATE_PORTIONS,
                      YEAR: 2003}),  # portions w/ range and other text.
             ("rop", {STATE: constants.TRANSLATION_STATE_WHOLE_BIBLE,
                      YEAR: 2007}),  # whole bible

@@ -46,5 +46,42 @@ class JPHarvestAdapter(AbstractLanguageSource):
         return []
 
     def get_translation_info_for_iso(self, iso):
-        """Likely duplicates data in Ethnologue, so use that instead"""
-        return {}
+        """Has additional information on top of ethnologue and findabible
+        e.g. mwp and rop have NT dates
+        Extra data is likely from the world christian database, at least
+        based on http://www.joshuaproject.net/data-sources.php
+
+        Note that we only return the date associated with the largest body of
+        work. If we have a NT, there's no need to report on portions.
+        Some year values are ranges, some are single years and one (bdy)
+        is "yes" !!!
+        """
+        d = {}
+        STATE = constants.TRANSLATION_STATE_STATE_KEY
+        YEAR = constants.TRANSLATION_STATE_YEAR_KEY
+        # Combine into a single query
+        bible_year = self.db.tblLNG3Languages.filter(
+                self.db.tblLNG3Languages.ROL3 == iso).first().BibleYear
+        if bible_year:
+            d[STATE] = constants.TRANSLATION_STATE_WHOLE_BIBLE
+            d[YEAR] = int(bible_year.rpartition("-")[2])
+            return d
+        nt_year = self.db.tblLNG3Languages.filter(
+            self.db.tblLNG3Languages.ROL3 == iso).first().NTYear
+        if nt_year:
+            d[STATE] = constants.TRANSLATION_STATE_NEW_TESTAMENT
+            d[YEAR] = int(nt_year.rpartition("-")[2])
+            return d
+        portions_year = self.db.tblLNG3Languages.filter(
+            self.db.tblLNG3Languages.ROL3 == iso).first().PortionsYear
+        if portions_year:
+            d[STATE] = constants.TRANSLATION_STATE_PORTIONS
+            if portions_year == "Yes":  # bdy
+                d[YEAR] = constants.TRANSLATION_STATE_POSITIVE_YEAR
+            else:
+                d[YEAR] = int(portions_year.rpartition("-")[2])
+
+            return d
+        d[STATE] = constants.TRANSLATION_STATE_NO_SCRIPTURE
+        d[YEAR] = constants.TRANSLATION_STATE_UNKNOWN_YEAR
+        return d

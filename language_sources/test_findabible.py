@@ -26,6 +26,4 @@ class TestFindABibleAdapter(BaseAdapterTestCase):
             ("gwm", {STATE: constants.TRANSLATION_STATE_NO_RECORD,
                      YEAR: constants.TRANSLATION_STATE_UNKNOWN_YEAR})
         ]
-        for iso, ts_dict in iso_translation_pairs:
-            self.assertEquals(ts_dict,
-                              self.source.get_translation_info_for_iso(iso))
+        self._do_test_get_translation_info(iso_translation_pairs)
