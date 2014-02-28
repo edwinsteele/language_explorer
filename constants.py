@@ -6,7 +6,7 @@ WALS_SOURCE_ABBREV = "WA"
 JOSHUA_PROJECT_SOURCE_ABBREV = "JP"
 
 source_abbrev_name_dict = {
-    ETHNOLOGUE_SOURCE_ABBREV: "Ethonologue",
+    ETHNOLOGUE_SOURCE_ABBREV: "Ethnologue",
     FIND_A_BIBLE_SOURCE_ABBREV: "Find A Bible",
     WALS_SOURCE_ABBREV: "WALS",
     JOSHUA_PROJECT_SOURCE_ABBREV: "Joshua Project"
@@ -23,3 +23,12 @@ TRANSLATION_STATE_POSITIVE_YEAR = 2013  # Listed being present but no year
 
 TRANSLATION_STATE_STATE_KEY = "TS"
 TRANSLATION_STATE_YEAR_KEY = "YR"
+
+translation_abbrev_name_dict = {
+    TRANSLATION_STATE_COMPLETE_BOOK: "A book of scripture",
+    TRANSLATION_STATE_PORTIONS: "Portions of scripture",
+    TRANSLATION_STATE_NEW_TESTAMENT: "New Testament",
+    TRANSLATION_STATE_WHOLE_BIBLE: "Whole Bible",
+    TRANSLATION_STATE_NO_SCRIPTURE: "No scripture",
+    TRANSLATION_STATE_NO_RECORD: "No record of any translation"
+}

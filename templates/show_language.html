@@ -4,7 +4,7 @@
 
 <h2>Primary Names</h2>
 {% for pn_source, pn_name_list in primary_names_dict.items() %}
-    <li>{{ pn_source }}:
+    <li>{{ constants.source_abbrev_name_dict[pn_source] }}:
         {% for pn_name in pn_name_list %}
             {{ pn_name }}
         {% endfor %}</li>
@@ -12,7 +12,7 @@
 
 <h2>Alternate Names</h2>
 {% for an_source, an_name_list in alternate_names_dict.items() %}
-    <li>{{ an_source }}:
+    <li>{{ constants.source_abbrev_name_dict[an_source] }}:
         {% for an_name in an_name_list %}
             {{ an_name }},
         {% endfor %}</li>
@@ -20,11 +20,24 @@
 
 <h2>Language Classifications</h2>
 {% for cl_source, cl_name_list in classification_dict.items() %}
-    <li>{{ cl_source }}:
+    <li>{{ constants.source_abbrev_name_dict[cl_source] }}:
         {% for cl_name in cl_name_list %}
             {{ cl_name }},
         {% endfor %}</li>
 {% endfor %}
+
+<h2>Bible Translations</h2>
+{% for tr_source, tr_type_year_tuple_list in translation_dict.items() %}
+    <li>{{ constants.source_abbrev_name_dict[tr_source] }}:
+        {% for tr_status, tr_year in tr_type_year_tuple_list %}
+            {{ constants.translation_abbrev_name_dict[tr_status] }}
+            {% if tr_year != -1 %}
+                ({{ tr_year }})
+            {% endif %},
+        {% endfor %}</li>
+{% endfor %}
+
+<hr>
 
 <h2>External links</h2>
 <ul>
@@ -32,6 +45,7 @@
   <li><a href="http://www.language-archives.org/language/{{ iso639_3_code }}">OLAC</a></li>
   <li><a href="http://www.sil.org/iso639-3/documentation.asp?id={{ iso639_3_code }}">SIL</a></li>
   <li><a href="http://multitree.org/codes/{{ iso639_3_code }}">Multitree</a></li>
+  <li><a href="http://en.wikipedia.org/wiki/ISO_639:{{ iso639_3_code }}">Wikipedia</a></li>
   <li><form name="lang_code" action="http://www.joshuaproject.net/languages.php" method="post" style="display:inline;">
     <input type="hidden" name="rol3" value="{{ iso639_3_code }}"><input type="submit" value="Joshua Project" name="submit"/></form></li>
   <li>WALS: {%  for wals_key in wals_keys %}
