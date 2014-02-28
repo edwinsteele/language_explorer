@@ -95,3 +95,10 @@ class LanguagePersistence(object):
         for c_row in classification_list:
             d[c_row["source"]].append(c_row["name"])
         return d
+
+    def get_translations_by_iso(self, iso):
+        translation_list = self.lang_db[self.TRANSLATION_TABLE].find(iso=iso)
+        d = collections.defaultdict(list)
+        for t_row in translation_list:
+            d[t_row["source"]].append((t_row["status"], t_row["year"]))
+        return d

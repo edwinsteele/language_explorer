@@ -20,10 +20,27 @@ class JPHarvestAdapter(AbstractLanguageSource):
         this might mean we can insert it straight into our db, but it might need
         some processing if the available keys need translation to be a key in
         our db
+
+
+        SELECT DISTINCT("tblLNG3Languages"."ROL3"), "Language" FROM "tbllnkLNGtoPEOGEO", "tblPEO3PeopleGroups", "tblLNG3Languages" where
+        "tblPEO3PeopleGroups"."PeopleID3" = "tbllnkLNGtoPEOGEO"."PeopleID3" AND
+        "tbllnkLNGtoPEOGEO"."ROL3" = "tblLNG3Languages"."ROL3" AND
+        "tblPEO3PeopleGroups"."PeopleID2" = '100' and
+        "tbllnkLNGtoPEOGEO"."ROG3" = 'AS'
+        ORDER by "ROL3"
         """
-        where = and_(self.db.tblLnkGEOtoLNG.ROG3 == "AS",
-                     self.db.tblLnkGEOtoLNG.Indigenous == "Y")
-        return [l.ROL3 for l in self.db.tblLnkGEOtoLNG.filter(where).all()]
+        # We need labels because both tables have PeopleID3 as the join key
+        #  and sqlsoup needs labels to avoid ambiguity
+        l_to_pg_labels = self.db.with_labels(self.db.tbllnkLNGtoPEOGEO)
+        pg_labels = self.db.with_labels(self.db.tblPEO3PeopleGroups)
+        j1 = self.db.join(self.db.tbllnkLNGtoPEOGEO, pg_labels,
+                          self.db.tbllnkLNGtoPEOGEO.PeopleID3 ==
+                          pg_labels.tblPEO3PeopleGroups_PeopleID3,
+                          isouter=True)
+        all_iso = sorted(list(set([row.ROL3 for row in j1.filter(
+            j1.ROG3 == "AS",
+            j1.tblPEO3PeopleGroups_PeopleID2 == 100).all()])))
+        return all_iso
 
     def get_primary_name_for_iso(self, iso):
         return self.db.tblLNG3Languages.get(iso).Language
@@ -61,7 +78,7 @@ class JPHarvestAdapter(AbstractLanguageSource):
         YEAR = constants.TRANSLATION_STATE_YEAR_KEY
         # Combine into a single query
         bible_year = self.db.tblLNG3Languages.filter(
-                self.db.tblLNG3Languages.ROL3 == iso).first().BibleYear
+            self.db.tblLNG3Languages.ROL3 == iso).first().BibleYear
         if bible_year:
             d[STATE] = constants.TRANSLATION_STATE_WHOLE_BIBLE
             d[YEAR] = int(bible_year.rpartition("-")[2])

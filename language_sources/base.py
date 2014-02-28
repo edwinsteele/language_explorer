@@ -55,8 +55,13 @@ class AbstractLanguageSource(object):
     def persist_translation(self, persister, iso):
         translation_dict = self.get_translation_info_for_iso(iso)
         if translation_dict:
+            logging.info("Persisting translations from %s for ISO %s (%s)",
+                         self.SOURCE_NAME, iso, translation_dict)
             persister.persist_translation(iso, translation_dict,
                                           self.SOURCE_NAME)
+        else:
+            logging.info("No translations to persist from %s for ISO %s",
+                         self.SOURCE_NAME, iso)
 
 
 class CachingWebLanguageSource(AbstractLanguageSource):
