@@ -1,3 +1,4 @@
+import itertools
 import constants
 import collections
 import dataset
@@ -111,20 +112,8 @@ class LanguagePersistence(object):
         :return: A list of iso codes that share an alias
         :rtype: list
         """
-        previous_name = None
-        match_list = []
-        for iso, name in iso_name_list:
-            if name == previous_name:
-                match_list.append(iso)
-            else:
-                # If we've ever been through this, yield something
-                if previous_name:
-                    yield match_list
-                match_list = [iso]
-                previous_name = name
-        # return the final one
-        yield match_list
-
+        for _, grouper in itertools.groupby(iso_name_list, lambda x: x[1]):
+            yield [iso for iso, lang_name in grouper]
 
     def get_same_name_different_iso_list(self):
         # Return a list of tuples of iso-codes that share an alias
@@ -134,7 +123,8 @@ class LanguagePersistence(object):
         (
         select "name", count(*) as iso_with_this_alias_c FROM
         (
-        SELECT "name", "iso", count(*) as aliases_for_same_iso_c FROM "language_alias"
+        SELECT "name", "iso", count(*) as aliases_for_same_iso_c
+        FROM "language_alias"
         group by "name", "iso"
         ) as "t1"
         WHERE "aliases_for_same_iso_c" = 1
@@ -143,8 +133,8 @@ class LanguagePersistence(object):
         where "iso_with_this_alias_c" > 1)
         ORDER by "name"
         """
-        d = {}
-        l = self.lang_db.query(sql)
-        for iso_tuple in self._isos_with_shared_aliases([
-            (row["iso"], row["name"]) for row in self.lang_db.query(sql)]):
-            pass
+        iso_group_set = set()
+        for unsorted_group_list in self._isos_with_shared_aliases(
+                [(row["iso"], row["name"]) for row in self.lang_db.query(sql)]):
+            iso_group_set.add(tuple(sorted(unsorted_group_list)))
+        return list(iso_group_set)

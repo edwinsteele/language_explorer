@@ -1,0 +1,11 @@
+<!doctype html>
+<title>Language Explorer: Investigations</title>
+<h2>Same Name, Different ISO</h2>
+The following iso keys are known by the same name/alias
+<ul>
+{% for sndi_item in sndi_list %}
+    <li>{% for iso in sndi_item %}
+        <a href="/language/iso/{{ iso }}">{{ iso }}</a>
+        {% endfor %}</li>
+{% endfor %}
+</ul>

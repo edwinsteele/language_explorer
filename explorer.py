@@ -24,7 +24,7 @@ wals = WalsAdapter(settings.WALS_DB_URL)
 
 @app.route('/')
 def index():
-        return '<a href="/language/all">All languages</a>'
+    return render_template('index.html')
 
 
 @app.route('/language/all')
@@ -35,8 +35,15 @@ def show_all_languages():
         iso_list=iso_list,
     )
 
+@app.route('/investigations')
+def show_investigations():
+    sndi_list = lp.get_same_name_different_iso_list()
+    return render_template(
+        'investigations.html',
+        sndi_list=sndi_list,
+    )
 
-@app.route('/language/iso639_3/<iso639_3_code>')
+@app.route('/language/iso/<iso639_3_code>')
 def show_language(iso639_3_code):
     # show the profile for the language
     pn_dict = lp.get_primary_names_by_iso(iso639_3_code)
