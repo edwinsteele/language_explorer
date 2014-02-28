@@ -102,3 +102,49 @@ class LanguagePersistence(object):
         for t_row in translation_list:
             d[t_row["source"]].append((t_row["status"], t_row["year"]))
         return d
+
+    def _isos_with_shared_aliases(self, iso_name_list):
+        """Yields a tuple of isos that share an alias
+
+        :param iso_name_list: a list of (iso, name) tuples sorted by name
+        :type iso_name_list: list
+        :return: A list of iso codes that share an alias
+        :rtype: list
+        """
+        previous_name = None
+        match_list = []
+        for iso, name in iso_name_list:
+            if name == previous_name:
+                match_list.append(iso)
+            else:
+                # If we've ever been through this, yield something
+                if previous_name:
+                    yield match_list
+                match_list = [iso]
+                previous_name = name
+        # return the final one
+        yield match_list
+
+
+    def get_same_name_different_iso_list(self):
+        # Return a list of tuples of iso-codes that share an alias
+        sql = """
+        select "iso", "name" from "language_alias" where
+        "name" in (select "name" from
+        (
+        select "name", count(*) as iso_with_this_alias_c FROM
+        (
+        SELECT "name", "iso", count(*) as aliases_for_same_iso_c FROM "language_alias"
+        group by "name", "iso"
+        ) as "t1"
+        WHERE "aliases_for_same_iso_c" = 1
+        group by "name"
+        ) as "t2"
+        where "iso_with_this_alias_c" > 1)
+        ORDER by "name"
+        """
+        d = {}
+        l = self.lang_db.query(sql)
+        for iso_tuple in self._isos_with_shared_aliases([
+            (row["iso"], row["name"]) for row in self.lang_db.query(sql)]):
+            pass
