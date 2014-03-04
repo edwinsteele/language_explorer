@@ -115,6 +115,18 @@ class LanguagePersistence(object):
         for _, grouper in itertools.groupby(iso_name_list, lambda x: x[1]):
             yield [iso for iso, lang_name in grouper]
 
+    def get_common_names_for_iso_list(self, iso_list):
+        common_names = set()
+        for iso in iso_list:
+            name_list = [row["name"] for row in
+                         self.lang_db[self.ALIAS_TABLE].find(iso=iso)]
+            if not common_names:
+                # First iso
+                common_names.update(name_list)
+            else:
+                common_names.intersection_update(name_list)
+        return list(common_names)
+
     def get_same_name_different_iso_list(self):
         # Return a list of tuples of iso-codes that share an alias
         sql = """
@@ -123,14 +135,15 @@ class LanguagePersistence(object):
         (
         select "name", count(*) as iso_with_this_alias_c FROM
         (
-        SELECT "name", "iso", count(*) as aliases_for_same_iso_c
+        SELECT "name", "iso"
         FROM "language_alias"
         group by "name", "iso"
         ) as "t1"
-        WHERE "aliases_for_same_iso_c" = 1
         group by "name"
         ) as "t2"
-        where "iso_with_this_alias_c" > 1)
+        where "iso_with_this_alias_c" > 1
+        )
+        group by "iso", "name"
         ORDER by "name"
         """
         iso_group_set = set()

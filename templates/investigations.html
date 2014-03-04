@@ -3,9 +3,9 @@
 <h2>Same Name, Different ISO</h2>
 The following iso keys are known by the same name/alias
 <ul>
-{% for sndi_item in sndi_list %}
+{% for sndi_item, sndi_common_name_list in sndi_info %}
     <li>{% for iso in sndi_item %}
         <a href="/language/iso/{{ iso }}">{{ iso }}</a>
-        {% endfor %}</li>
+        {% endfor %} (Names in common: {{ ", ".join(sndi_common_name_list) }})</li>
 {% endfor %}
 </ul>

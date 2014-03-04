@@ -38,9 +38,15 @@ def show_all_languages():
 @app.route('/investigations')
 def show_investigations():
     sndi_list = lp.get_same_name_different_iso_list()
+    common_name_list = []
+    for sndi_iso_tuple in sndi_list:
+        common_name_list.append(lp.get_common_names_for_iso_list(sndi_iso_tuple))
+
+    sndi_info = zip(sndi_list, common_name_list)
+    print sndi_info
     return render_template(
         'investigations.html',
-        sndi_list=sndi_list,
+        sndi_info=sndi_info,
     )
 
 @app.route('/language/iso/<iso639_3_code>')
