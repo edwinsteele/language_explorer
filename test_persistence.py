@@ -37,3 +37,14 @@ class TestPersistence(unittest.TestCase):
         for iso_list, common_name_list in iso_list_common_name_list:
             self.assertEqual(common_name_list,
                              self.p.get_common_names_for_iso_list(iso_list))
+
+    def test_get_iso_list_from_name(self):
+        name_iso_list = \
+            [("terry", []),  # no match
+             ("Arunta", ["aer", "are", "axl"]),  # 3 matches
+             ("Yugambal", ["yub"]),  # 1 match
+             (" Yugambal ", []),  # no matches. string stripping done in flask
+             ("yugambal", []),  # no matches, we're case sensitive
+             ]
+        for name, iso_list in name_iso_list:
+            self.assertEqual(iso_list, self.p.get_iso_list_from_name(name))

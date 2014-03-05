@@ -151,3 +151,8 @@ class LanguagePersistence(object):
                 [(row["iso"], row["name"]) for row in self.lang_db.query(sql)]):
             iso_group_set.add(tuple(sorted(unsorted_group_list)))
         return list(iso_group_set)
+
+    def get_iso_list_from_name(self, name):
+        # exact match on name only
+        return sorted(list(set([row["iso"] for row in
+                         self.lang_db[self.ALIAS_TABLE].find(name=name)])))

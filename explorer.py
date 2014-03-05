@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask import render_template
 import constants
 from language_sources.wals import WalsAdapter
@@ -35,6 +35,16 @@ def show_all_languages():
         iso_list=iso_list,
     )
 
+@app.route('/search', methods=['GET', 'POST'])
+def search_languages_by_name():
+    language_name = request.form['language_name'].strip()
+    iso_list = lp.get_iso_list_from_name(language_name)
+    return render_template(
+        'search.html',
+        iso_list=iso_list,
+        search_term=language_name
+    )
+
 @app.route('/investigations')
 def show_investigations():
     sndi_list = lp.get_same_name_different_iso_list()
@@ -43,7 +53,6 @@ def show_investigations():
         common_name_list.append(lp.get_common_names_for_iso_list(sndi_iso_tuple))
 
     sndi_info = zip(sndi_list, common_name_list)
-    print sndi_info
     return render_template(
         'investigations.html',
         sndi_info=sndi_info,
