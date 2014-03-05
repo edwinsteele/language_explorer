@@ -1,18 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Search results for {{ search_term }}</title>
-</head>
-<body>
+{% extends "layout.html" %}
+{% block title %}Search results for {{ search_term }}{% endblock %}
+{% block content %}
 <h1>Search results for {{ search_term }}</h1>
 <ul>
 {%  for iso in iso_list %}
     <li><a href="/language/iso/{{ iso }}">{{ iso }}</a></li>
 {% endfor %}
 </ul>
-<hr>
-Search: <form name="search_code" action="/search" method="post" style="display:inline;">
-    <input type="text" name="language_name"><input type="submit" value="search"/></form>
-
-</body>
-</html>
+{% endblock %}

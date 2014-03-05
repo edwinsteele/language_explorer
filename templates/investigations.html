@@ -1,5 +1,6 @@
-<!doctype html>
-<title>Language Explorer: Investigations</title>
+{% extends "layout.html" %}
+{% block title %}Investigations{% endblock %}
+{% block content %}
 <h2>Same Name, Different ISO</h2>
 The following iso keys are known by the same name/alias
 <ul>
@@ -9,3 +10,4 @@ The following iso keys are known by the same name/alias
         {% endfor %} (Names in common: {{ ", ".join(sndi_common_name_list) }})</li>
 {% endfor %}
 </ul>
+{% endblock %}

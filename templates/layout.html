@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+  <head>
+    {% block head %}
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> -->
+    <title>Language Explorer - {% block title %}{% endblock %}</title>
+    {% endblock %}
+  </head>
+  <body>
+    <div id="content">{% block content %}{% endblock %}</div>
+    <div id="footer">
+      {% block footer %}
+          <hr>
+    <a href="/">Home</a> | <form name="search_code" action="/search" method="post" style="display:inline;">
+    <input type="text" name="language_name"><input type="submit" value="search"/></form>
+      {% endblock %}
+    </div>
+  </body>
+</html>

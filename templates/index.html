@@ -1,15 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Language Explorer</title>
-</head>
-<body>
+{% extends "layout.html" %}
+{% block title %}Index{% endblock %}
+{% block head %}
+  {{ super() }}
+  <style type="text/css">
+    .important { color: #336699; }
+  </style>
+{% endblock %}
+{% block content %}
 <ul>
     <li><a href="/language/all">All languages</a></li>
     <li><a href="/investigations">Investigations</a></li>
-    <li>Search: <form name="search_code" action="/search" method="post" style="display:inline;">
-    <input type="text" name="language_name"><input type="submit" value="search"/></form></li>
- </li>
 </ul>
-</body>
-</html>
+{% endblock %}

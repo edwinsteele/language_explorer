@@ -1,9 +1,6 @@
-<!doctype html>
-<html>
-<head>
-<title>Language Explorer: All Languages</title>
-</head>
-<body>
+{% extends "layout.html" %}
+{% block title %}All Languages{% endblock %}
+{% block content %}
 <h1>All Languages</h1>
 
 <ul>
@@ -11,5 +8,4 @@
     <li><a href="/language/iso/{{ iso }}">{{ iso }}</a></li>
 {% endfor %}
 </ul>
-</body>
-</html>
+{% endblock %}

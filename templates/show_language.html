@@ -1,5 +1,6 @@
-<!doctype html>
-<title>Language Explorer: Language "{{ iso639_3_code }}"</title>
+{% extends "layout.html" %}
+{% block title %}Language "{{ iso639_3_code }}"{% endblock %}
+{% block content %}
 <h1>Language: {{ iso639_3_code }}</h1>
 
 <h2>Primary Names</h2>
@@ -53,3 +54,4 @@
       {% endfor %}
   </li>
 </ul>
+{% endblock %}
