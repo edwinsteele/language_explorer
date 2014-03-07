@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 import logging
 import re
-import constants
-from language_sources.base import CachingWebLanguageSource
+
 from bs4 import BeautifulSoup
+
+from language_explorer import constants
+from language_explorer.language_sources.base import CachingWebLanguageSource
+
 
 __author__ = 'esteele'
 

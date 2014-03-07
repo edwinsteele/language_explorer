@@ -1,7 +1,6 @@
-import constants
-import settings
-from jpharvest import JPHarvestAdapter
-from test_baseclasses import BaseAdapterTestCase
+from language_explorer import settings, constants
+from language_explorer.language_sources.jpharvest import JPHarvestAdapter
+from tests.test_baseclasses import BaseAdapterTestCase
 
 __author__ = 'esteele'
 

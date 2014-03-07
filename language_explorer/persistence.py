@@ -1,7 +1,7 @@
 import itertools
-import constants
 import collections
 import dataset
+from language_explorer import constants
 
 __author__ = 'esteele'
 

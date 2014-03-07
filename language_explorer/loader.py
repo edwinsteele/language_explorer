@@ -1,11 +1,11 @@
 import logging
 import sys
-from language_sources.jpharvest import JPHarvestAdapter
-from language_sources.ethnologue import EthnologueAdapter
-from language_sources.wals import WalsAdapter
-from language_sources.findabible import FindABibleAdapter
+from language_explorer import settings
+from language_explorer.language_sources.jpharvest import JPHarvestAdapter
+from language_explorer.language_sources.ethnologue import EthnologueAdapter
+from language_explorer.language_sources.wals import WalsAdapter
+from language_explorer.language_sources.findabible import FindABibleAdapter
 from persistence import LanguagePersistence
-import settings
 
 
 logging.basicConfig(level=logging.DEBUG)

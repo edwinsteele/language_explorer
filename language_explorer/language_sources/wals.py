@@ -1,10 +1,13 @@
 import re
-import constants
 import itertools
+
 import wals3.models
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from language_sources.base import AbstractLanguageSource
+
+from language_explorer import constants
+from language_explorer.language_sources.base import AbstractLanguageSource
+
 
 __author__ = 'esteele'
 

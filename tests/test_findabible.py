@@ -1,7 +1,6 @@
-import constants
-import settings
-from test_baseclasses import BaseAdapterTestCase
-from language_sources.findabible import FindABibleAdapter
+from language_explorer import settings, constants
+from tests.test_baseclasses import BaseAdapterTestCase
+from language_explorer.language_sources.findabible import FindABibleAdapter
 
 __author__ = 'esteele'
 

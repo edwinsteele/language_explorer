@@ -1,9 +1,9 @@
 from flask import Flask, request
 from flask import render_template
-import constants
-from language_sources.wals import WalsAdapter
-from persistence import LanguagePersistence
-import settings
+from language_explorer import settings, constants
+from language_explorer.language_sources.wals import WalsAdapter
+from language_explorer.persistence import LanguagePersistence
+
 app = Flask(__name__)
 
 ISO639_3_TO_WALS = {

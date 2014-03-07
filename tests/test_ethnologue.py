@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-import constants
-from ethnologue import EthnologueAdapter
-from test_baseclasses import BaseAdapterTestCase
-import settings
+from language_explorer import settings, constants
+from language_explorer.language_sources.ethnologue import EthnologueAdapter
+from tests.test_baseclasses import BaseAdapterTestCase
 
 __author__ = 'esteele'
 

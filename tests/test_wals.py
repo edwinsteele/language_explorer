@@ -1,6 +1,6 @@
-import settings
-from wals import WalsAdapter
-from test_baseclasses import BaseAdapterTestCase
+from language_explorer import settings
+from language_explorer.language_sources.wals import WalsAdapter
+from tests.test_baseclasses import BaseAdapterTestCase
 
 __author__ = 'esteele'
 

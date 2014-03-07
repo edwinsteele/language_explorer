@@ -1,6 +1,6 @@
 import unittest
-from persistence import LanguagePersistence
-import settings
+from language_explorer.persistence import LanguagePersistence
+from language_explorer import settings
 
 __author__ = 'esteele'
 
