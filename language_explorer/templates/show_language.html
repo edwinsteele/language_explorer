@@ -31,7 +31,7 @@
 {% for tr_source, tr_type_year_tuple_list in translation_dict.items() %}
     <li>{{ constants.source_abbrev_name_dict[tr_source] }}:
         {% for tr_status, tr_year in tr_type_year_tuple_list %}
-            {{ constants.translation_abbrev_name_dict[tr_status] }}
+            {{ constants.translation_abbrev_name_dict[tr_status|int] }}
             {% if tr_year != -1 %}
                 ({{ tr_year }})
             {% endif %},

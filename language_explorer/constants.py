@@ -14,12 +14,12 @@ source_abbrev_name_dict = {
     AUSTLANG_SOURCE_ABBREV: "AustLang",
 }
 
-TRANSLATION_STATE_COMPLETE_BOOK = "CB"  # Findabible
-TRANSLATION_STATE_PORTIONS = "PO"  # Ethnologue isn't specific
-TRANSLATION_STATE_NEW_TESTAMENT = "NT"  # Findabible
-TRANSLATION_STATE_WHOLE_BIBLE = "WB"  # Findabible
-TRANSLATION_STATE_NO_SCRIPTURE = "NS"  # Findabible
-TRANSLATION_STATE_NO_RECORD = "NR"
+TRANSLATION_STATE_WHOLE_BIBLE = 5  # Findabible
+TRANSLATION_STATE_NEW_TESTAMENT = 4  # Findabible
+TRANSLATION_STATE_PORTIONS = 3  # Ethnologue isn't specific
+TRANSLATION_STATE_COMPLETE_BOOK = 2  # Findabible
+TRANSLATION_STATE_NO_SCRIPTURE = 1  # Findabible
+TRANSLATION_STATE_NO_RECORD = 0
 TRANSLATION_STATE_UNKNOWN_YEAR = -1
 TRANSLATION_STATE_POSITIVE_YEAR = 2013  # Listed being present but no year
 
@@ -33,4 +33,13 @@ translation_abbrev_name_dict = {
     TRANSLATION_STATE_WHOLE_BIBLE: "Whole Bible",
     TRANSLATION_STATE_NO_SCRIPTURE: "No scripture",
     TRANSLATION_STATE_NO_RECORD: "No record of any translation"
+}
+
+translation_abbrev_css_class_dict = {
+    TRANSLATION_STATE_COMPLETE_BOOK: "scripture_book",
+    TRANSLATION_STATE_PORTIONS: "scripture_portions",
+    TRANSLATION_STATE_NEW_TESTAMENT: "scripture_nt",
+    TRANSLATION_STATE_WHOLE_BIBLE: "scripture_wb",
+    TRANSLATION_STATE_NO_SCRIPTURE: "scripture_none",
+    TRANSLATION_STATE_NO_RECORD: "scripture_record_absent"
 }

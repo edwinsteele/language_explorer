@@ -4,7 +4,7 @@
 <h1>Search results for {{ search_term }}</h1>
 <ul>
 {%  for iso in iso_list %}
-    <li><a href="/language/iso/{{ iso }}">{{ iso }}</a></li>
+    <li><a href="/language/iso/{{ iso }}">{{  lp.format_iso(iso)|safe }}</a></li>
 {% endfor %}
 </ul>
 {% endblock %}

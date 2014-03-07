@@ -155,4 +155,15 @@ class LanguagePersistence(object):
     def get_iso_list_from_name(self, name):
         # exact match on name only
         return sorted(list(set([row["iso"] for row in
-                         self.lang_db[self.ALIAS_TABLE].find(name=name)])))
+                      self.lang_db[self.ALIAS_TABLE].find(name=name)])))
+
+    def format_iso(self, iso):
+        # html element
+        # probably should live elsewhere... fix later
+        sql = """
+        SELECT max("status") ms from "%s" where iso = '%s'
+         """ % (self.TRANSLATION_TABLE, iso)
+        res = self.lang_db.query(sql)
+        scripture_css_class = constants.translation_abbrev_css_class_dict[
+            int(list(res)[0].get('ms', constants.TRANSLATION_STATE_NO_RECORD))]
+        return '<div class="%s">%s</div>' % (scripture_css_class, iso)

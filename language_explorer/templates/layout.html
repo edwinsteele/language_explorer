@@ -4,6 +4,15 @@
     {% block head %}
     <!-- <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> -->
     <title>Language Explorer - {% block title %}{% endblock %}</title>
+    <style type="text/css">
+      .scripture_wb { color: green; }
+      .scripture_nt { color: greenyellow; }
+      .scripture_portions { color: yellow; }
+      .scripture_book { color: orange; }
+      .scripture_none { color: red; }
+      .scripture_record_absent { color: grey; }
+      .no_speakers { font-size: 10; }
+    </style>
     {% endblock %}
   </head>
   <body>

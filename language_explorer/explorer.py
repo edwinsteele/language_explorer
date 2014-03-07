@@ -33,6 +33,7 @@ def show_all_languages():
     return render_template(
         'show_all_languages.html',
         iso_list=iso_list,
+        lp=lp,
     )
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -42,7 +43,8 @@ def search_languages_by_name():
     return render_template(
         'search.html',
         iso_list=iso_list,
-        search_term=language_name
+        search_term=language_name,
+        lp=lp,
     )
 
 @app.route('/investigations')
@@ -56,6 +58,7 @@ def show_investigations():
     return render_template(
         'investigations.html',
         sndi_info=sndi_info,
+        lp=lp,
     )
 
 @app.route('/language/iso/<iso639_3_code>')
