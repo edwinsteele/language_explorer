@@ -166,4 +166,4 @@ class LanguagePersistence(object):
         res = self.lang_db.query(sql)
         scripture_css_class = constants.translation_abbrev_css_class_dict[
             int(list(res)[0].get('ms', constants.TRANSLATION_STATE_NO_RECORD))]
-        return '<div class="%s">%s</div>' % (scripture_css_class, iso)
+        return '<span class="%s">%s</span>' % (scripture_css_class, iso)
