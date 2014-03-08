@@ -1,5 +1,6 @@
 import itertools
 import collections
+import logging
 import dataset
 from language_explorer import constants
 
@@ -17,6 +18,7 @@ class LanguagePersistence(object):
 
     def __init__(self, db_url):
         self.lang_db = dataset.connect(db_url)
+        self.translation_state_cache = {}
 
     def persist_language(self, iso, primary_name, source):
         """write iso to main table
@@ -157,13 +159,27 @@ class LanguagePersistence(object):
         return sorted(list(set([row["iso"] for row in
                       self.lang_db[self.ALIAS_TABLE].find(name=name)])))
 
+    def get_best_translation_state(self, iso):
+        """
+        return: best translation state associated with the iso in all sources
+        rtype: int
+        """
+        # If we have any cached state, assume it's complete. Populate if not
+        if not self.translation_state_cache:
+            sql = """
+            SELECT "iso", max("status") ms from "%s"
+            GROUP BY "iso"
+             """ % (self.TRANSLATION_TABLE,)
+            for row in self.lang_db.query(sql):
+                self.translation_state_cache[row['iso']] = int(row['ms'])
+
+        return self.translation_state_cache.get(
+            iso, constants.TRANSLATION_STATE_NO_RECORD)
+
     def format_iso(self, iso):
         # html element
         # probably should live elsewhere... fix later
-        sql = """
-        SELECT max("status") ms from "%s" where iso = '%s'
-         """ % (self.TRANSLATION_TABLE, iso)
-        res = self.lang_db.query(sql)
         scripture_css_class = constants.translation_abbrev_css_class_dict[
-            int(list(res)[0].get('ms', constants.TRANSLATION_STATE_NO_RECORD))]
+            self.get_best_translation_state(iso)]
+
         return '<span class="%s">%s</span>' % (scripture_css_class, iso)
