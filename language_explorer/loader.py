@@ -29,5 +29,8 @@ def main():
     for lang in p.get_all_iso_codes():
         fab.persist_translation(p, lang)
 
+    for lang in ethnologue.get_language_iso_keys():
+        ethnologue.persist_L1_speaker_count(p, lang)
+
 if __name__ == '__main__':
     sys.exit(main())

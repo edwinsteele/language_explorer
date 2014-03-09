@@ -63,6 +63,18 @@ class AbstractLanguageSource(object):
             logging.info("No translations to persist from %s for ISO %s",
                          self.SOURCE_NAME, iso)
 
+    def persist_L1_speaker_count(self, persister, iso):
+        """
+        Write L1 speaker count to database
+
+        :param persister: persistence engine
+        :type persister: persistence.LanguagePersistence
+        :param iso: language key
+        :type iso: str
+        """
+        c = self.get_L1_speaker_count_for_iso(iso)
+        persister.persist_L1_speaker_count(iso, c, self.SOURCE_NAME)
+
 
 class CachingWebLanguageSource(AbstractLanguageSource):
     def __init__(self, cache_root):

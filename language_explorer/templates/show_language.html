@@ -19,6 +19,9 @@
         {% endfor %}</li>
 {% endfor %}
 
+<h2>Number of L1 Speakers</h2>
+Ethnologue: {{ eth_L1_count }}
+
 <h2>Language Classifications</h2>
 {% for cl_source, cl_name_list in classification_dict.items() %}
     <li>{{ constants.source_abbrev_name_dict[cl_source] }}:

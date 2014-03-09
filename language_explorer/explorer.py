@@ -69,6 +69,8 @@ def show_language(iso639_3_code):
     cl_dict = lp.get_classifications_by_iso(iso639_3_code)
     tr_dict = lp.get_translations_by_iso(iso639_3_code)
     wals_keys = wals.get_wals_keys_for_iso(iso639_3_code)
+    eth_L1_count = lp.get_L1_speaker_count_by_iso(
+        iso639_3_code, constants.ETHNOLOGUE_SOURCE_ABBREV)
     return render_template(
         'show_language.html',
         iso639_3_code=iso639_3_code,
@@ -78,6 +80,7 @@ def show_language(iso639_3_code):
         translation_dict=tr_dict,
         constants=constants,
         wals_keys=wals_keys,
+        eth_L1_count=eth_L1_count,
     )
 
 if __name__ == "__main__":

@@ -43,3 +43,22 @@ translation_abbrev_css_class_dict = {
     TRANSLATION_STATE_NO_SCRIPTURE: "scripture_none",
     TRANSLATION_STATE_NO_RECORD: "scripture_record_absent"
 }
+
+
+# See note in EthnologueAdapter.get_L1_speaker_count_for_iso
+SPEAKER_COUNT_NONE_EXPECTED = -1
+SPEAKER_COUNT_UNKNOWN = -2
+SPEAKER_COUNT_FEW = -3
+
+# Let's say that "few" is less than 10
+SPEAKER_COUNT_FEW_THRESHOLD = 10
+SPEAKER_COUNT_FEW_CSS_CLASS = "speakers_few"
+SPEAKER_COUNT_SOME_CSS_CLASS = "speakers_some"
+SPEAKER_COUNT_UNKNOWN_CSS_CLASS = "speakers_unknown"
+
+l1_speaker_css_class_dict = {
+    0: "speakers_none",
+    SPEAKER_COUNT_NONE_EXPECTED: "speakers_none",
+    SPEAKER_COUNT_FEW: SPEAKER_COUNT_FEW_CSS_CLASS,
+    SPEAKER_COUNT_UNKNOWN: SPEAKER_COUNT_UNKNOWN_CSS_CLASS,
+}

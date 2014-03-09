@@ -1,7 +1,7 @@
 import itertools
 import collections
-import logging
 import dataset
+import logging
 from language_explorer import constants
 
 __author__ = 'esteele'
@@ -67,6 +67,20 @@ class LanguagePersistence(object):
             year=tr_dict[constants.TRANSLATION_STATE_YEAR_KEY],
         ), ["iso", "source"])
 
+    def persist_L1_speaker_count(self, iso, c, source):
+        """Persists L1 speaker count
+
+        :param iso: language ISO
+        :type iso: string
+        :param c: L1 speaker count
+        :type c: int
+        """
+        self.lang_db[self.LANGUAGE_TABLE].upsert({
+            "iso": iso,
+            "L1_speaker_count_%s" % (source,): c,
+        }, ["iso"]
+        )
+
     def get_all_iso_codes(self):
         return sorted(list(set(
             [row["iso"] for row in
@@ -117,6 +131,13 @@ class LanguagePersistence(object):
         for _, grouper in itertools.groupby(iso_name_list, lambda x: x[1]):
             yield [iso for iso, lang_name in grouper]
 
+    def get_L1_speaker_count_by_iso(self, iso, source):
+        r = self.lang_db[self.LANGUAGE_TABLE].find_one(iso=iso)
+        if r:
+            return int(r['L1_speaker_count_%s' % (source,)])
+        else:
+            return constants.SPEAKER_COUNT_UNKNOWN
+
     def get_common_names_for_iso_list(self, iso_list):
         common_names = set()
         for iso in iso_list:
@@ -162,7 +183,7 @@ class LanguagePersistence(object):
     def get_best_translation_state(self, iso):
         """
         return: best translation state associated with the iso in all sources
-        rtype: int
+        :rtype: int
         """
         # If we have any cached state, assume it's complete. Populate if not
         if not self.translation_state_cache:
@@ -181,5 +202,22 @@ class LanguagePersistence(object):
         # probably should live elsewhere... fix later
         scripture_css_class = constants.translation_abbrev_css_class_dict[
             self.get_best_translation_state(iso)]
-
-        return '<span class="%s">%s</span>' % (scripture_css_class, iso)
+        # Only use Ethnologue ATM. Expand to add others at some stage,
+        #  with preference stated
+        l1_speaker_count = self.get_L1_speaker_count_by_iso(
+            iso, constants.ETHNOLOGUE_SOURCE_ABBREV)
+        if l1_speaker_count in constants.l1_speaker_css_class_dict:
+            l1_speaker_css_class = constants.l1_speaker_css_class_dict[
+                l1_speaker_count
+            ]
+        elif l1_speaker_count < constants.SPEAKER_COUNT_FEW_THRESHOLD:
+            l1_speaker_css_class = constants.SPEAKER_COUNT_FEW_CSS_CLASS
+        elif l1_speaker_count >= constants.SPEAKER_COUNT_FEW_THRESHOLD:
+            l1_speaker_css_class = constants.SPEAKER_COUNT_SOME_CSS_CLASS
+        else:
+            logging.warning("Unable to find speaker count css class for"
+                            "ISO '%s' (count is %s). Using UNKNOWN" %
+                            (iso, l1_speaker_count))
+            l1_speaker_css_class = constants.SPEAKER_COUNT_UNKNOWN_CSS_CLASS
+        return '<span class="%s %s">%s</span>' %\
+               (scripture_css_class, l1_speaker_css_class, iso)

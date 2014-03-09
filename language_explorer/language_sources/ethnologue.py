@@ -3,6 +3,7 @@ import logging
 import re
 
 from bs4 import BeautifulSoup
+import itertools
 
 from language_explorer import constants
 from language_explorer.language_sources.base import CachingWebLanguageSource
@@ -103,3 +104,60 @@ class EthnologueAdapter(CachingWebLanguageSource):
             d[STATE] = constants.TRANSLATION_STATE_NO_RECORD
             d[YEAR] = constants.TRANSLATION_STATE_UNKNOWN_YEAR
         return d
+
+    def get_L1_speaker_count_for_iso(self, iso):
+        """Focus on L1 count, even though there is more info in Ethnologue
+
+        :return: Count of L1 speakers for this iso
+        :rtype: int
+        """
+        # Ethnologue ljw, xwd, ygu, yry are missing Population records but as
+        #  all list their language status as 8b (nearly extinct), I'm going to
+        #  infer that there aren't any remaining L1 speakers and record that
+        #  there are SPEAKER_COUNT_NONE_EXPECTED speakers
+        ISOS_WITHOUT_POPULATION_DATA = ["ljw", "xwd", "ygu", "yry"]
+        NO_REMAINING_L1_SPEAKERS_STRS = [
+            "No remaining speakers.",
+            "No known L1 speakers.",
+            "No known L1 users."
+        ]
+        if iso in ISOS_WITHOUT_POPULATION_DATA:
+            return constants.SPEAKER_COUNT_NONE_EXPECTED
+        else:
+            soup = BeautifulSoup(self.get_text_from_url(
+                self.ONE_LANGUAGE_URL_TEMPLATE % (iso,)
+            ))
+            population_div = soup \
+                .find(class_="field-name-field-population")
+            if population_div:
+                # use strip because there's a newline in the string
+                population_string = population_div \
+                    .find(class_="field-item").text.strip()
+                mo = re.match("([\d,]+)", population_string)
+                if mo:
+                    # Make unicode string (which is a number anyway) into a
+                    #  regular string, because the unicode translate method
+                    #  doesn't accept the deletechars argument
+                    return int(str(mo.group(1)).translate(None, ","))
+                elif list(itertools.ifilter(lambda x: x in population_string,
+                                            NO_REMAINING_L1_SPEAKERS_STRS)):
+                    return 0
+                elif "ew speakers" in population_string:
+                    return constants.SPEAKER_COUNT_FEW
+                elif iso == "coa":
+                    # Malay is an odd format. We really don't care because
+                    #  it's outside Australia. Trust me that it's 1000.
+                    return 1000
+                else:
+                    logging.warning("Unable to interpret Population field for"
+                                    " iso %s. Field is ->%s<-."
+                                    "Using SPEAKER_COUNT_UNKNOWN",
+                                    iso, population_string)
+                    return constants.SPEAKER_COUNT_UNKNOWN
+
+            else:
+                logging.warning("Unable to find expected Population field for"
+                                " iso %s. Using SPEAKER_COUNT_UNKNOWN", iso)
+                return constants.SPEAKER_COUNT_UNKNOWN
+
+
