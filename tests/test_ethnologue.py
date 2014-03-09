@@ -68,3 +68,19 @@ class TestEthnologueAdapter(BaseAdapterTestCase):
         for iso, ts_dict in iso_translation_pairs:
             self.assertEquals(ts_dict,
                               self.source.get_translation_info_for_iso(iso))
+
+    def test_get_L1_speaker_count(self):
+        iso_count_pairs = [
+            ('ygu', constants.SPEAKER_COUNT_NONE_EXPECTED),
+            ("coa", 1000),   # Malay, special case
+            ("znk", 0),  # No remaining speakers
+            ("jng", 0),  # No known L1 speakers
+            ("nha", constants.SPEAKER_COUNT_FEW),
+            ("xni", 5),  # single character
+            ("thd", 29),  # multiple characters, with extra text
+            ("wim", 1060),  # comma separating thousands
+            ("pii", 10),  # No space after number
+        ]
+        for iso, c in iso_count_pairs:
+            self.assertEquals(c,
+                              self.source.get_L1_speaker_count_for_iso(iso))
