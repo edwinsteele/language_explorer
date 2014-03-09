@@ -36,6 +36,7 @@ def show_all_languages():
         lp=lp,
     )
 
+
 @app.route('/search', methods=['GET', 'POST'])
 def search_languages_by_name():
     language_name = request.form['language_name'].strip()
@@ -47,19 +48,46 @@ def search_languages_by_name():
         lp=lp,
     )
 
+
 @app.route('/investigations')
 def show_investigations():
     sndi_list = lp.get_same_name_different_iso_list()
     common_name_list = []
     for sndi_iso_tuple in sndi_list:
-        common_name_list.append(lp.get_common_names_for_iso_list(sndi_iso_tuple))
-
+        common_name_list.append(
+            lp.get_common_names_for_iso_list(sndi_iso_tuple))
     sndi_info = zip(sndi_list, common_name_list)
+
+    # SNDI list where one of the group has some confirmed scripture
+    # Scripture Association By Name
+    sabn_list = []
+    sabn_common_name_list = []
+    for sndi_iso_tuple in sndi_list:
+        if filter(lambda x: lp.get_best_translation_state(x) >
+                  constants.TRANSLATION_STATE_NO_SCRIPTURE,
+                  sndi_iso_tuple):
+            # We're only interested in languages that don't have scripture if
+            #  they have active speakers. We are interested in languages that
+            #  have a translation, even if they don't have any speakers
+            s = filter(lambda x: (lp.get_best_translation_state(x) >
+                       constants.TRANSLATION_STATE_NO_SCRIPTURE) or
+                       lp.could_have_L1_speakers(x), sndi_iso_tuple)
+            # If there are still two languages left, then we still have a
+            #  grouping of interest
+            if len(s) > 1:
+                sabn_list.append(s)
+    for sabn_iso_tuple in sabn_list:
+        sabn_common_name_list.append(
+            lp.get_common_names_for_iso_list(sabn_iso_tuple))
+    sabn_info = zip(sabn_list, sabn_common_name_list)
+
     return render_template(
         'investigations.html',
         sndi_info=sndi_info,
+        sabn_info=sabn_info,
         lp=lp,
     )
+
 
 @app.route('/language/iso/<iso639_3_code>')
 def show_language(iso639_3_code):

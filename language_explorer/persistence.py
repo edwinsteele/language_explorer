@@ -139,6 +139,7 @@ class LanguagePersistence(object):
             return constants.SPEAKER_COUNT_UNKNOWN
 
     def get_common_names_for_iso_list(self, iso_list):
+        """Finds common language names for a list of languages"""
         common_names = set()
         for iso in iso_list:
             name_list = [row["name"] for row in
@@ -151,7 +152,7 @@ class LanguagePersistence(object):
         return list(common_names)
 
     def get_same_name_different_iso_list(self):
-        # Return a list of tuples of iso-codes that share an alias
+        """Finds language groups that share a common name or alias"""
         sql = """
         select "iso", "name" from "language_alias" where
         "name" in (select "name" from
@@ -196,6 +197,14 @@ class LanguagePersistence(object):
 
         return self.translation_state_cache.get(
             iso, constants.TRANSLATION_STATE_NO_RECORD)
+
+    def could_have_L1_speakers(self, iso):
+        """True if a language either has L1 speakers, or the number of L1
+        speakers is unknown
+        """
+        c = self.get_L1_speaker_count_by_iso(
+            iso, constants.ETHNOLOGUE_SOURCE_ABBREV)
+        return c > 0 or c == constants.SPEAKER_COUNT_UNKNOWN
 
     def format_iso(self, iso):
         # html element

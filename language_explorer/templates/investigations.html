@@ -2,6 +2,14 @@
 {% block title %}Investigations{% endblock %}
 {% include "legend.html" %}
 {% block content %}
+<h2>Possible scripture applicability by language common name</h2>
+    <ul>
+        {% for sabn_item, sabn_common_name_list in sabn_info %}
+            <li>{% for iso in sabn_item %}
+                <a href="/language/iso/{{ iso }}">{{  lp.format_iso(iso)|safe }}</a>
+            {% endfor %} (Names in common: {{ ", ".join(sabn_common_name_list) }})</li>
+        {% endfor %}
+    </ul>
 <h2>Same Name, Different ISO</h2>
 The following iso keys are known by the same name/alias
 <ul>

@@ -50,7 +50,8 @@ translation_abbrev_css_class_dict = {
 # See note in EthnologueAdapter.get_L1_speaker_count_for_iso
 SPEAKER_COUNT_NONE_EXPECTED = -1
 SPEAKER_COUNT_UNKNOWN = -2
-SPEAKER_COUNT_FEW = -3
+# It's helpful to have it > 0. This number should never be shown directly
+SPEAKER_COUNT_FEW = 1.5
 
 # Let's say that "few" is less than 10
 SPEAKER_COUNT_FEW_THRESHOLD = 10
