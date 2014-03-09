@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 __author__ = 'esteele'
 
 ETHNOLOGUE_SOURCE_ABBREV = "EL"
@@ -56,9 +58,14 @@ SPEAKER_COUNT_FEW_CSS_CLASS = "speakers_few"
 SPEAKER_COUNT_SOME_CSS_CLASS = "speakers_some"
 SPEAKER_COUNT_UNKNOWN_CSS_CLASS = "speakers_unknown"
 
-l1_speaker_css_class_dict = {
+l1_speaker_css_class_dict = dict.fromkeys(range(1, SPEAKER_COUNT_FEW_THRESHOLD),
+                                          SPEAKER_COUNT_FEW_CSS_CLASS)
+l1_speaker_css_class_dict.update({
     0: "speakers_none",
     SPEAKER_COUNT_NONE_EXPECTED: "speakers_none",
     SPEAKER_COUNT_FEW: SPEAKER_COUNT_FEW_CSS_CLASS,
     SPEAKER_COUNT_UNKNOWN: SPEAKER_COUNT_UNKNOWN_CSS_CLASS,
-}
+})
+# Set default value
+l1_speaker_css_class_dict = defaultdict(lambda: SPEAKER_COUNT_SOME_CSS_CLASS,
+                                        l1_speaker_css_class_dict)

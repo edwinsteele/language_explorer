@@ -1,7 +1,7 @@
 import itertools
 import collections
 import dataset
-import logging
+# import logging
 from language_explorer import constants
 
 __author__ = 'esteele'
@@ -206,18 +206,7 @@ class LanguagePersistence(object):
         #  with preference stated
         l1_speaker_count = self.get_L1_speaker_count_by_iso(
             iso, constants.ETHNOLOGUE_SOURCE_ABBREV)
-        if l1_speaker_count in constants.l1_speaker_css_class_dict:
-            l1_speaker_css_class = constants.l1_speaker_css_class_dict[
-                l1_speaker_count
-            ]
-        elif l1_speaker_count < constants.SPEAKER_COUNT_FEW_THRESHOLD:
-            l1_speaker_css_class = constants.SPEAKER_COUNT_FEW_CSS_CLASS
-        elif l1_speaker_count >= constants.SPEAKER_COUNT_FEW_THRESHOLD:
-            l1_speaker_css_class = constants.SPEAKER_COUNT_SOME_CSS_CLASS
-        else:
-            logging.warning("Unable to find speaker count css class for"
-                            "ISO '%s' (count is %s). Using UNKNOWN" %
-                            (iso, l1_speaker_count))
-            l1_speaker_css_class = constants.SPEAKER_COUNT_UNKNOWN_CSS_CLASS
+        l1_speaker_css_class = constants.l1_speaker_css_class_dict[
+            l1_speaker_count]
         return '<span class="%s %s">%s</span>' %\
                (scripture_css_class, l1_speaker_css_class, iso)
