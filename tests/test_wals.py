@@ -28,6 +28,18 @@ class TestWalsAdapter(BaseAdapterTestCase):
         ]
         self._do_test_primary_name_retrieval(iso_primary_name_pairs)
 
+    def test_alternate_name_retrieval(self):
+        iso_alternate_name_pairs = [
+            ("yij", ["Yindjibarndi", "Kurama"]),  # Two unique alternates
+            ("adt", ["Adynyamathanha", "Atynyamathanha", "Atynyamatana",
+                     "Wailpi"]),
+            ("aer", ["Aranda", "E. Arrernte", "Arrernte (Eastern)",
+                     "Aranda (Eastern)", "Mparntwe Arrernte", "E Aranda"]),
+            # aer has multiple matches
+        ]
+        self._do_test_alternate_name_retrieval(iso_alternate_name_pairs)
+
+
     def test_wals_key_for_iso_retrieval(self):
         iso_wals_pairs = [
             ("kij", ["klv"]),  # normal

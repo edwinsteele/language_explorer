@@ -56,10 +56,23 @@ class WalsAdapter(AbstractLanguageSource):
             .first().name
 
     def get_alternate_names_for_iso(self, iso):
-        # WALS doesn't have alternate names from its own DB. It just
-        #  has names from other sources, which are handled in fake sources
-        #  that back the WALS database
-        return []
+        # WALS includes alternative names from other sources. We will treat
+        #  them as WALS alternatives, even though they're aggregating
+        lang = self.session.query(wals3.models.WalsLanguage) \
+            .filter(wals3.models.WalsLanguage.pk ==
+                    wals3.models.Language.pk) \
+            .filter(wals3.models.WalsLanguage.iso_codes.
+                    like('%%%s%%' % (iso,))).order_by("length(iso_codes)") \
+            .first()
+        # We already have Ethnologue, so exclude them. They also split on commas
+        #  which means we'd need extra logic to extract the names from what is
+        #  normally a comma separated string
+        alt_name_strings = [
+            i.name for i in lang.identifiers if i.type == 'name' and
+            i.description.capitalize() != "ethnologue".capitalize()]
+        # We have several alternate sources, and they are dupes sometimes
+        return list(set([s2.strip() for s2 in itertools.chain(
+            *[s.split(",") for s in alt_name_strings])]))
 
     def get_wals_keys_for_iso(self, iso):
         return [l.id for l in
