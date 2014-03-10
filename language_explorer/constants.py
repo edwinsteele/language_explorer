@@ -55,12 +55,18 @@ SPEAKER_COUNT_FEW = 1.5
 
 # Let's say that "few" is less than 10
 SPEAKER_COUNT_FEW_THRESHOLD = 10
+SPEAKER_COUNT_MANY_THRESHOLD = 100
 SPEAKER_COUNT_FEW_CSS_CLASS = "speakers_few"
 SPEAKER_COUNT_SOME_CSS_CLASS = "speakers_some"
+SPEAKER_COUNT_MANY_CSS_CLASS = "speakers_many"
 SPEAKER_COUNT_UNKNOWN_CSS_CLASS = "speakers_unknown"
 
+# TODO: Move this into a class so that it's not executed for every module import
 l1_speaker_css_class_dict = dict.fromkeys(range(1, SPEAKER_COUNT_FEW_THRESHOLD),
                                           SPEAKER_COUNT_FEW_CSS_CLASS)
+l1_speaker_css_class_dict.update(dict.fromkeys(
+    range(SPEAKER_COUNT_FEW_THRESHOLD, SPEAKER_COUNT_MANY_THRESHOLD),
+    SPEAKER_COUNT_MANY_CSS_CLASS))
 l1_speaker_css_class_dict.update({
     0: "speakers_none",
     SPEAKER_COUNT_NONE_EXPECTED: "speakers_none",
