@@ -46,6 +46,9 @@ translation_abbrev_css_class_dict = {
     TRANSLATION_STATE_NO_RECORD: "scripture_record_absent"
 }
 
+RELTYPE_SIMILAR_TO = "SI"  # Ethnologue
+RELTYPE_RELATED_TO = "RE"  # Ethnologue
+
 
 # See note in EthnologueAdapter.get_L1_speaker_count_for_iso
 SPEAKER_COUNT_NONE_EXPECTED = -1

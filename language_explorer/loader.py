@@ -32,5 +32,8 @@ def main():
     for lang in ethnologue.get_language_iso_keys():
         ethnologue.persist_L1_speaker_count(p, lang)
 
+    for lang in ethnologue.get_language_iso_keys():
+        ethnologue.persist_L1_speaker_count(p, lang)
+
 if __name__ == '__main__':
     sys.exit(main())

@@ -12,6 +12,7 @@ class LanguagePersistence(object):
     LANGUAGE_TABLE = "language"
     CLASSIFICATION_TABLE = "classification"
     TRANSLATION_TABLE = "translation"
+    RELATIONSHIP_TABLE = "relationship"
     PRIMARY_NAME_TYPE = "p"
     ALTERNATE_NAME_TYPE = "a"
     DIALECT_TYPE = "d"
@@ -58,6 +59,15 @@ class LanguagePersistence(object):
                 level=c_idx,
                 name=c_name,
             ), ["iso", "source", "level"])
+
+    def persist_relationship(self, iso, relationships, source):
+        for rel_type, other_iso in relationships:
+            self.lang_db[self.RELATIONSHIP_TABLE].upsert(dict(
+                subject_iso=iso,
+                source=source,
+                rel_verb=rel_type,
+                object_iso=other_iso,
+            ), ["iso", "subject_iso", "rel_verb", "object_iso"])
 
     def persist_translation(self, iso, tr_dict, source):
         self.lang_db[self.TRANSLATION_TABLE].upsert(dict(

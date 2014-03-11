@@ -47,17 +47,6 @@ class EthnologueAdapter(CachingWebLanguageSource):
         else:
             return []
 
-    def get_dialects_for_iso(self, iso):
-        # Some don't have dialects e.g. aid - robustify
-        soup = BeautifulSoup(self.get_text_from_url(
-            self.ONE_LANGUAGE_URL_TEMPLATE % (iso,)
-        ))
-        dialect_string = soup.find(class_="field-name-field-dialects") \
-            .find(class_="field-item").text
-        print "Ethnologue '%s': Found dialects %s" % (iso, dialect_string,)
-
-        return []
-
     def get_classification(self, iso):
         # everything seems to have a classification, but there are between
         #  two and four classifications
@@ -160,4 +149,81 @@ class EthnologueAdapter(CachingWebLanguageSource):
                                 " iso %s. Using SPEAKER_COUNT_UNKNOWN", iso)
                 return constants.SPEAKER_COUNT_UNKNOWN
 
+    def parse_dialect_phrase_similar(self, dialect_phrase):
+        """extract "similar" relationship types from the phrase
 
+        Note that this bundles "similar" with "very similar" and "most similar"
+        """
+        rel_list = []
+        # FIXME - what about languages with multiple words in their name?
+        similar_re = 'similar to [\w ]+ \[(?P<iso_1>\w{3})\]' \
+                     '( and [\w ]+ \[(?P<iso_2>\w{3})\])?'
+        mo = re.search(similar_re, dialect_phrase, re.IGNORECASE)
+        if mo:
+            rel_list.append((constants.RELTYPE_SIMILAR_TO, mo.group("iso_1")))
+            # Not all "Similar to" dialect phrases have a second group, but
+            #  all of them have either one or two groups
+            if mo.group("iso_2"):
+                rel_list.append((constants.RELTYPE_SIMILAR_TO,
+                                 mo.group("iso_2")))
+        return rel_list
+
+    def parse_dialect_phrase_related(self, dialect_phrase):
+        """extract "related" relationship types from the phrase
+
+
+        """
+        rel_list = []
+        related_re = 'related to [\w ]+ \[(?P<iso_1>\w{3})\](, [\w ]+ \[(?P<iso_comma>\w{3})\])*( and [\w ]+ \[(?P<iso_2>\w{3})\])?'
+        return rel_list
+
+    def parse_dialect_phrase(self, dialect_phrase):
+        """returns relationship types from a single dialect phrase
+
+        :return: list of relationship tuples (reltype, iso)
+        :rtype: tuple
+
+        Phrase will contain one of:
+
+        - Similar to
+        - A list of dialects (if no descriptor matches)
+        """
+        rel_list = []
+        # FIXME could bail out after one of these is non-empty...
+        if not rel_list:
+            rel_list.extend(self.parse_dialect_phrase_similar(dialect_phrase))
+        if not rel_list:
+            rel_list.extend(self.parse_dialect_phrase_related(dialect_phrase))
+        if not rel_list:
+            logging.warning("Unable to parse dialect phrase '%s", dialect_phrase)
+        return rel_list
+
+    def get_dialects_for_iso(self, iso):
+        """returns relationship types from the dialect string
+
+        Dialect string may have several sections, but splitting on period
+         tokenises them
+        """
+        soup = BeautifulSoup(self.get_text_from_url(
+            self.ONE_LANGUAGE_URL_TEMPLATE % (iso,)
+        ))
+        dialect_div_string = soup \
+            .find(class_="field-name-field-dialects")
+        if dialect_div_string:
+            dialect_string = dialect_div_string.find(class_="field-item")\
+                .text.strip().split(".")
+            dialect_phrases = filter(None, dialect_string)
+        else:
+            dialect_phrases = []
+
+        relationship_types = []
+        for p in dialect_phrases:
+            relationship_types.extend(self.parse_dialect_phrase(p))
+        return relationship_types
+
+    def persist_dialects(self, persister, iso):
+        relationships = self.get_dialects_for_iso(iso)
+        if relationships:
+            logging.info("Persisting dialect info for ISO %s", iso)
+            persister.persist_relationship(iso, relationships,
+                                            self.SOURCE_NAME)
