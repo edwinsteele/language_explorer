@@ -6,7 +6,7 @@
 
 <ul>
 {% for iso in iso_list %}
-    <li><a href="/language/iso/{{ iso }}">{{  lp.format_iso(iso)|safe }}</a></li>
+    <li>{{ macros.format_iso_as_href(iso) }}</li>
 {% endfor %}
 </ul>
 {% endblock %}

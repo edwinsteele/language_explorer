@@ -32,8 +32,8 @@ def show_all_languages():
     iso_list = lp.get_all_iso_codes()
     return render_template(
         'show_all_languages.html',
-        iso_list=iso_list,
         lp=lp,
+        iso_list=iso_list,
     )
 
 
@@ -43,9 +43,9 @@ def search_languages_by_name():
     iso_list = lp.get_iso_list_from_name(language_name)
     return render_template(
         'search.html',
+        lp=lp,
         iso_list=iso_list,
         search_term=language_name,
-        lp=lp,
     )
 
 
@@ -83,9 +83,9 @@ def show_investigations():
 
     return render_template(
         'investigations.html',
+        lp=lp,
         sndi_info=sndi_info,
         sabn_info=sabn_info,
-        lp=lp,
     )
 
 
@@ -95,12 +95,15 @@ def show_language(iso639_3_code):
     pn_dict = lp.get_primary_names_by_iso(iso639_3_code)
     an_dict = lp.get_alternate_names_by_iso(iso639_3_code)
     cl_dict = lp.get_classifications_by_iso(iso639_3_code)
+    rel_list = lp.get_relationships_by_iso(iso639_3_code)
+    print rel_list
     tr_dict = lp.get_translations_by_iso(iso639_3_code)
     wals_keys = wals.get_wals_keys_for_iso(iso639_3_code)
     eth_L1_count = lp.get_L1_speaker_count_by_iso(
         iso639_3_code, constants.ETHNOLOGUE_SOURCE_ABBREV)
     return render_template(
         'show_language.html',
+        lp=lp,
         iso639_3_code=iso639_3_code,
         primary_names_dict=pn_dict,
         alternate_names_dict=an_dict,
@@ -108,6 +111,7 @@ def show_language(iso639_3_code):
         translation_dict=tr_dict,
         constants=constants,
         wals_keys=wals_keys,
+        rel_list=rel_list,
         eth_L1_count=eth_L1_count,
     )
 

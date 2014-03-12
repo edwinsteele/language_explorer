@@ -4,33 +4,48 @@
 <h1>Language: {{ iso639_3_code }}</h1>
 
 <h2>Primary Names</h2>
+<ul>
 {% for pn_source, pn_name_list in primary_names_dict.items() %}
     <li>{{ constants.source_abbrev_name_dict[pn_source] }}:
         {% for pn_name in pn_name_list %}
             {{ pn_name }}
         {% endfor %}</li>
 {% endfor %}
+</ul>
 
 <h2>Alternate Names</h2>
+<ul>
 {% for an_source, an_name_list in alternate_names_dict.items() %}
     <li>{{ constants.source_abbrev_name_dict[an_source] }}:
         {% for an_name in an_name_list %}
             {{ an_name }},
         {% endfor %}</li>
 {% endfor %}
+</ul>
 
 <h2>Number of L1 Speakers</h2>
 Ethnologue: {{ eth_L1_count }}
 
 <h2>Language Classifications</h2>
+<ul>
 {% for cl_source, cl_name_list in classification_dict.items() %}
     <li>{{ constants.source_abbrev_name_dict[cl_source] }}:
         {% for cl_name in cl_name_list %}
             {{ cl_name }},
         {% endfor %}</li>
 {% endfor %}
+</ul>
+
+<h2>Relationships</h2>
+<ul>
+{% for rel_source, rel_verb, object_iso in rel_list %}
+    <li>{{ constants.relationship_abbrev_name_dict[rel_verb] }}
+        {{ macros.format_iso_as_href(object_iso) }} ({{ rel_source }})</li>
+{% endfor %}
+</ul>
 
 <h2>Bible Translations</h2>
+<ul>
 {% for tr_source, tr_type_year_tuple_list in translation_dict.items() %}
     <li>{{ constants.source_abbrev_name_dict[tr_source] }}:
         {% for tr_status, tr_year in tr_type_year_tuple_list %}
@@ -40,6 +55,7 @@ Ethnologue: {{ eth_L1_count }}
             {% endif %},
         {% endfor %}</li>
 {% endfor %}
+</ul>
 
 <hr>
 

@@ -67,7 +67,7 @@ class LanguagePersistence(object):
                 source=source,
                 rel_verb=rel_type,
                 object_iso=other_iso,
-            ), ["iso", "subject_iso", "rel_verb", "object_iso"])
+            ), ["subject_iso", "source", "rel_verb", "object_iso"])
 
     def persist_translation(self, iso, tr_dict, source):
         self.lang_db[self.TRANSLATION_TABLE].upsert(dict(
@@ -129,6 +129,12 @@ class LanguagePersistence(object):
         for t_row in translation_list:
             d[t_row["source"]].append((t_row["status"], t_row["year"]))
         return d
+
+    def get_relationships_by_iso(self, iso):
+        return sorted(
+            [(r_row["source"], r_row["rel_verb"], r_row["object_iso"])
+             for r_row in
+             self.lang_db[self.RELATIONSHIP_TABLE].find(subject_iso=iso)])
 
     def _isos_with_shared_aliases(self, iso_name_list):
         """Yields a tuple of isos that share an alias

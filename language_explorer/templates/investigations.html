@@ -6,7 +6,7 @@
     <ul>
         {% for sabn_item, sabn_common_name_list in sabn_info %}
             <li>{% for iso in sabn_item %}
-                <a href="/language/iso/{{ iso }}">{{  lp.format_iso(iso)|safe }}</a>
+                {{ macros.format_iso_as_href(iso) }}
             {% endfor %} (Names in common: {{ ", ".join(sabn_common_name_list) }})</li>
         {% endfor %}
     </ul>
@@ -25,7 +25,7 @@ The following iso keys are known by the same name/alias
 <ul>
 {% for sndi_item, sndi_common_name_list in sndi_info %}
     <li>{% for iso in sndi_item %}
-        <a href="/language/iso/{{ iso }}">{{  lp.format_iso(iso)|safe }}</a>
+        {{ macros.format_iso_as_href(iso) }}
         {% endfor %} (Names in common: {{ ", ".join(sndi_common_name_list) }})</li>
 {% endfor %}
 </ul>
