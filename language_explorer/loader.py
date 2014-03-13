@@ -17,6 +17,7 @@ def main():
     joshuaproject = JPHarvestAdapter(settings.JPHARVEST_DB_URL)
     fab = FindABibleAdapter(settings.CACHE_ROOT)
     wals = WalsAdapter(settings.WALS_DB_URL)
+    """
     for source in (ethnologue, joshuaproject, wals):
         for lang in source.get_language_iso_keys():
             source.persist_language(p, lang)
@@ -31,7 +32,7 @@ def main():
 
     for lang in ethnologue.get_language_iso_keys():
         ethnologue.persist_L1_speaker_count(p, lang)
-
+    """
     for lang in ethnologue.get_language_iso_keys():
         ethnologue.persist_dialects(p, lang)
 

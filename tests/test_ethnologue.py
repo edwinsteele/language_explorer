@@ -102,12 +102,23 @@ class TestEthnologueAdapter(BaseAdapterTestCase):
             self.assertEqual(reltypes,
                              self.source.parse_dialect_phrase_similar(dstring))
 
-    @unittest.skip("Skipping test: Related phrase parsing incomplete")
+    def test_parse_dialect_phrase_different(self):
+        dialect_string_relationship_pairs = [
+            ("Different from Kukatja [kux]", [
+                (constants.RELTYPE_DIFFERENT_FROM, "kux")]),  # ktd
+            ("Different from Kokata [ktd]", [
+                (constants.RELTYPE_DIFFERENT_FROM, "ktd")]),  # kux
+        ]
+        for dstring, reltypes in dialect_string_relationship_pairs:
+            self.assertEqual(
+                reltypes, self.source.parse_dialect_phrase_different(dstring)
+            )
+
     def test_parse_dialect_phrase_related(self):
         # include guf, djj
         dialect_string_relationship_pairs = [
             ("Related to Ngamini [nmv], which may have no remaining speakers", [
-                (constants.RELTYPE_RELATED_TO, "nmw")]),  # dif (1 related)
+                (constants.RELTYPE_RELATED_TO, "nmv")]),  # dif (1 related)
             ("Related to Dalabon [ngk] and Rembarunga [rmb]", [
                 (constants.RELTYPE_RELATED_TO, "ngk"),
                 (constants.RELTYPE_RELATED_TO, "rmb")]),  # nig (2 related)

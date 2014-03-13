@@ -171,11 +171,35 @@ class EthnologueAdapter(CachingWebLanguageSource):
     def parse_dialect_phrase_related(self, dialect_phrase):
         """extract "related" relationship types from the phrase
 
-
+        The related phrase contains repeats of a pattern, and I can't work out
+        how to process it with a single regex, however the iso key is always
+        in square brackets, so is easy to extract.
         """
         rel_list = []
-        related_re = 'related to [\w ]+ \[(?P<iso_1>\w{3})\](, [\w ]+ \[(?P<iso_comma>\w{3})\])*( and [\w ]+ \[(?P<iso_2>\w{3})\])?'
+        initial_re = 'related to [\w ]+ \[(\w{3})\]'
+        if re.search(initial_re, dialect_phrase, re.IGNORECASE):
+            iso_re = '\[(\w{3})\]'
+            rel_list = zip(itertools.repeat(constants.RELTYPE_RELATED_TO),
+                           re.findall(iso_re, dialect_phrase))
         return rel_list
+
+    def parse_dialect_phrase_different(self, dialect_phrase):
+        """extract "different" relationship types from the phrase
+
+        There are only two, ktd and kux, but let's do them anyway
+        """
+        rel_list = []
+        different_re = 'different from [\w ]+ \[(\w{3})\]'
+        mo = re.search(different_re, dialect_phrase, re.IGNORECASE)
+        if mo:
+            rel_list = [(constants.RELTYPE_DIFFERENT_FROM, mo.group(1))]
+        return rel_list
+
+    def is_ignored_dialect_phrase(self, dialect_phrase):
+        if "Lexical similarity:" in dialect_phrase:
+            return True
+        else:
+            return False
 
     def parse_dialect_phrase(self, dialect_phrase):
         """returns relationship types from a single dialect phrase
@@ -195,7 +219,9 @@ class EthnologueAdapter(CachingWebLanguageSource):
         if not rel_list:
             rel_list.extend(self.parse_dialect_phrase_related(dialect_phrase))
         if not rel_list:
-            logging.warning("Unable to parse dialect phrase '%s", dialect_phrase)
+            if not self.is_ignored_dialect_phrase(dialect_phrase):
+                logging.warning("Unable to parse dialect phrase '%s",
+                                dialect_phrase)
         return rel_list
 
     def get_dialects_for_iso(self, iso):
