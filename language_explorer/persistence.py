@@ -194,8 +194,16 @@ class LanguagePersistence(object):
 
     def get_iso_list_from_name(self, name):
         # exact match on name only
-        return sorted(list(set([row["iso"] for row in
-                      self.lang_db[self.ALIAS_TABLE].find(name=name)])))
+        return [row["iso"] for row in
+                self.lang_db[self.ALIAS_TABLE].
+                distinct("iso", name=name)]
+
+    def get_iso_list_from_iso(self, iso):
+        # probably redundant, but just in case we want to search on partial iso
+        # partial match is ok
+        return [row["iso"] for row in
+                self.lang_db[self.ALIAS_TABLE].
+                distinct("iso", iso=iso)]
 
     def get_best_translation_state(self, iso):
         """
