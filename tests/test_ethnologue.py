@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import unittest
 from language_explorer import settings, constants
 from language_explorer.language_sources.ethnologue import EthnologueAdapter
 from tests.test_baseclasses import BaseAdapterTestCase
@@ -102,6 +101,23 @@ class TestEthnologueAdapter(BaseAdapterTestCase):
             self.assertEqual(reltypes,
                              self.source.parse_dialect_phrase_similar(dstring))
 
+    def test_parse_dialect_phrase_intelligible(self):
+        dialect_string_relationship_pairs = [
+            ("May be intelligible with Wadjiginy [wdj]", [
+                (constants.RELTYPE_MAY_BE_INTELLIGIBLE, "wdj")]),  # amy
+            ("May be intelligible with Marithiel [mfr]"
+             " or Maringarr [zmt]", [
+                 (constants.RELTYPE_MAY_BE_INTELLIGIBLE, "mfr"),
+                 (constants.RELTYPE_MAY_BE_INTELLIGIBLE, "zmt")]),  # zmj
+            ("Limited mutual intelligibility of Gizrra [tof]", [
+                (constants.RELTYPE_LIMITED_MUTUAL_INTELLIGIBILITY, "tof")]),
+            # ulk
+        ]
+        for dstring, reltypes in dialect_string_relationship_pairs:
+            self.assertEqual(
+                reltypes, self.source.parse_dialect_phrase_intellible(dstring)
+            )
+
     def test_parse_dialect_phrase_different(self):
         dialect_string_relationship_pairs = [
             ("Different from Kukatja [kux]", [
@@ -112,6 +128,51 @@ class TestEthnologueAdapter(BaseAdapterTestCase):
         for dstring, reltypes in dialect_string_relationship_pairs:
             self.assertEqual(
                 reltypes, self.source.parse_dialect_phrase_different(dstring)
+            )
+
+    def test_parse_dialect_phrase_dialect(self):
+        dialect_string_dialect_pairs = [
+            ("Mpakwithi", [
+                (constants.DIALECT_NAME, "Mpakwithi")]),
+            # awg. One dialect with one word
+            ("Kalaw Kawaw", [
+                (constants.DIALECT_NAME, "Kalaw Kawaw")]),
+            # mwp. One dialect with two words
+            ("Dhalwangu, Djarrwark", [
+                (constants.DIALECT_NAME, "Dhalwangu"),
+                (constants.DIALECT_NAME, "Djarrwark")]),
+            # dax. Two dialects, each with one word
+            ("Ngaliwuru (Ngaliwerra)", [
+                (constants.DIALECT_NAME, "Ngaliwuru"),
+                (constants.DIALECT_NAME, "Ngaliwerra")]),
+            # djd. Two dialects, one in brackets
+            ("Eastern Inland Yawuru, Northern Yawuru, Southern Coastal Yawuru",
+             [(constants.DIALECT_NAME, "Eastern Inland Yawuru"),
+                 (constants.DIALECT_NAME, "Northern Yawuru"),
+                 (constants.DIALECT_NAME, "Southern Coastal Yawuru")]),
+            # ywr. dialects with three words
+            ("Akerre (Akara), Southern Aranda, Western Aranda",
+             [(constants.DIALECT_NAME, "Akerre"),
+              (constants.DIALECT_NAME, "Akara"),
+              (constants.DIALECT_NAME, "Southern Aranda"),
+              (constants.DIALECT_NAME, "Western Aranda")]),
+            # are. dialects after closing bracket
+        ]
+        for dstring, reltypes in dialect_string_dialect_pairs:
+            self.assertEqual(
+                reltypes, self.source.parse_dialect_phrase_dialects(dstring)
+            )
+
+    def test_parse_dialect_phrase_dialect(self):
+        # Add more here to test dispatch order, and make sure those that
+        #  could match more than one parse function return the coorect one
+        dialect_string_dialect_pairs = [
+            (" Dialects inherently intelligible", []),  # wmb oddity
+            (" (Black 1983)", []),  # wmb oddity
+        ]
+        for dstring, reltypes in dialect_string_dialect_pairs:
+            self.assertEqual(
+                reltypes, self.source.parse_dialect_phrase(dstring)
             )
 
     def test_parse_dialect_phrase_related(self):

@@ -49,11 +49,17 @@ translation_abbrev_css_class_dict = {
 RELTYPE_SIMILAR_TO = "SI"  # Ethnologue
 RELTYPE_RELATED_TO = "RE"  # Ethnologue
 RELTYPE_DIFFERENT_FROM = "DI"  # Ethnologue
+RELTYPE_MAY_BE_INTELLIGIBLE = "MI"  # Ethnologue
+RELTYPE_LIMITED_MUTUAL_INTELLIGIBILITY = "LI"  # Ethnologue
+
+DIALECT_NAME = "DN"
 
 relationship_abbrev_name_dict = {
     RELTYPE_SIMILAR_TO: "is similar to",
     RELTYPE_RELATED_TO: "is related to",
     RELTYPE_DIFFERENT_FROM: "is different to",
+    RELTYPE_MAY_BE_INTELLIGIBLE: "may be intelligible with",
+    RELTYPE_LIMITED_MUTUAL_INTELLIGIBILITY: "limited intelligibility with",
 }
 
 # See note in EthnologueAdapter.get_L1_speaker_count_for_iso

@@ -22,7 +22,7 @@ class TestPersistence(unittest.TestCase):
 
     def test_same_name_different_iso(self):
         sndi_list = self.p.get_same_name_different_iso_list()
-        self.assertEquals(len(sndi_list), 44)
+        self.assertEquals(len(sndi_list), 56)
         self.assertIn(('tbh', 'yxg'), sndi_list)
         self.assertIn(('aer', 'are', 'axl'), sndi_list)
         # Should have same contents with different order

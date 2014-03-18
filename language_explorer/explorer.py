@@ -95,6 +95,7 @@ def show_language(iso639_3_code):
     # show the profile for the language
     pn_dict = lp.get_primary_names_by_iso(iso639_3_code)
     an_dict = lp.get_alternate_names_by_iso(iso639_3_code)
+    di_dict = lp.get_dialect_names_by_iso(iso639_3_code)
     cl_dict = lp.get_classifications_by_iso(iso639_3_code)
     rel_list = lp.get_relationships_by_iso(iso639_3_code)
     tr_dict = lp.get_translations_by_iso(iso639_3_code)
@@ -107,6 +108,7 @@ def show_language(iso639_3_code):
         iso639_3_code=iso639_3_code,
         primary_names_dict=pn_dict,
         alternate_names_dict=an_dict,
+        dialect_names_dict=di_dict,
         classification_dict=cl_dict,
         translation_dict=tr_dict,
         constants=constants,

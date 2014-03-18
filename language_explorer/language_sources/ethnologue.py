@@ -195,8 +195,60 @@ class EthnologueAdapter(CachingWebLanguageSource):
             rel_list = [(constants.RELTYPE_DIFFERENT_FROM, mo.group(1))]
         return rel_list
 
+    def parse_dialect_phrase_intellible(self, dialect_phrase):
+        """extract "intelligible" or "intelligibility" relationship types
+
+        "may be intelligible"
+        "mutual intelligibility"
+        """
+        rel_list = []
+        initial_mi_re = 'may be intelligible with [\w ]+ \[(\w{3})\]'
+        li_re = 'Limited mutual intelligibility of [\w ]+ \[(\w{3})\]'
+        if re.search(initial_mi_re, dialect_phrase, re.IGNORECASE):
+            iso_re = '\[(\w{3})\]'
+            rel_list = zip(
+                itertools.repeat(constants.RELTYPE_MAY_BE_INTELLIGIBLE),
+                re.findall(iso_re, dialect_phrase)
+            )
+        else:
+            mo = re.search(li_re, dialect_phrase, re.IGNORECASE)
+            if mo:
+                rel_list = [(constants.RELTYPE_LIMITED_MUTUAL_INTELLIGIBILITY,
+                            mo.group(1))]
+        return rel_list
+
+    def parse_dialect_phrase_dialects(self, dialect_phrase):
+        """extra list of dialect names from the phrase.
+
+        We do not attempt to match up dialect alternative names with dialects
+         so this produces a bunch of dialect names but does not preserve their
+         relationship to the parent dialect where there are alternative names
+         i.e. it's a list of dialect names in the language
+
+        split on commas and ( and )
+        dialects have at most three words "roper river kriol" so we can classify
+        all that don't fit in this pattern as not being a part of the dialect
+        name list
+
+        This should be the last function in the list of phrase parsing methods
+         as all the others are more specific.
+        """
+        dialect_candidates = [s.strip() for s in
+                              re.split("[,\(\)]", dialect_phrase)]
+        dialect_words_re = re.compile("([\w-]+) ?([\w-]+)? ?([\w-]+)?$")
+        return zip(
+            itertools.repeat(constants.DIALECT_NAME),
+            itertools.ifilter(lambda x: dialect_words_re.match(x),
+                              dialect_candidates)
+        )
+
     def is_ignored_dialect_phrase(self, dialect_phrase):
         if "Lexical similarity:" in dialect_phrase:
+            return True
+        elif dialect_phrase.strip() in ["Dialects inherently intelligible",
+                                        "(Black 1983)"]:
+            # wmb has phrases that would match dialect patterns, but aren't
+            #  dialects
             return True
         else:
             return False
@@ -214,14 +266,24 @@ class EthnologueAdapter(CachingWebLanguageSource):
         """
         rel_list = []
         # FIXME could bail out after one of these is non-empty...
+        if self.is_ignored_dialect_phrase(dialect_phrase):
+            return rel_list
         if not rel_list:
             rel_list.extend(self.parse_dialect_phrase_similar(dialect_phrase))
         if not rel_list:
             rel_list.extend(self.parse_dialect_phrase_related(dialect_phrase))
         if not rel_list:
-            if not self.is_ignored_dialect_phrase(dialect_phrase):
-                logging.warning("Unable to parse dialect phrase '%s",
-                                dialect_phrase)
+            rel_list.extend(
+                self.parse_dialect_phrase_intellible(dialect_phrase))
+        if not rel_list:
+            rel_list.extend(
+                self.parse_dialect_phrase_different(dialect_phrase))
+        if not rel_list:
+            rel_list.extend(
+                self.parse_dialect_phrase_dialects(dialect_phrase))
+        if not rel_list:
+            logging.warning("Unable to parse dialect phrase '%s",
+                            dialect_phrase)
         return rel_list
 
     def get_dialects_for_iso(self, iso):
@@ -251,5 +313,16 @@ class EthnologueAdapter(CachingWebLanguageSource):
         relationships = self.get_dialects_for_iso(iso)
         if relationships:
             logging.info("Persisting dialect info for ISO %s", iso)
-            persister.persist_relationship(iso, relationships,
-                                            self.SOURCE_NAME)
+            dialect_names = [
+                dialect_name for x, dialect_name in relationships
+                if x == constants.DIALECT_NAME]
+            if dialect_names:
+                for dialect_name in dialect_names:
+                    persister.persist_dialect(iso, dialect_name,
+                                              self.SOURCE_NAME)
+            dialect_relationships = [
+                (x, y) for x, y in relationships
+                if x is not constants.DIALECT_NAME]
+            if dialect_relationships:
+                persister.persist_relationship(iso, dialect_relationships,
+                                               self.SOURCE_NAME)

@@ -36,6 +36,7 @@ def main():
     for lang in ethnologue.get_language_iso_keys():
         ethnologue.persist_dialects(p, lang)
 
+    # Insert implied (reverse) dialect relationships
 
 if __name__ == '__main__':
     sys.exit(main())

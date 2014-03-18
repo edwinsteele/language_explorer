@@ -23,6 +23,16 @@
 {% endfor %}
 </ul>
 
+<h2>Dialect Names</h2>
+<ul>
+    {% for di_source, di_name_list in dialect_names_dict.items() %}
+        <li>{{ constants.source_abbrev_name_dict[di_source] }}:
+            {% for di_name in di_name_list %}
+                {{ di_name }},
+            {% endfor %}</li>
+    {% endfor %}
+</ul>
+
 <h2>Number of L1 Speakers</h2>
 Ethnologue: {{ eth_L1_count }}
 

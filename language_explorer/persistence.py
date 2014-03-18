@@ -26,9 +26,6 @@ class LanguagePersistence(object):
 
         write primary source to language names table
         """
-        # self.lang_db[self.LANGUAGE_TABLE].upsert(dict(
-        #     iso=iso,
-        # ))
         self.lang_db[self.ALIAS_TABLE].upsert(dict(
             iso=iso,
             alias_type=self.PRIMARY_NAME_TYPE,
@@ -111,6 +108,16 @@ class LanguagePersistence(object):
             .find(iso=iso, alias_type=self.ALTERNATE_NAME_TYPE)
         d = collections.defaultdict(list)
         for primary_row in alternate_list:
+            d[primary_row["source"]].append(primary_row["name"])
+            d[primary_row["source"]].sort()
+        return d
+
+    def get_dialect_names_by_iso(self, iso):
+        """Return list of dialect names from each data source"""
+        dialect_list = self.lang_db[self.ALIAS_TABLE] \
+            .find(iso=iso, alias_type=self.DIALECT_TYPE)
+        d = collections.defaultdict(list)
+        for primary_row in dialect_list:
             d[primary_row["source"]].append(primary_row["name"])
             d[primary_row["source"]].sort()
         return d
