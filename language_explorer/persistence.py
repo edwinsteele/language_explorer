@@ -143,6 +143,16 @@ class LanguagePersistence(object):
              for r_row in
              self.lang_db[self.RELATIONSHIP_TABLE].find(subject_iso=iso)])
 
+    def get_primary_name_for_display(self, iso):
+        """Only for display. Use Ethnologue, or nothing"""
+        eth_primary_list = self.get_primary_names_by_iso(iso)[
+            constants.ETHNOLOGUE_SOURCE_ABBREV]
+        if eth_primary_list:
+            return eth_primary_list[0]
+        else:
+            return "Not in Ethnologue"
+
+
     def _isos_with_shared_aliases(self, iso_name_list):
         """Yields a tuple of isos that share an alias
 
