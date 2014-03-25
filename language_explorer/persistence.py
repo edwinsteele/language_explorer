@@ -152,7 +152,6 @@ class LanguagePersistence(object):
         else:
             return "Not in Ethnologue"
 
-
     def _isos_with_shared_aliases(self, iso_name_list):
         """Yields a tuple of isos that share an alias
 

@@ -7,9 +7,11 @@ FIND_A_BIBLE_SOURCE_ABBREV = "FB"
 WALS_SOURCE_ABBREV = "WA"
 JOSHUA_PROJECT_SOURCE_ABBREV = "JP"
 AUSTLANG_SOURCE_ABBREV = "AL"
+SIL_RCEM_SOURCE_ABBREV = "SI"
 
 source_abbrev_name_dict = {
     ETHNOLOGUE_SOURCE_ABBREV: "Ethnologue",
+    SIL_RCEM_SOURCE_ABBREV: "SIL Retired Codes",
     FIND_A_BIBLE_SOURCE_ABBREV: "Find A Bible",
     WALS_SOURCE_ABBREV: "WALS",
     JOSHUA_PROJECT_SOURCE_ABBREV: "Joshua Project",
@@ -52,6 +54,13 @@ RELTYPE_DIFFERENT_FROM = "DI"  # Ethnologue
 RELTYPE_MAY_BE_INTELLIGIBLE = "MI"  # Ethnologue
 RELTYPE_LIMITED_MUTUAL_INTELLIGIBILITY = "LI"  # Ethnologue
 
+RELTYPE_RETIREMENT_CHANGE = "C"
+RELTYPE_RETIREMENT_DUPLICATE = "D"
+RELTYPE_RETIREMENT_NON_EXISTENT = "N"
+RELTYPE_RETIREMENT_SPLIT = "S"
+RELTYPE_RETIREMENT_MERGE = "M"
+
+
 DIALECT_NAME = "DN"
 
 relationship_abbrev_name_dict = {
@@ -60,6 +69,11 @@ relationship_abbrev_name_dict = {
     RELTYPE_DIFFERENT_FROM: "is different to",
     RELTYPE_MAY_BE_INTELLIGIBLE: "may be intelligible with",
     RELTYPE_LIMITED_MUTUAL_INTELLIGIBILITY: "limited intelligibility with",
+    RELTYPE_RETIREMENT_CHANGE: "retired, changed into",
+    RELTYPE_RETIREMENT_DUPLICATE: "retired, duplicates",
+    RELTYPE_RETIREMENT_NON_EXISTENT: "retired, does not exist",
+    RELTYPE_RETIREMENT_SPLIT: "retired, split into",
+    RELTYPE_RETIREMENT_MERGE: "retired, merged into",
 }
 
 # See note in EthnologueAdapter.get_L1_speaker_count_for_iso

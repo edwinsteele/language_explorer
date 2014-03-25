@@ -50,7 +50,8 @@ Ethnologue: {{ eth_L1_count }}
 <ul>
 {% for rel_source, rel_verb, object_iso in rel_list %}
     <li>{{ constants.relationship_abbrev_name_dict[rel_verb] }}
-        {{ macros.format_iso_as_href(object_iso) }} ({{ rel_source }})</li>
+        {{ macros.format_iso_as_href(object_iso) }}
+        (relationship from {{ constants.source_abbrev_name_dict[rel_source] }})</li>
 {% endfor %}
 </ul>
 

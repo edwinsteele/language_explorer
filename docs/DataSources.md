@@ -33,3 +33,14 @@ Data comes from [ABS TableBuilder](http://www.abs.gov.au/websitedbs/censushome.n
 6. Download Table as type "Comma Separated Value (.csv)"
 
 This downloaded file is data/census_2011_LANP.csv
+
+## Ethnologue Retired Code Element Mappings
+http://www-01.sil.org/iso639-3/
+
+This file contains language codes that have been retired or split.
+1. http://www-01.sil.org/iso639-3/iso-639-3_Retirements.tab
+2. psql -c "create database sil_rcem"
+3. psql sil_rcem < iso-639-3_Retirements.schema
+
+The downloaded file is data/iso-639-3_Retirements.tab
+The schema file is adapted for postgres from the documentation page above

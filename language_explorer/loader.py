@@ -5,6 +5,7 @@ from language_explorer.language_sources.jpharvest import JPHarvestAdapter
 from language_explorer.language_sources.ethnologue import EthnologueAdapter
 from language_explorer.language_sources.wals import WalsAdapter
 from language_explorer.language_sources.findabible import FindABibleAdapter
+from language_explorer.language_sources.sil_rcem import SilRcemAdapter
 from persistence import LanguagePersistence
 
 
@@ -17,6 +18,7 @@ def main():
     joshuaproject = JPHarvestAdapter(settings.JPHARVEST_DB_URL)
     fab = FindABibleAdapter(settings.CACHE_ROOT)
     wals = WalsAdapter(settings.WALS_DB_URL)
+    sil_rcem = SilRcemAdapter(settings.SIL_RCEM_TSV_SOURCE)
     """
     for source in (ethnologue, joshuaproject, wals):
         for lang in source.get_language_iso_keys():
@@ -32,10 +34,12 @@ def main():
 
     for lang in ethnologue.get_language_iso_keys():
         ethnologue.persist_L1_speaker_count(p, lang)
-    """
+
     for lang in ethnologue.get_language_iso_keys():
         ethnologue.persist_dialects(p, lang)
+    """
 
+    sil_rcem.persist_retirement_relationships(p)
     # Insert implied (reverse) dialect relationships
 
 if __name__ == '__main__':
