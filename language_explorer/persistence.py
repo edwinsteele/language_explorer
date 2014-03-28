@@ -20,6 +20,7 @@ class LanguagePersistence(object):
     def __init__(self, db_url):
         self.lang_db = dataset.connect(db_url)
         self.translation_state_cache = {}
+        self.l1_speaker_count_cache = {}
 
     def persist_language(self, iso, primary_name, source):
         """write iso to main table
@@ -164,11 +165,15 @@ class LanguagePersistence(object):
             yield [iso for iso, lang_name in grouper]
 
     def get_L1_speaker_count_by_iso(self, iso, source):
-        r = self.lang_db[self.LANGUAGE_TABLE].find_one(iso=iso)
-        if r:
-            return int(r['L1_speaker_count_%s' % (source,)])
-        else:
-            return constants.SPEAKER_COUNT_UNKNOWN
+        # FIXME Breaks if we have speaker counts for multiple sources
+        if not self.l1_speaker_count_cache:
+            all_rows = self.lang_db[self.LANGUAGE_TABLE].all()
+            for row in all_rows:
+                self.l1_speaker_count_cache[row["iso"]] = \
+                    int(row['L1_speaker_count_%s' % (source,)])
+
+        return self.l1_speaker_count_cache.get(
+            iso, constants.SPEAKER_COUNT_UNKNOWN)
 
     def get_common_names_for_iso_list(self, iso_list):
         """Finds common language names for a list of languages"""
@@ -259,3 +264,18 @@ class LanguagePersistence(object):
             l1_speaker_count]
         return '<span class="%s %s">%s</span>' %\
                (scripture_css_class, l1_speaker_css_class, iso)
+
+    def get_table_data(self):
+        table_data = []
+        all_isos = self.get_all_iso_codes()
+        for iso in all_isos:
+            relations = self.get_relationships_by_iso(iso)
+            iso_data = (iso,
+                        self.get_L1_speaker_count_by_iso(
+                            iso, constants.ETHNOLOGUE_SOURCE_ABBREV),
+                        self.get_best_translation_state(iso),
+                        relations
+            )
+            table_data.append(iso_data)
+        return table_data
+

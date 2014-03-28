@@ -90,6 +90,17 @@ def show_investigations():
     )
 
 
+@app.route('/table')
+def show_table():
+    td = lp.get_table_data()
+    return render_template(
+        'table.html',
+        table_data=td,
+        lp=lp,
+        constants=constants,
+    )
+
+
 @app.route('/language/iso/<iso639_3_code>')
 def show_language(iso639_3_code):
     # show the profile for the language
