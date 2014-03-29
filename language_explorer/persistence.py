@@ -2,7 +2,6 @@ import itertools
 import collections
 import dataset
 # import logging
-from flask_debugtoolbar_lineprofilerpanel.profile import line_profile
 from language_explorer import constants
 
 __author__ = 'esteele'
@@ -140,7 +139,6 @@ class LanguagePersistence(object):
             d[t_row["source"]].append((t_row["status"], t_row["year"]))
         return d
 
-    # @line_profile
     def get_relationships_by_iso(self, iso):
         return sorted(
             [(r_row["source"], r_row["rel_verb"], r_row["object_iso"])
@@ -278,13 +276,17 @@ class LanguagePersistence(object):
         table_data = []
         all_isos = self.get_all_iso_codes()
         for iso in all_isos:
-            relations = self.get_relationships_by_iso(iso)
+            # Only interested in relationships where the other lang has a
+            #  translation
+            relations = [[src, rel_type, obj_iso] for
+                         src, rel_type, obj_iso in
+                         self.get_relationships_by_iso(iso)
+                         if self.get_best_translation_state(obj_iso) > 1]
             iso_data = (iso,
                         self.get_L1_speaker_count_by_iso(
                             iso, constants.ETHNOLOGUE_SOURCE_ABBREV),
                         self.get_best_translation_state(iso),
                         relations
-            )
+                        )
             table_data.append(iso_data)
         return table_data
-
