@@ -43,14 +43,16 @@
       <td class="bordered_td">{{ speaker_count }}</td>
       <td class="bordered_td">{{ constants.translation_abbrev_name_dict[tr_status|int] }}</td>
       <td class="bordered_td">
-        <ul>
-          {% for rel_source, rel_verb, object_iso in related_list %}
-            <li>{{ constants.relationship_abbrev_name_dict[rel_verb] }}
-            {{ macros.format_iso_as_href(object_iso) }}
-            (relationship from {{ constants.source_abbrev_name_dict[rel_source] }})
-            </li>
-          {% endfor %}
-        </ul>
+        {% if related_list %}
+            <ul>
+              {% for rel_source, rel_verb, object_iso in related_list %}
+                <li>{{ constants.relationship_abbrev_name_dict[rel_verb] }}
+                {{ macros.format_iso_as_href(object_iso) }}
+                (relationship from {{ constants.source_abbrev_name_dict[rel_source] }})
+                </li>
+              {% endfor %}
+            </ul>
+        {% endif %}
       </td>
     </tr>
 {% endfor %}
