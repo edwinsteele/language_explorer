@@ -5,14 +5,12 @@ from language_explorer.language_sources.wals import WalsAdapter
 from language_explorer.persistence import LanguagePersistence
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_debugtoolbar_lineprofilerpanel.profile import line_profile
-from pyinstrument import Profiler
 
 
 app = Flask(__name__)
 # For debug toolbar
 app.debug = True
 app.config['SECRET_KEY'] = 'yourmum'
-# Specify the debug panels you want
 app.config['DEBUG_TB_PANELS'] = [
     'flask_debugtoolbar.panels.timer.TimerDebugPanel',
     'flask_debugtoolbar.panels.headers.HeaderDebugPanel',
@@ -114,17 +112,12 @@ def show_investigations():
 @app.route('/table')
 def show_table():
     td = lp.get_table_data()
-    # profiler = Profiler()
-    # profiler.start()
-    t = render_template(
+    return render_template(
         'table.html',
         table_data=td,
         lp=lp,
         constants=constants,
-        )
-    # profiler.stop()
-    # print(profiler.output_text())
-    return t
+    )
 
 
 @app.route('/language/iso/<iso639_3_code>')
