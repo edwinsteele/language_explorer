@@ -3,8 +3,28 @@ from flask import render_template
 from language_explorer import settings, constants
 from language_explorer.language_sources.wals import WalsAdapter
 from language_explorer.persistence import LanguagePersistence
+from flask_debugtoolbar import DebugToolbarExtension
+from flask_debugtoolbar_lineprofilerpanel.profile import line_profile
+from pyinstrument import Profiler
+
 
 app = Flask(__name__)
+# For debug toolbar
+app.debug = True
+app.config['SECRET_KEY'] = 'yourmum'
+# Specify the debug panels you want
+app.config['DEBUG_TB_PANELS'] = [
+    'flask_debugtoolbar.panels.timer.TimerDebugPanel',
+    'flask_debugtoolbar.panels.headers.HeaderDebugPanel',
+    'flask_debugtoolbar.panels.request_vars.RequestVarsDebugPanel',
+    'flask_debugtoolbar.panels.template.TemplateDebugPanel',
+    'flask_debugtoolbar.panels.sqlalchemy.SQLAlchemyDebugPanel',
+    'flask_debugtoolbar.panels.logger.LoggingPanel',
+    'flask_debugtoolbar.panels.profiler.ProfilerDebugPanel',
+    # Add the line profiling
+    'flask_debugtoolbar_lineprofilerpanel.panels.LineProfilerPanel'
+]
+# toolbar = DebugToolbarExtension(app)
 
 ISO639_3_TO_WALS = {
     "aly": ["aly", ],
@@ -17,6 +37,7 @@ ISO639_3_TO_GLOTTOCODE = {
     "aer": ["east2379", ],   # only maps to one glottocode
     "are": ["west2441", ],
 }
+
 
 lp = LanguagePersistence(settings.LANGUAGE_EXPLORER_DB_URL)
 wals = WalsAdapter(settings.WALS_DB_URL)
@@ -93,12 +114,17 @@ def show_investigations():
 @app.route('/table')
 def show_table():
     td = lp.get_table_data()
-    return render_template(
+    # profiler = Profiler()
+    # profiler.start()
+    t = render_template(
         'table.html',
         table_data=td,
         lp=lp,
         constants=constants,
-    )
+        )
+    # profiler.stop()
+    # print(profiler.output_text())
+    return t
 
 
 @app.route('/language/iso/<iso639_3_code>')

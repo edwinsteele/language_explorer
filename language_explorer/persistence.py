@@ -2,6 +2,7 @@ import itertools
 import collections
 import dataset
 # import logging
+from flask_debugtoolbar_lineprofilerpanel.profile import line_profile
 from language_explorer import constants
 
 __author__ = 'esteele'
@@ -21,6 +22,7 @@ class LanguagePersistence(object):
         self.lang_db = dataset.connect(db_url)
         self.translation_state_cache = {}
         self.l1_speaker_count_cache = {}
+        self.ethnologue_primary_name_cache = {}
 
     def persist_language(self, iso, primary_name, source):
         """write iso to main table
@@ -138,6 +140,7 @@ class LanguagePersistence(object):
             d[t_row["source"]].append((t_row["status"], t_row["year"]))
         return d
 
+    # @line_profile
     def get_relationships_by_iso(self, iso):
         return sorted(
             [(r_row["source"], r_row["rel_verb"], r_row["object_iso"])
@@ -145,13 +148,19 @@ class LanguagePersistence(object):
              self.lang_db[self.RELATIONSHIP_TABLE].find(subject_iso=iso)])
 
     def get_primary_name_for_display(self, iso):
-        """Only for display. Use Ethnologue, or nothing"""
-        eth_primary_list = self.get_primary_names_by_iso(iso)[
-            constants.ETHNOLOGUE_SOURCE_ABBREV]
-        if eth_primary_list:
-            return eth_primary_list[0]
-        else:
-            return "Not in Ethnologue"
+        """Only for display. Use Ethnologue, or nothing
+
+        duplicates a bit of logic from get_primary_names_by_iso but this
+        code is here for a significant optimisation on rendering"""
+        if not self.ethnologue_primary_name_cache:
+            all_rows = self.lang_db[self.ALIAS_TABLE]\
+                .find(alias_type=self.PRIMARY_NAME_TYPE,
+                      source=constants.ETHNOLOGUE_SOURCE_ABBREV)
+            for row in all_rows:
+                self.ethnologue_primary_name_cache[row["iso"]] = row["name"]
+
+        return self.ethnologue_primary_name_cache.get(iso,
+                                                      "Not in Ethnologue")
 
     def _isos_with_shared_aliases(self, iso_name_list):
         """Yields a tuple of isos that share an alias
