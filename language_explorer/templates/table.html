@@ -2,24 +2,41 @@
 {% block title %}Language Table{% endblock %}
 {% include "legend.html" %}
 {% block head_js %}
-   		<script type="text/javascript" src="http://localhost/DataTables-1.9.4/media/js/jquery.js"/>
-		<script type="text/javascript" src="http://localhost/DataTables-1.9.4/media/js/jquery.dataTables.js"/>
-		<script type="text/javascript">
-			$(document).ready( function() {
-				$('#datatable_table').dataTable();
-			} );
-		</script>
+    <style type="text/css">
+      .dataTables_filter { display: none; }
+    </style>
 {% endblock %}
 {% block content %}
 <h1>Language Table</h1>
 
 <table class="bordered_table" id="datatable_table">
-  <tr>
-    <th>ISO</th>
-    <th>L1 Speaker Count</th>
-    <th>Translation State</th>
-    <th>Related ISOs with Bible</th>
-  </tr>
+  <thead>
+      <tr>
+          <th><label>
+              <input type="text" name="search_ISO" value="Search ISO"
+                     class="search_init"/>
+          </label></th>
+          <th><label>
+              <input type="text" name="search_Speakers" value="Search Speakers"
+                     class="search_init"/>
+          </label></th>
+          <th><label>
+              <input type="text" name="search_Translations"
+                     value="Search Translations" class="search_init"/>
+          </label></th>
+          <th><label>
+              <input type="text" name="search_Related" value="Search Related"
+                     class="search_init"/>
+          </label></th>
+      </tr>
+      <tr>
+        <th>ISO</th>
+        <th>Speakers</th>
+        <th>Translations</th>
+        <th>Related ISOs with Bible</th>
+      </tr>
+  </thead>
+  <tbody>
 {% for iso, speaker_count, tr_status, related_list in table_data %}
     <tr>
       <td class="bordered_td">{{ macros.format_iso_as_href(iso) }}</td>
@@ -37,5 +54,51 @@
       </td>
     </tr>
 {% endfor %}
+  </tbody>
 </table>
+
+<script type="text/javascript" src="http://localhost/DataTables-1.9.4/media/js/jquery.js"></script>
+<script type="text/javascript" src="http://localhost/DataTables-1.9.4/media/js/jquery.dataTables.js"></script>
+<script type="text/javascript">
+    var asInitVals = [];
+    $(document).ready( function() {
+        var oTable = $('#datatable_table').dataTable( {
+            "bPaginate": false,
+            "bSortClasses": true,
+            "oLanguage": {
+                "sSearch": "Search all columns:"
+            }
+        } );
+
+        var thi = $("thead input");
+        thi.keyup( function () {
+            /* Filter on the column (the index) of this element */
+            oTable.fnFilter( this.value, $("thead input").index(this), true );
+        } );
+
+        /*
+         * Support functions to provide a little bit of 'user friendlyness' to the textboxes in
+         * the footer
+         */
+        thi.each( function (i) {
+            asInitVals[i] = this.value;
+        } );
+
+        thi.focus( function () {
+            if ( this.className == "search_init" )
+            {
+                this.className = "";
+                this.value = "";
+            }
+        } );
+
+        thi.blur(function () {
+            if ( this.value == "" )
+            {
+                this.className = "search_init";
+                this.value = asInitVals[$("thead input").index(this)];
+            }
+        } );
+    } );
+</script>
 {% endblock %}
