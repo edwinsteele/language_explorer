@@ -37,10 +37,10 @@ def main():
 
     for lang in ethnologue.get_language_iso_keys():
         ethnologue.persist_dialects(p, lang)
-    """
 
     sil_rcem.persist_retirement_relationships(p)
-    # Insert implied (reverse) dialect relationships
+    """
+    p.insert_reverse_relationships()
 
 if __name__ == '__main__':
     sys.exit(main())

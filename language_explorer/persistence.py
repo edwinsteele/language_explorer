@@ -1,10 +1,12 @@
 import itertools
 import collections
 import dataset
-# import logging
+import logging
 from language_explorer import constants
 
 __author__ = 'esteele'
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 class LanguagePersistence(object):
@@ -16,6 +18,10 @@ class LanguagePersistence(object):
     PRIMARY_NAME_TYPE = "p"
     ALTERNATE_NAME_TYPE = "a"
     DIALECT_TYPE = "d"
+    REVERSIBLE_RELATIONSHIPS = [
+        constants.RELTYPE_SIMILAR_TO,
+        constants.RELTYPE_SIMILAR_TO,
+        constants.RELTYPE_LIMITED_MUTUAL_INTELLIGIBILITY]
 
     def __init__(self, db_url):
         self.lang_db = dataset.connect(db_url)
@@ -249,6 +255,57 @@ class LanguagePersistence(object):
 
         return self.translation_state_cache.get(
             iso, constants.TRANSLATION_STATE_NO_RECORD)
+
+    def get_reversible_relationships(self):
+        """Relationships expressed in terms of a -> b that also infer b -> a
+        only interested in relationships from primary source i.e. those that
+        have two character sources
+        """
+        r = self.lang_db[self.RELATIONSHIP_TABLE].find(
+            rel_verb=self.REVERSIBLE_RELATIONSHIPS,
+            source=filter(lambda x: len(x) == 2,
+                          constants.source_abbrev_name_dict.keys())
+        )
+        return r
+
+    def reverse_relationship(self, subject_iso, rel_type, source, object_iso):
+        """
+        New source is old source name + I (i.e. implied from original source).
+        """
+        if rel_type in [constants.RELTYPE_RELATED_TO,
+                        constants.RELTYPE_SIMILAR_TO,
+                        constants.RELTYPE_LIMITED_MUTUAL_INTELLIGIBILITY]:
+            return [object_iso, rel_type, source + "I", subject_iso]
+        else:
+            logging.warning("Unable to reverse relationships of type %s",
+                            rel_type)
+            return []
+
+    def insert_reverse_relationships(self):
+        for row in self.get_reversible_relationships():
+            rev_subject_iso, rel_verb, implied_source, rev_object_iso = \
+                self.reverse_relationship(row["subject_iso"],
+                                          row["rel_verb"],
+                                          row["source"],
+                                          row["object_iso"])
+            # Check whether the forward relationship already
+            #  exists, lest we have duplicate original and implied
+            if self.lang_db[self.RELATIONSHIP_TABLE].find_one(
+                source=implied_source[:-1],
+                subject_iso=rev_subject_iso,
+                rel_verb=rel_verb,
+                object_iso=rev_object_iso):
+                    logging.info("Not persisting rev rel: subj = %s verb = %s"
+                                 " source = %s obj = %s because forward rel"
+                                 " already exists", rev_subject_iso, rel_verb,
+                                 implied_source, rev_object_iso)
+            else:
+                logging.info("Persisting rev rel: subj = %s verb = %s"
+                             " source = %s obj = %s", rev_subject_iso, rel_verb,
+                             implied_source, rev_object_iso)
+                self.persist_relationship(rev_subject_iso,
+                                          [(rel_verb, rev_object_iso)],
+                                          implied_source)
 
     def could_have_L1_speakers(self, iso):
         """True if a language either has L1 speakers, or the number of L1

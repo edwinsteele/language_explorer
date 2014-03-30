@@ -2,7 +2,10 @@ from collections import defaultdict
 
 __author__ = 'esteele'
 
+# Primary sources have two characters
+# Implied or derived sources have three characters
 ETHNOLOGUE_SOURCE_ABBREV = "EL"
+ETHNOLOGUE_IMPLIED_SOURCE_ABBREV = "ELI"
 FIND_A_BIBLE_SOURCE_ABBREV = "FB"
 WALS_SOURCE_ABBREV = "WA"
 JOSHUA_PROJECT_SOURCE_ABBREV = "JP"
@@ -11,6 +14,7 @@ SIL_RCEM_SOURCE_ABBREV = "SI"
 
 source_abbrev_name_dict = {
     ETHNOLOGUE_SOURCE_ABBREV: "Ethnologue",
+    ETHNOLOGUE_IMPLIED_SOURCE_ABBREV: "Ethnologue (implied)",
     SIL_RCEM_SOURCE_ABBREV: "SIL Retired Codes",
     FIND_A_BIBLE_SOURCE_ABBREV: "Find A Bible",
     WALS_SOURCE_ABBREV: "WALS",
