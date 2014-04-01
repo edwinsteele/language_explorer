@@ -52,6 +52,9 @@ translation_abbrev_css_class_dict = {
     TRANSLATION_STATE_NO_RECORD: "scripture_record_absent"
 }
 
+ISO_RETIRED_CSS_STATE = "retired_iso"
+ISO_ACTIVE_CSS_STATE = "active_iso"
+
 RELTYPE_SIMILAR_TO = "SI"  # Ethnologue
 RELTYPE_RELATED_TO = "RE"  # Ethnologue
 RELTYPE_DIFFERENT_FROM = "DI"  # Ethnologue

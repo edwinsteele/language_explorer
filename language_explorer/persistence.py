@@ -28,6 +28,7 @@ class LanguagePersistence(object):
         self.translation_state_cache = {}
         self.l1_speaker_count_cache = {}
         self.ethnologue_primary_name_cache = {}
+        self.retirement_state_cache = {}
 
     def persist_language(self, iso, primary_name, source):
         """write iso to main table
@@ -90,10 +91,11 @@ class LanguagePersistence(object):
         :param c: L1 speaker count
         :type c: int
         """
-        self.lang_db[self.LANGUAGE_TABLE].upsert({
-            "iso": iso,
-            "L1_speaker_count_%s" % (source,): c,
-        }, ["iso"]
+        self.lang_db[self.LANGUAGE_TABLE].upsert(
+            {"iso": iso,
+             "L1_speaker_count_%s" % (source,): c,
+             },
+            ["iso"]
         )
 
     def get_all_iso_codes(self):
@@ -103,7 +105,7 @@ class LanguagePersistence(object):
 
     def get_primary_names_by_iso(self, iso):
         """Return list of primary names from each data source"""
-        primary_list = self.lang_db[self.ALIAS_TABLE]\
+        primary_list = self.lang_db[self.ALIAS_TABLE] \
             .find(iso=iso, alias_type=self.PRIMARY_NAME_TYPE)
         d = collections.defaultdict(list)
         for primary_row in primary_list:
@@ -157,7 +159,7 @@ class LanguagePersistence(object):
         duplicates a bit of logic from get_primary_names_by_iso but this
         code is here for a significant optimisation on rendering"""
         if not self.ethnologue_primary_name_cache:
-            all_rows = self.lang_db[self.ALIAS_TABLE]\
+            all_rows = self.lang_db[self.ALIAS_TABLE] \
                 .find(alias_type=self.PRIMARY_NAME_TYPE,
                       source=constants.ETHNOLOGUE_SOURCE_ABBREV)
             for row in all_rows:
@@ -291,14 +293,14 @@ class LanguagePersistence(object):
             # Check whether the forward relationship already
             #  exists, lest we have duplicate original and implied
             if self.lang_db[self.RELATIONSHIP_TABLE].find_one(
-                source=implied_source[:-1],
-                subject_iso=rev_subject_iso,
-                rel_verb=rel_verb,
-                object_iso=rev_object_iso):
-                    logging.info("Not persisting rev rel: subj = %s verb = %s"
-                                 " source = %s obj = %s because forward rel"
-                                 " already exists", rev_subject_iso, rel_verb,
-                                 implied_source, rev_object_iso)
+                    source=implied_source[:-1],
+                    subject_iso=rev_subject_iso,
+                    rel_verb=rel_verb,
+                    object_iso=rev_object_iso):
+                logging.info("Not persisting rev rel: subj = %s verb = %s"
+                             " source = %s obj = %s because forward rel"
+                             " already exists", rev_subject_iso, rel_verb,
+                             implied_source, rev_object_iso)
             else:
                 logging.info("Persisting rev rel: subj = %s verb = %s"
                              " source = %s obj = %s", rev_subject_iso, rel_verb,
@@ -315,6 +317,26 @@ class LanguagePersistence(object):
             iso, constants.ETHNOLOGUE_SOURCE_ABBREV)
         return c > 0 or c == constants.SPEAKER_COUNT_UNKNOWN
 
+    def iso_is_retired(self, iso):
+        if not self.retirement_state_cache:
+            # dataset.Table.distinct can't handle filters with lists
+            #  i.e. "in" even though dataset.Table.filter can
+            sql = """
+            select distinct "subject_iso" from "%s" where
+            "rel_verb" in %s
+            """ % (self.RELATIONSHIP_TABLE, tuple([
+                constants.RELTYPE_RETIREMENT_CHANGE,
+                constants.RELTYPE_RETIREMENT_DUPLICATE,
+                constants.RELTYPE_RETIREMENT_NON_EXISTENT,
+                constants.RELTYPE_RETIREMENT_SPLIT,
+                constants.RELTYPE_RETIREMENT_MERGE])
+            )
+            all_retirements = self.lang_db.query(sql)
+            for row in all_retirements:
+                self.retirement_state_cache[row['subject_iso']] = True
+
+        return self.retirement_state_cache.get(iso, False)
+
     def format_iso(self, iso):
         # html element
         # probably should live elsewhere... fix later
@@ -326,8 +348,15 @@ class LanguagePersistence(object):
             iso, constants.ETHNOLOGUE_SOURCE_ABBREV)
         l1_speaker_css_class = constants.l1_speaker_css_class_dict[
             l1_speaker_count]
-        return '<span class="%s %s">%s</span>' %\
-               (scripture_css_class, l1_speaker_css_class, iso)
+        if self.iso_is_retired(iso):
+            retirement_css_class = constants.ISO_RETIRED_CSS_STATE
+        else:
+            retirement_css_class = constants.ISO_ACTIVE_CSS_STATE
+        return '<span class="%s %s %s">%s</span>' % \
+               (scripture_css_class,
+                l1_speaker_css_class,
+                retirement_css_class,
+                iso)
 
     def get_table_data(self):
         table_data = []
