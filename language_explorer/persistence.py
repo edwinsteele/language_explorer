@@ -21,7 +21,9 @@ class LanguagePersistence(object):
     REVERSIBLE_RELATIONSHIPS = [
         constants.RELTYPE_SIMILAR_TO,
         constants.RELTYPE_SIMILAR_TO,
-        constants.RELTYPE_LIMITED_MUTUAL_INTELLIGIBILITY]
+        constants.RELTYPE_LIMITED_MUTUAL_INTELLIGIBILITY,
+        constants.RELTYPE_RETIREMENT_SPLIT_INTO,
+        constants.RELTYPE_RETIREMENT_MERGED_INTO]
 
     def __init__(self, db_url):
         self.lang_db = dataset.connect(db_url)
@@ -278,6 +280,16 @@ class LanguagePersistence(object):
                         constants.RELTYPE_SIMILAR_TO,
                         constants.RELTYPE_LIMITED_MUTUAL_INTELLIGIBILITY]:
             return [object_iso, rel_type, source + "I", subject_iso]
+        elif rel_type == constants.RELTYPE_RETIREMENT_MERGED_INTO:
+            return [object_iso,
+                    constants.RELTYPE_RETIREMENT_MERGED_FROM,
+                    source + "I",
+                    subject_iso]
+        elif rel_type == constants.RELTYPE_RETIREMENT_SPLIT_INTO:
+            return [object_iso,
+                    constants.RELTYPE_RETIREMENT_SPLIT_FROM,
+                    source + "I",
+                    subject_iso]
         else:
             logging.warning("Unable to reverse relationships of type %s",
                             rel_type)
@@ -291,12 +303,13 @@ class LanguagePersistence(object):
                                           row["source"],
                                           row["object_iso"])
             # Check whether the forward relationship already
-            #  exists, lest we have duplicate original and implied
+            #  exists, i.e. rev_object_iso rev_verb's rev_subject_iso
+            # This means we won't duplicate forward and reverse rels
             if self.lang_db[self.RELATIONSHIP_TABLE].find_one(
                     source=implied_source[:-1],
-                    subject_iso=rev_subject_iso,
+                    subject_iso=rev_object_iso,
                     rel_verb=rel_verb,
-                    object_iso=rev_object_iso):
+                    object_iso=rev_subject_iso):
                 logging.info("Not persisting rev rel: subj = %s verb = %s"
                              " source = %s obj = %s because forward rel"
                              " already exists", rev_subject_iso, rel_verb,
@@ -328,8 +341,8 @@ class LanguagePersistence(object):
                 constants.RELTYPE_RETIREMENT_CHANGE,
                 constants.RELTYPE_RETIREMENT_DUPLICATE,
                 constants.RELTYPE_RETIREMENT_NON_EXISTENT,
-                constants.RELTYPE_RETIREMENT_SPLIT,
-                constants.RELTYPE_RETIREMENT_MERGE])
+                constants.RELTYPE_RETIREMENT_SPLIT_INTO,
+                constants.RELTYPE_RETIREMENT_MERGED_INTO])
             )
             all_retirements = self.lang_db.query(sql)
             for row in all_retirements:

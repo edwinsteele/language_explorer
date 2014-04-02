@@ -34,10 +34,10 @@ class SilRcemAdapter(object):
         elif retirement_reason == self.RETIREMENT_TYPE_NON_EXISTENT:
             return [(iso, constants.RELTYPE_RETIREMENT_NON_EXISTENT, None)]
         elif retirement_reason == self.RETIREMENT_TYPE_SPLIT:
-            return [(iso, constants.RELTYPE_RETIREMENT_SPLIT, lang) for lang
+            return [(iso, constants.RELTYPE_RETIREMENT_SPLIT_INTO, lang) for lang
                     in re.findall('\[([a-z]{3})\]', split_merge_instructions)]
         elif retirement_reason == self.RETIREMENT_TYPE_MERGE:
-            return [(iso, constants.RELTYPE_RETIREMENT_MERGE, change_to)]
+            return [(iso, constants.RELTYPE_RETIREMENT_MERGED_INTO, change_to)]
         else:
             logging.warn("Don't know how to handle retirement type '%s'"
                          " for iso '%s'", retirement_reason, iso)

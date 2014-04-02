@@ -12,10 +12,10 @@ class TestSilRcemAdapter(BaseAdapterTestCase):
         iso_retirement_rel_pairs = [
             ("gbc\tGarawa\tS\t\tSplit into Garrwa [wrk] and Wanyi [wny]"
              "\t2012-02-03",
-             [("gbc", constants.RELTYPE_RETIREMENT_SPLIT, "wrk"),
-              ("gbc", constants.RELTYPE_RETIREMENT_SPLIT, "wny")]),
+             [("gbc", constants.RELTYPE_RETIREMENT_SPLIT_INTO, "wrk"),
+              ("gbc", constants.RELTYPE_RETIREMENT_SPLIT_INTO, "wny")]),
             ("pun\tPubian\tM\tljp\t\t2008-01-14",
-             [("pun", constants.RELTYPE_RETIREMENT_MERGE, "ljp")]),
+             [("pun", constants.RELTYPE_RETIREMENT_MERGED_INTO, "ljp")]),
             ("fri\tWestern Frisian\tC\tfry\t\t2007-02-01",
              [("fri", constants.RELTYPE_RETIREMENT_CHANGE, "fry")]),
             ("bgh\tBogan\tD\tbbh\t\t2007-07-18",
