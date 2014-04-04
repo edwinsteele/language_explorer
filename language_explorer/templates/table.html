@@ -25,6 +25,10 @@
                      value="Search Translations" class="search_init"/>
           </label></th>
           <th><label>
+              <input type="text" name="search_WrittenState"
+                     value="Search Written State" class="search_init"/>
+          </label></th>
+          <th><label>
               <input type="text" name="search_Related" value="Search Related"
                      class="search_init"/>
           </label></th>
@@ -33,15 +37,17 @@
         <th>ISO</th>
         <th>Speakers</th>
         <th>Translations</th>
+        <th>Written State</th>
         <th>Related ISOs with Bible</th>
       </tr>
   </thead>
   <tbody>
-{% for iso, speaker_count, tr_status, related_list in table_data %}
+{% for iso, speaker_count, tr_status, written_state, related_list in table_data %}
     <tr>
       <td class="bordered_td">{{ macros.format_iso_as_href(iso) }}</td>
       <td class="bordered_td">{{ speaker_count }}</td>
       <td class="bordered_td">{{ constants.translation_abbrev_name_dict[tr_status|int] }}</td>
+      <td class="bordered_td">{{ constants.writing_state_abbrev_dict[written_state] }}</td>
       <td class="bordered_td">
         {% if related_list %}
             <ul>

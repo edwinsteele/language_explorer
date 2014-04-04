@@ -18,6 +18,13 @@ class EthnologueAdapter(CachingWebLanguageSource):
     SOURCE_NAME = constants.ETHNOLOGUE_SOURCE_ABBREV
     ALL_LANGUAGES_URL = "http://www.ethnologue.com/country/AU/languages"
     ONE_LANGUAGE_URL_TEMPLATE = "http://www.ethnologue.com/language/%s"
+    # Non indigenous - out of scope
+    EXCLUDED_AU_LANGUAGES = [
+        "coa",  # Malay, Cocos Island
+        "eng",  # English
+        "cmn",  # Chinese Mandarin
+        "asf",  # Australian Sign Language
+    ]
 
     def get_language_iso_keys(self):
         soup = BeautifulSoup(
@@ -25,7 +32,9 @@ class EthnologueAdapter(CachingWebLanguageSource):
         keys = []
         vrs = soup.find_all(class_="views-row")
         for vr in vrs:
-            keys.append(vr.find("a").text[1:4])
+            iso = vr.find("a").text[1:4]
+            if iso not in self.EXCLUDED_AU_LANGUAGES:
+                keys.append(iso)
 
         return keys
 
@@ -326,3 +335,31 @@ class EthnologueAdapter(CachingWebLanguageSource):
             if dialect_relationships:
                 persister.persist_relationship(iso, dialect_relationships,
                                                self.SOURCE_NAME)
+
+    def get_writing_state_for_iso(self, iso):
+        # Latin Script, Unwritten, Latin Script unused
+        soup = BeautifulSoup(self.get_text_from_url(
+            self.ONE_LANGUAGE_URL_TEMPLATE % (iso,)
+        ))
+        writing_div_string = soup.find(class_="field-name-field-writing")
+        if writing_div_string:
+            writing_string = writing_div_string.find(class_="field-item").text
+            if writing_string == "Unwritten.":
+                writing_state = constants.WRITING_STATE_UNWRITTEN
+            elif writing_string in ["Latin script.",
+                                    "Latin script, in development."]:
+                writing_state = constants.WRITING_STATE_LATIN_SCRIPT
+            elif writing_string == "Latin script, no longer in use.":
+                writing_state = constants.WRITING_STATE_LATIN_SCRIPT_NIU
+            else:
+                logging.warning("Unable to parse writing state '%s' for "
+                                "iso %s", writing_string, iso)
+                writing_state = constants.WRITING_STATE_NOT_RECORDED
+        else:
+            writing_state = constants.WRITING_STATE_NOT_RECORDED
+
+        return writing_state
+
+    def persist_writing_state(self, persister, iso):
+        writing_state = self.get_writing_state_for_iso(iso)
+        persister.persist_writing_state(iso, writing_state)

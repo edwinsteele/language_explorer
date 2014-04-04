@@ -100,6 +100,17 @@ class LanguagePersistence(object):
             ["iso"]
         )
 
+    def persist_writing_state(self, iso, state):
+        """Persist state of writing. Only ethnologue at this stage
+        (hence no source)
+        """
+        self.lang_db[self.LANGUAGE_TABLE].upsert(
+            {"iso": iso,
+             "writing_state": state,
+             },
+            ["iso"]
+        )
+
     def get_all_iso_codes(self):
         return sorted(list(set(
             [row["iso"] for row in
@@ -154,6 +165,13 @@ class LanguagePersistence(object):
             [(r_row["source"], r_row["rel_verb"], r_row["object_iso"])
              for r_row in
              self.lang_db[self.RELATIONSHIP_TABLE].find(subject_iso=iso)])
+
+    def get_writing_state_by_iso(self, iso):
+        iso_row = self.lang_db[self.LANGUAGE_TABLE].find_one(iso=iso)
+        if iso_row:
+            return iso_row["writing_state"]
+        else:
+            return constants.WRITING_STATE_NOT_RECORDED
 
     def get_primary_name_for_display(self, iso):
         """Only for display. Use Ethnologue, or nothing
@@ -385,6 +403,7 @@ class LanguagePersistence(object):
                         self.get_L1_speaker_count_by_iso(
                             iso, constants.ETHNOLOGUE_SOURCE_ABBREV),
                         self.get_best_translation_state(iso),
+                        self.get_writing_state_by_iso(iso),
                         relations
                         )
             table_data.append(iso_data)

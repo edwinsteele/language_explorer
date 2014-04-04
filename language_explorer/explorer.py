@@ -129,6 +129,7 @@ def show_language(iso639_3_code):
     cl_dict = lp.get_classifications_by_iso(iso639_3_code)
     rel_list = lp.get_relationships_by_iso(iso639_3_code)
     tr_dict = lp.get_translations_by_iso(iso639_3_code)
+    writing_state = lp.get_writing_state_by_iso(iso639_3_code)
     wals_keys = wals.get_wals_keys_for_iso(iso639_3_code)
     eth_L1_count = lp.get_L1_speaker_count_by_iso(
         iso639_3_code, constants.ETHNOLOGUE_SOURCE_ABBREV)
@@ -141,6 +142,7 @@ def show_language(iso639_3_code):
         dialect_names_dict=di_dict,
         classification_dict=cl_dict,
         translation_dict=tr_dict,
+        writing_state=writing_state,
         constants=constants,
         wals_keys=wals_keys,
         rel_list=rel_list,

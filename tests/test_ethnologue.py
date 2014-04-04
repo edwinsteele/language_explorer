@@ -210,3 +210,14 @@ class TestEthnologueAdapter(BaseAdapterTestCase):
         for iso, rel_list in iso_rtype_pairs:
             self.assertEqual(rel_list,
                              self.source.get_dialects_for_iso(iso))
+
+    def test_get_writing_for_iso(self):
+        iso_writing_pairs = [
+            ("awg", constants.WRITING_STATE_UNWRITTEN),
+            ("wro", constants.WRITING_STATE_LATIN_SCRIPT_NIU),
+            ("wrk", constants.WRITING_STATE_LATIN_SCRIPT),
+            ("dgw", constants.WRITING_STATE_LATIN_SCRIPT),  # in development
+        ]
+        for iso, writing_state in iso_writing_pairs:
+            self.assertEqual(writing_state,
+                             self.source.get_writing_state_for_iso(iso))

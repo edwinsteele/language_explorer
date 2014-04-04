@@ -19,7 +19,6 @@ def main():
     fab = FindABibleAdapter(settings.CACHE_ROOT)
     wals = WalsAdapter(settings.WALS_DB_URL)
     sil_rcem = SilRcemAdapter(settings.SIL_RCEM_TSV_SOURCE)
-    """
     for source in (ethnologue, joshuaproject, wals):
         for lang in source.get_language_iso_keys():
             source.persist_language(p, lang)
@@ -34,12 +33,10 @@ def main():
 
     for lang in ethnologue.get_language_iso_keys():
         ethnologue.persist_L1_speaker_count(p, lang)
-
-    for lang in ethnologue.get_language_iso_keys():
         ethnologue.persist_dialects(p, lang)
+        ethnologue.persist_writing_state(p, lang)
 
     sil_rcem.persist_retirement_relationships(p)
-    """
     p.insert_reverse_relationships()
 
 if __name__ == '__main__':

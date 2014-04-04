@@ -10,6 +10,8 @@
         {% for pn_name in pn_name_list %}
             {{ pn_name }}
         {% endfor %}</li>
+{% else %}
+    No primary names
 {% endfor %}
 </ul>
 
@@ -20,17 +22,21 @@
         {% for an_name in an_name_list %}
             {{ an_name }},
         {% endfor %}</li>
+{% else %}
+    No alternative names
 {% endfor %}
 </ul>
 
 <h2>Dialect Names</h2>
 <ul>
-    {% for di_source, di_name_list in dialect_names_dict.items() %}
-        <li>{{ constants.source_abbrev_name_dict[di_source] }}:
-            {% for di_name in di_name_list %}
-                {{ di_name }},
-            {% endfor %}</li>
-    {% endfor %}
+{% for di_source, di_name_list in dialect_names_dict.items() %}
+    <li>{{ constants.source_abbrev_name_dict[di_source] }}:
+        {% for di_name in di_name_list %}
+            {{ di_name }},
+        {% endfor %}</li>
+ {% else %}
+    No dialect names
+{% endfor %}
 </ul>
 
 <h2>Number of L1 Speakers</h2>
@@ -43,6 +49,8 @@ Ethnologue: {{ eth_L1_count }}
         {% for cl_name in cl_name_list %}
             {{ cl_name }},
         {% endfor %}</li>
+{% else %}
+    No language classifications
 {% endfor %}
 </ul>
 
@@ -52,8 +60,14 @@ Ethnologue: {{ eth_L1_count }}
     <li>{{ constants.relationship_abbrev_name_dict[rel_verb] }}
         {{ macros.format_iso_as_href(object_iso) }}
         (relationship from {{ constants.source_abbrev_name_dict[rel_source] }})</li>
+{% else %}
+    No relationships
 {% endfor %}
 </ul>
+
+<h2>Writing</h2>
+Ethnologue: {{ constants.writing_state_abbrev_dict[writing_state] }}
+
 
 <h2>Bible Translations</h2>
 <ul>
@@ -65,6 +79,8 @@ Ethnologue: {{ eth_L1_count }}
                 ({{ tr_year }})
             {% endif %},
         {% endfor %}</li>
+{% else %}
+    No translation information
 {% endfor %}
 </ul>
 

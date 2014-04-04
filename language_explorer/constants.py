@@ -120,3 +120,15 @@ l1_speaker_css_class_dict = defaultdict(lambda: SPEAKER_COUNT_MANY_CSS_CLASS,
                                         l1_speaker_css_class_dict)
 
 TABLE_SPEAKER_COUNT_COL = "SC"
+
+WRITING_STATE_UNWRITTEN = "U"   # Ethnologue. Unwritten
+WRITING_STATE_LATIN_SCRIPT = "L"  # Ethnologue. Latin script.
+WRITING_STATE_LATIN_SCRIPT_NIU = "N"  # Ethnologue. Latin script, but not in use
+WRITING_STATE_NOT_RECORDED = "R"  # Not recorded in Ethnologue
+
+writing_state_abbrev_dict = {
+    WRITING_STATE_UNWRITTEN: "Unwritten",
+    WRITING_STATE_LATIN_SCRIPT: "Latin script",
+    WRITING_STATE_LATIN_SCRIPT_NIU: "Latin script, unused",
+    WRITING_STATE_NOT_RECORDED: "Not recorded",
+}
