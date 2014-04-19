@@ -22,7 +22,7 @@ class TestPersistence(unittest.TestCase):
 
     def test_same_name_different_iso(self):
         sndi_list = self.p.get_same_name_different_iso_list()
-        self.assertEquals(len(sndi_list), 56)
+        self.assertEquals(len(sndi_list), 60)
         self.assertIn(('tbh', 'yxg'), sndi_list)
         self.assertIn(('aer', 'are', 'axl'), sndi_list)
         # Should have same contents with different order
@@ -33,8 +33,8 @@ class TestPersistence(unittest.TestCase):
             [(("nny", "wgu"), ["Njangga", "Nyangga"]),  # Two matches
              (("jbi", "ekc"), ["Ngura"]),
              # One match where names appear in 1 DBs (EL & EL)
-             (("aer", "are"), ["Aranda", "Arunta"]),
-             # One match where names appear in 2 DBs (JP+EL & JP+EL)
+             (("aer", "are"), ["Arrernte", "Aranda", "Arunta"]),
+             # One match where names appear in 3 DBs (JP+EL+AB)
              ]
         for iso_list, common_name_list in iso_list_common_name_list:
             self.assertEqual(common_name_list,
