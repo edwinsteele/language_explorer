@@ -21,7 +21,7 @@ dataset==0.4.0
 distribute==0.6.28
 gunicorn==18.0
 html5lib==0.95
-ipython==1.1.0
+ipython==2.0.0
 isodate==0.4.9
 itsdangerous==0.23
 newrelic==2.12.0.10

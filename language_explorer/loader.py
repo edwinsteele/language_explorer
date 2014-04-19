@@ -6,6 +6,8 @@ from language_explorer.language_sources.ethnologue import EthnologueAdapter
 from language_explorer.language_sources.wals import WalsAdapter
 from language_explorer.language_sources.findabible import FindABibleAdapter
 from language_explorer.language_sources.sil_rcem import SilRcemAdapter
+from language_explorer.language_sources.austlang import AustlangAdapter
+from language_explorer.language_sources.census_2011 import Census2011Adapter
 from persistence import LanguagePersistence
 
 
@@ -17,8 +19,11 @@ def main():
     p = LanguagePersistence(settings.LANGUAGE_EXPLORER_DB_URL)
     joshuaproject = JPHarvestAdapter(settings.JPHARVEST_DB_URL)
     fab = FindABibleAdapter(settings.CACHE_ROOT)
+    austlang = AustlangAdapter(settings.CACHE_ROOT)
     wals = WalsAdapter(settings.WALS_DB_URL)
     sil_rcem = SilRcemAdapter(settings.SIL_RCEM_TSV_SOURCE)
+    census = Census2011Adapter(settings.CENSUS_LANP_SOURCE, p)
+    """
     for source in (ethnologue, joshuaproject, wals):
         for lang in source.get_language_iso_keys():
             source.persist_language(p, lang)
@@ -38,6 +43,13 @@ def main():
 
     sil_rcem.persist_retirement_relationships(p)
     p.insert_reverse_relationships()
+    # Census relies on population of ABS names from Austlang, so this must be
+    #  run before any census stuff
+    austlang.persist_ABS_names(p)
+    """
+
+    # for lang in p.get_all_iso_codes():
+    #     census.persist_L1_speaker_count(p, lang)
 
 if __name__ == '__main__':
     sys.exit(main())

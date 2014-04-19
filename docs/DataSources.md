@@ -29,10 +29,12 @@ Data comes from [ABS TableBuilder](http://www.abs.gov.au/websitedbs/censushome.n
 2. Under Language Spoken At Home (LANP), drill down to find "Australian Indigenous Languages"
 3. Select all at the "LANP - 4 digit level" (237 items)
 4. Click "Add to Row"
+5. Under Proficiency in Spoken English (ENGLP), select all at level "ENGLP" (7 items). (we choose ENGLP rater than ENGP because we are interested in those that do not speak english at home - http://www.abs.gov.au/ausstats/abs@.nsf/Lookup/2901.0Chapter3302011)
+6. Click "Add to Column"
 5. Click "Retrieve Data"
 6. Download Table as type "Comma Separated Value (.csv)"
 
-This downloaded file is data/census_2011_LANP.csv
+This downloaded file is data/census_2011_LANP_ENGLP.csv
 
 ## Ethnologue Retired Code Element Mappings
 http://www-01.sil.org/iso639-3/

@@ -21,6 +21,9 @@ class AbstractLanguageSource(object):
     def get_translation_info_for_iso(self, iso):
         raise NotImplementedError
 
+    def get_L1_speaker_count_for_iso(self, iso):
+        raise NotImplementedError
+
     def get_classification(self, iso):
         """
         Returns a list of classifications, from Family, Genus, Subgenus etc

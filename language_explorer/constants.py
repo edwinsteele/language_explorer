@@ -10,8 +10,10 @@ FIND_A_BIBLE_SOURCE_ABBREV = "FB"
 WALS_SOURCE_ABBREV = "WA"
 JOSHUA_PROJECT_SOURCE_ABBREV = "JP"
 AUSTLANG_SOURCE_ABBREV = "AL"
+AUSTLANG_ABS_SOURCE_ABBREV = "AB"
 SIL_RCEM_SOURCE_ABBREV = "SI"
 SIL_RCEM_IMPLIED_SOURCE_ABBREV = "SII"
+AUS_CENSUS_2011_ABBREV = "CN"
 
 source_abbrev_name_dict = {
     ETHNOLOGUE_SOURCE_ABBREV: "Ethnologue",
@@ -22,6 +24,8 @@ source_abbrev_name_dict = {
     WALS_SOURCE_ABBREV: "WALS",
     JOSHUA_PROJECT_SOURCE_ABBREV: "Joshua Project",
     AUSTLANG_SOURCE_ABBREV: "AustLang",
+    AUSTLANG_ABS_SOURCE_ABBREV: "Australian Bureau of Statistics",
+    AUS_CENSUS_2011_ABBREV: "Census 2011",
 }
 
 TRANSLATION_STATE_WHOLE_BIBLE = 5  # Findabible
@@ -92,6 +96,7 @@ relationship_abbrev_name_dict = {
 # See note in EthnologueAdapter.get_L1_speaker_count_for_iso
 SPEAKER_COUNT_NONE_EXPECTED = -1
 SPEAKER_COUNT_UNKNOWN = -2
+SPEAKER_COUNT_AMBIGUOUS = -3  # Census data
 # It's helpful to have it > 0. This number should never be shown directly
 SPEAKER_COUNT_FEW = 1.5
 
