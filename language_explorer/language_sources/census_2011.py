@@ -52,7 +52,7 @@ class Census2011Adapter(AbstractLanguageSource):
         # Census adapter requires a database connection in order to resolve
         #  names as ISOs
         self.persister = persister
-        self.lanp_source = lanp_source
+        self.csv_source = lanp_source
         self._lang_to_iso_cache = defaultdict(list)
         self._iso_to_lang_cache = defaultdict(list)
         self._lang_to_count_cache = {}
@@ -76,20 +76,20 @@ class Census2011Adapter(AbstractLanguageSource):
         return self._iso_to_lang_cache
 
     def lanp_data_lines(self):
-        reader = csv.reader(open(self.lanp_source, 'r'), delimiter=",")
+        reader = csv.reader(open(self.csv_source, 'r'), delimiter=",")
         for line_fields in reader:
             # data lines have four fields
-            if len(line_fields) != 4:
+            if len(line_fields) != 11:
                 continue
             # All data lines start with , i.e. empty first field
             if line_fields[0] != '':
                 continue
 
             # Total and header lines look like data, but isn't
-            if line_fields[1] in ("Total", "Counting"):
+            if line_fields[1] in ("Total", "ENGLP"):
                 continue
 
-            yield line_fields[1], line_fields[2]
+            yield line_fields[1], line_fields[-2]
 
     def _populate_lang_iso_count_caches(self):
         for full_name, count in self.lanp_data_lines():

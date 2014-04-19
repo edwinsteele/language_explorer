@@ -6,14 +6,19 @@ from tests.test_baseclasses import BaseAdapterTestCase
 
 
 class TestCensus2011Adapter(BaseAdapterTestCase):
+    """
+    Unlike most other source adapters, the census adapter relies on lots of
+    other data in the database instead of just reading from source files.
+    Austlang must have been loaded, and indeed lots of others
+    """
 
     def setUp(self):
         p = LanguagePersistence(settings.LANGUAGE_EXPLORER_DB_URL)
-        self.source = Census2011Adapter(settings.CENSUS_LANP_SOURCE, p)
+        self.source = Census2011Adapter(settings.CENSUS_CSV_SOURCE, p)
 
     def test_population_for_iso(self):
         iso_count_pairs = [
-            ("gbb", 171),  # iso to single lang to single iso
+            ("gbb", 172),  # iso to single lang to single iso
             ("piu", 1645),  # iso to two langs each with a single iso
             ("not_exist", constants.SPEAKER_COUNT_UNKNOWN),
             ("yii", constants.SPEAKER_COUNT_UNKNOWN),  # no speakers, but we
