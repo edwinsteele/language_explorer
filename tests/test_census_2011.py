@@ -19,7 +19,7 @@ class TestCensus2011Adapter(BaseAdapterTestCase):
     def test_population_for_iso(self):
         iso_count_pairs = [
             ("gbb", 172),  # iso to single lang to single iso
-            ("piu", 1645),  # iso to two langs each with a single iso
+            ("piu", 1646),  # iso to two langs each with a single iso
             ("not_exist", constants.SPEAKER_COUNT_UNKNOWN),
             ("yii", constants.SPEAKER_COUNT_UNKNOWN),  # no speakers, but we
             # don't store data with less than SMALL_CELL_COUNT_THRESHOLD
