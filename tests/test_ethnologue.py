@@ -12,7 +12,10 @@ class TestEthnologueAdapter(BaseAdapterTestCase):
 
     def test_all_iso_keys(self):
         keys = self.source.get_language_iso_keys()
-        self.assertEquals(len(keys), 390)
+        # We exclude languages from the all keys method because they're
+        #  not relevant
+        self.assertEquals(len(keys),
+                          390 - len(self.source.EXCLUDED_AU_LANGUAGES))
         self.assertEquals(keys[0], "dth")
         self.assertEquals(keys[-1], "yxu")
         self._do_test_all_iso_keys_common()
