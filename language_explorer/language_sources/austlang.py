@@ -61,7 +61,8 @@ class AustlangAdapter(CachingWebLanguageSource):
         if iso_text:
             logging.info("Found ISO text %s for Austlang id %s",
                          iso_text, austlang_id)
-            iso_list = [iso.strip() for iso in iso_text.split(",")]
+            # We need to convert to lowercase as Gudanji has the ISO as Nji
+            iso_list = [iso.lower().strip() for iso in iso_text.split(",")]
         else:
             # TODO: What if we can't find one? Make one up in the austlang NS?
             # TODO: Do we store a map of austlang to iso?
