@@ -108,21 +108,26 @@ SPEAKER_COUNT_SOME_CSS_CLASS = "speakers_some"
 SPEAKER_COUNT_MANY_CSS_CLASS = "speakers_many"
 SPEAKER_COUNT_UNKNOWN_CSS_CLASS = "speakers_unknown"
 
-# TODO: Move this into a class so that it's not executed for every module import
-l1_speaker_css_class_dict = dict.fromkeys(range(1, SPEAKER_COUNT_FEW_THRESHOLD),
-                                          SPEAKER_COUNT_FEW_CSS_CLASS)
-l1_speaker_css_class_dict.update(dict.fromkeys(
-    range(SPEAKER_COUNT_FEW_THRESHOLD, SPEAKER_COUNT_MANY_THRESHOLD),
-    SPEAKER_COUNT_SOME_CSS_CLASS))
-l1_speaker_css_class_dict.update({
-    0: "speakers_none",
-    SPEAKER_COUNT_NONE_EXPECTED: "speakers_none",
-    SPEAKER_COUNT_FEW: SPEAKER_COUNT_FEW_CSS_CLASS,
-    SPEAKER_COUNT_UNKNOWN: SPEAKER_COUNT_UNKNOWN_CSS_CLASS,
-})
-# Set default value
-l1_speaker_css_class_dict = defaultdict(lambda: SPEAKER_COUNT_MANY_CSS_CLASS,
-                                        l1_speaker_css_class_dict)
+
+def generate_l1_css_dict():
+    # TODO: Move this into a class so that it's not executed for
+    #  every module import
+    d = dict.fromkeys(
+        range(1, SPEAKER_COUNT_FEW_THRESHOLD), SPEAKER_COUNT_FEW_CSS_CLASS)
+    d.update(dict.fromkeys(
+        range(SPEAKER_COUNT_FEW_THRESHOLD, SPEAKER_COUNT_MANY_THRESHOLD),
+        SPEAKER_COUNT_SOME_CSS_CLASS))
+    d.update({
+        0: "speakers_none",
+        SPEAKER_COUNT_NONE_EXPECTED: "speakers_none",
+        SPEAKER_COUNT_FEW: SPEAKER_COUNT_FEW_CSS_CLASS,
+        SPEAKER_COUNT_UNKNOWN: SPEAKER_COUNT_UNKNOWN_CSS_CLASS,
+    })
+    # Set default value
+    return defaultdict(lambda: SPEAKER_COUNT_MANY_CSS_CLASS, d)
+
+
+l1_speaker_css_class_dict = generate_l1_css_dict()
 
 TABLE_SPEAKER_COUNT_COL = "SC"
 
@@ -137,3 +142,5 @@ writing_state_abbrev_dict = {
     WRITING_STATE_LATIN_SCRIPT_NIU: "Latin script, unused",
     WRITING_STATE_NOT_RECORDED: "Not recorded",
 }
+
+
