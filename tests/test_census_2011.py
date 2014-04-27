@@ -32,3 +32,20 @@ class TestCensus2011Adapter(BaseAdapterTestCase):
         for iso, count in iso_count_pairs:
             self.assertEqual(count,
                              self.source.get_L1_speaker_count_for_iso(iso))
+
+    def test_english_competency(self):
+        iso_competency_pairs = [
+            ("gbb", (33, 83)),
+            ("piu", (25, 67)),
+            ("not_exist", (constants.ENGLISH_COMPETENCY_UNKNOWN_PESSIMISTIC,
+                           constants.ENGLISH_COMPETENCY_UNKNOWN_OPTIMISTIC)),
+            ("yiu", (constants.ENGLISH_COMPETENCY_UNKNOWN_PESSIMISTIC,
+                     constants.ENGLISH_COMPETENCY_UNKNOWN_OPTIMISTIC)),
+            ("gbc", (72, 93)),
+            ("aer", (45, 84)),
+        ]
+        for iso, competencies in iso_competency_pairs:
+            self.assertEqual(
+                competencies,
+                self.source.get_english_competency_percentages(iso)
+            )

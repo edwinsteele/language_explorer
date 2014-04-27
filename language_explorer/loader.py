@@ -22,7 +22,7 @@ def main():
     austlang = AustlangAdapter(settings.CACHE_ROOT)
     wals = WalsAdapter(settings.WALS_DB_URL)
     sil_rcem = SilRcemAdapter(settings.SIL_RCEM_TSV_SOURCE)
-    census = Census2011Adapter(settings.CENSUS_LANP_SOURCE, p)
+    census = Census2011Adapter(settings.CENSUS_CSV_SOURCE, p)
     """
     for source in (ethnologue, joshuaproject, wals):
         for lang in source.get_language_iso_keys():
@@ -48,8 +48,9 @@ def main():
     austlang.persist_ABS_names(p)
     """
 
-    # for lang in p.get_all_iso_codes():
-    #     census.persist_L1_speaker_count(p, lang)
+    for lang in p.get_all_iso_codes():
+        census.persist_L1_speaker_count(p, lang)
+        census.persist_english_competency(p, lang)
 
 if __name__ == '__main__':
     sys.exit(main())

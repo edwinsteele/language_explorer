@@ -111,6 +111,15 @@ class LanguagePersistence(object):
             ["iso"]
         )
 
+    def persist_english_competency(self, iso, pessimistic, optimistic):
+        self.lang_db[self.LANGUAGE_TABLE].upsert(
+            {"iso": iso,
+             "english_competency_pess": pessimistic,
+             "english_competency_optim": optimistic,
+             },
+            ["iso"]
+        )
+
     def get_all_iso_codes(self):
         return sorted(list(set(
             [row["iso"] for row in
@@ -172,6 +181,15 @@ class LanguagePersistence(object):
             return iso_row["writing_state"]
         else:
             return constants.WRITING_STATE_NOT_RECORDED
+
+    def get_english_competency_by_iso(self, iso):
+        iso_row = self.lang_db[self.LANGUAGE_TABLE].find_one(iso=iso)
+        if iso_row:
+            return iso_row["english_competency_pess"], \
+                iso_row["english_competency_optim"]
+        else:
+            # Perhaps unknown, with a formatting method in the template?
+            return "N/A", "N/A"
 
     def get_primary_name_for_display(self, iso):
         """Only for display. Use Ethnologue, or nothing
@@ -399,11 +417,14 @@ class LanguagePersistence(object):
                          src, rel_type, obj_iso in
                          self.get_relationships_by_iso(iso)
                          if self.get_best_translation_state(obj_iso) > 1]
+            ecp, eco = self.get_english_competency_by_iso(iso)
             iso_data = (iso,
                         self.get_L1_speaker_count_by_iso(
                             iso, constants.ETHNOLOGUE_SOURCE_ABBREV),
                         self.get_best_translation_state(iso),
                         self.get_writing_state_by_iso(iso),
+                        ecp,
+                        eco,
                         relations
                         )
             table_data.append(iso_data)
