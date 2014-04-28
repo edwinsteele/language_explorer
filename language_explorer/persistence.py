@@ -222,8 +222,11 @@ class LanguagePersistence(object):
         if not self.l1_speaker_count_cache:
             all_rows = self.lang_db[self.LANGUAGE_TABLE].all()
             for row in all_rows:
-                self.l1_speaker_count_cache[row["iso"]] = \
-                    int(row['L1_speaker_count_%s' % (source,)])
+                if row['L1_speaker_count_%s' % (source,)] is None:
+                    c = constants.SPEAKER_COUNT_UNKNOWN
+                else:
+                    c = int(row['L1_speaker_count_%s' % (source,)])
+                self.l1_speaker_count_cache[row["iso"]] = c
 
         return self.l1_speaker_count_cache.get(
             iso, constants.SPEAKER_COUNT_UNKNOWN)
