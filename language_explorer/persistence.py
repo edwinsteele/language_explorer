@@ -410,6 +410,22 @@ class LanguagePersistence(object):
                 retirement_css_class,
                 iso)
 
+    def format_speaker_count(self, count):
+        if int(count) == constants.SPEAKER_COUNT_UNKNOWN:
+            return "Unknown"
+        elif int(count) == constants.SPEAKER_COUNT_NONE_EXPECTED:
+            return "None (likely extinct)"
+        else:
+            return count
+
+    def format_ebu_percentage(self, perc):
+        """English bible users"""
+        if int(perc) in (constants.ENGLISH_COMPETENCY_UNKNOWN_OPTIMISTIC,
+                         constants.ENGLISH_COMPETENCY_UNKNOWN_PESSIMISTIC):
+            return "N/A"
+        else:
+            return "%s%%" % (perc,)
+
     def get_table_data(self):
         table_data = []
         all_isos = self.get_all_iso_codes()

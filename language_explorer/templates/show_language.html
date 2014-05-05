@@ -40,12 +40,12 @@
 </ul>
 
 <h2>Number of L1 Speakers</h2>
-Ethnologue: {{ eth_L1_count }}
+Ethnologue: {{ lp.format_speaker_count(eth_L1_count) }}
 
 <h2>Could study English Bible</h2>
 <ul>
-<li>Pessimistic: {{ english_competency_pessimistic }}%  (only those with "very good" spoken english)</li>
-<li>Optimistic: {{ english_competency_optimistic }}%  (only those with "very good" or "good" spoken english)</li>
+<li>Pessimistic: {{ lp.format_ebu_percentage(english_competency_pessimistic) }} (only those with "very good" spoken english)</li>
+<li>Optimistic: {{ lp.format_ebu_percentage(english_competency_optimistic) }} (only those with "very good" or "good" spoken english)</li>
 </ul>
 
 <h2>Language Classifications</h2>
