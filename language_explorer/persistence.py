@@ -218,17 +218,17 @@ class LanguagePersistence(object):
             yield [iso for iso, lang_name in grouper]
 
     def get_L1_speaker_count_by_iso(self, iso, source):
-        # FIXME Breaks if we have speaker counts for multiple sources
-        if not self.l1_speaker_count_cache:
+        if source not in self.l1_speaker_count_cache:
+            self.l1_speaker_count_cache[source] = {}
             all_rows = self.lang_db[self.LANGUAGE_TABLE].all()
             for row in all_rows:
                 if row['L1_speaker_count_%s' % (source,)] is None:
                     c = constants.SPEAKER_COUNT_UNKNOWN
                 else:
                     c = int(row['L1_speaker_count_%s' % (source,)])
-                self.l1_speaker_count_cache[row["iso"]] = c
+                self.l1_speaker_count_cache[source][row["iso"]] = c
 
-        return self.l1_speaker_count_cache.get(
+        return self.l1_speaker_count_cache[source].get(
             iso, constants.SPEAKER_COUNT_UNKNOWN)
 
     def get_common_names_for_iso_list(self, iso_list):
@@ -415,6 +415,8 @@ class LanguagePersistence(object):
             return "Unknown"
         elif int(count) == constants.SPEAKER_COUNT_NONE_EXPECTED:
             return "None (likely extinct)"
+        elif int(count) == constants.SPEAKER_COUNT_AMBIGUOUS:
+            return "N/A (ambiguity)"
         else:
             return count
 
@@ -440,6 +442,8 @@ class LanguagePersistence(object):
             iso_data = (iso,
                         self.get_L1_speaker_count_by_iso(
                             iso, constants.ETHNOLOGUE_SOURCE_ABBREV),
+                        self.get_L1_speaker_count_by_iso(
+                            iso, constants.AUS_CENSUS_2011_ABBREV),
                         self.get_best_translation_state(iso),
                         self.get_writing_state_by_iso(iso),
                         ecp,
