@@ -6,11 +6,14 @@ from language_explorer import app, settings, constants
 from language_explorer.language_sources.wals import WalsAdapter
 from language_explorer.persistence import LanguagePersistence
 
+from flask_debugtoolbar_lineprofilerpanel.profile import line_profile
+
 lp = LanguagePersistence(settings.LANGUAGE_EXPLORER_DB_URL)
 wals = WalsAdapter(settings.WALS_DB_URL)
 
 
 @app.route('/')
+#@line_profile
 def index():
     return render_template('index.html')
 

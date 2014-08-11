@@ -1,9 +1,7 @@
-__author__ = 'esteele'
-
+from werkzeug.contrib.fixers import ProxyFix
 from language_explorer import app
 
 from flask_debugtoolbar import DebugToolbarExtension
-from flask_debugtoolbar_lineprofilerpanel.profile import line_profile
 
 app.debug = True
 app.config['SECRET_KEY'] = 'yourmum'
@@ -18,5 +16,7 @@ app.config['DEBUG_TB_PANELS'] = [
     # Add the line profiling
     'flask_debugtoolbar_lineprofilerpanel.panels.LineProfilerPanel'
 ]
-# toolbar = DebugToolbarExtension(app)
+
+toolbar = DebugToolbarExtension(app)
+app.wsgi_app = ProxyFix(app.wsgi_app)
 app.run()
