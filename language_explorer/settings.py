@@ -1,11 +1,30 @@
-__author__ = 'esteele'
+import os
 
-# Data sources
-LANGUAGE_EXPLORER_DB_URL = 'postgresql://esteele@localhost/language_explorer'
-JPHARVEST_DB_URL = 'postgresql://esteele@localhost/jpharvest'
-WALS_DB_URL = 'postgresql://esteele@localhost/wals2013'
-SIL_RCEM_TSV_SOURCE = '/Users/esteele/Code/language_explorer/data/iso-639-3_Retirements.tab'
-CENSUS_CSV_SOURCE  = '/Users/esteele/Code/language_explorer/data/census_2011_LANP_ENGLP.csv'
 
-CACHE_ROOT = "/Users/esteele/Code/language_explorer/data/.cache"
-TEST_CACHE_ROOT = CACHE_ROOT  # For the moment
+def get_env_variable(var_name):
+    """ Get the environment variable or return exception """
+    try:
+        return os.environ[var_name]
+    except KeyError:
+        error_msg = "Set the %s env variable" % var_name
+        raise RuntimeError(error_msg)
+
+# Defaults (note that they come before the import based
+#  on deployment type
+DEBUG = False
+SECRET_KEY = None
+DEBUG_TB_PANELS = []
+TOOLBAR = None
+WSGI_APP = None
+
+deployment_type = get_env_variable("LANGUAGE_EXPLORER_DEPLOYMENT")
+if deployment_type == "dev":
+    from dev_settings import *
+elif deployment_type == "staging":
+    from staging_settings import *
+elif deployment_type == "prod":
+    from prod_settings import *
+else:
+    raise RuntimeError("Invalid LANGUAGE_EXPLORER_DEPLOYMENT type"
+                       " '%s'. Valid types are dev/staging/prod" %
+                       (deployment_type,))
