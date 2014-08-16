@@ -1,5 +1,14 @@
 #!/bin/sh
 
+# Set sed command based on OS.
+# We use gnu-sed here, because BSD sed doesn't have \U or \L to allow
+#  case changes, but gnu-sed doesn't exist on linux machines
+if [ "$(uname -s)" == "Darwin" ]; then
+	SED=gsed;
+else
+	SED=sed;
+fi
+
 # Load the Joshua Project database into postgres, and make it accessible
 #  from sql soup.
 
@@ -21,19 +30,17 @@ psql -c "create database jpharvest"
 #
 # Otherwise it should be error free
 mdb-schema $MDB_LOCATION postgres |
-	sed 's/^CREATE UNIQUE INDEX/CREATE INDEX/' |
+	$SED 's/^CREATE UNIQUE INDEX/CREATE INDEX/' |
 	psql jpharvest |
 	awk '/^(NOTICE|ERROR|WARN)/' | grep -v 'MSysNavPaneGroup'
 
-# We use gnu-sed here, because BSD sed doesn't have \U or \L to allow
-#  case changes
 # - Change to date format (mdb-tools exports this db in MDY format)
 # - Fix some case sensitivity issues (mixed case to upper case)
 #   (these changes will land from upstream by march or april 2014)
 for i in $(grep -v "^#" jpharvest-table-insertion-order.txt); do
 	#echo "Ready to process $i. Enter to start"; read;
 	echo -n "Processing $i... ";
-	mdb-export -I postgres -q \' $MDB_LOCATION $i | gsed '1i\
+	mdb-export -I postgres -q \' $MDB_LOCATION $i | $SED '1i\
 set DateStyle="MDY";
 s/\(RPz[a-z]\)/\U\1/;
 s/\(UG[yz][a-z]\)/\U\1/;
