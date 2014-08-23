@@ -18,7 +18,7 @@ psql jpharvest < JPHarvest.schema 2>&1 |
 	awk '/^(ERROR|WARN)/' |
        	grep -v 'MSysNavPaneGroup' |
 	grep -v 'there is no unique constraint matching given keys for referenced table' |
-	grep -v 'constraint.*for relation.*already exists"
+	grep -v 'constraint.*for relation.*already exists'
 
 echo "Loading JPHarvest data"
 psql jpharvest < JPHarvest.data 2>&1 |
