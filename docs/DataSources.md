@@ -7,8 +7,6 @@ Database available at:
 http://www.joshuaproject.net/assets/data/jpharvfielddataonly.zip (MS Access)
 Requires mdbtools
 
-Install with data/load_jpharvest.sh
-
 
 ## WALS
 http://wals.info
@@ -41,8 +39,15 @@ http://www-01.sil.org/iso639-3/
 
 This file contains language codes that have been retired or split.
 1. http://www-01.sil.org/iso639-3/iso-639-3_Retirements.tab
-2. psql -c "create database sil_rcem"
-3. psql sil_rcem < iso-639-3_Retirements.schema
+2. http://www-01.sil.org/iso639-3/iso-639-3_Retirements.schema
 
 The downloaded file is data/iso-639-3_Retirements.tab
 The schema file is adapted for postgres from the documentation page above
+
+## Creating and loading a data bundle
+The data loading process is scripted, but relies on the resoures above being
+available. Once they have been downloaded, edit the locations in data/make_data_bundle.sh
+and run the script. The script prints the location of the created data bundle
+upon completion. Copy the bundle to the target machine and unpack it. Once
+unpacked, run the load_data_bundle.sh script that is inside the bundle.
+
