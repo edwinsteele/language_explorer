@@ -18,7 +18,8 @@ setup(
     license='',
     author='Edwin Steele',
     author_email='edwin@wordspeak.org',
-    py_modules=['language_explorer'],
+    packages=['language_explorer', 'tests'],
+    test_suite='tests',
     include_package_data=True,
     classifiers=[
         'Development Status :: 5 - Production/Stable',
