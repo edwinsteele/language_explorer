@@ -3,6 +3,7 @@
 # Change accordingly
 JPHARVEST_LOCATION=~/Code/lex_data/JPHarvestFieldDataOnly.mdb;
 JPHARVEST_TABLE_ORDER=~/Code/lex_data/jpharvest-table-insertion-order.txt;
+JPHARVEST_SCHEMA_HACKS=~/Code/language_explorer/data/jpharvest_schema_hacks.schema;
 WALS_LOCATION=~/Code/lex_data/wals2013.sql;
 DATABASE_OWNER=esteele;
 CACHE_LOCATION=/Users/esteele/Code/language_explorer/data/.cache;
@@ -10,7 +11,6 @@ CENSUS_LANP_ENGLP_LOCATION=~/Code/language_explorer/data/census_2011_LANP_ENGLP.
 ISO_639_RETIREMENTS_SCHEMA=~/Code/language_explorer/data/iso-639-3_Retirements.schema;
 ISO_639_RETIREMENTS_DATA=~/Code/language_explorer/data/iso-639-3_Retirements.tab;
 LOADER_SCRIPT_LOCATION=~/Code/language_explorer/data/load_data_bundle.sh;
-
 
 # Don't adjust
 LEX_DATA_SUBDIR="lex_data_bundle";
@@ -45,6 +45,8 @@ s/moeykham...psmail.net/moeykham_psmail.net/; # adjust single quotes that are il
 ' >> $lex_data_dir/$FINAL_JPHARVEST_DATA_NAME
 	echo "\\echo Finished processing $i;" >> $lex_data_dir/$FINAL_JPHARVEST_DATA_NAME;
 done
+# Copy schema hacks
+cp $JPHARVEST_SCHEMA_HACKS $lex_data_dir;
 
 # WALS
 sed 's/robert/esteele/g

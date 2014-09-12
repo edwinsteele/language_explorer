@@ -1,0 +1,13 @@
+-- this is needed because the dataset library requires a primary key
+-- on each table and it does not exist in tblLNG6LanguageAlternateNames
+--
+-- We need to delete some incomplete data to rectify this. Hopefully this
+-- will not be necessary on a subsequent version of the jpharvest tables
+
+-- 10 ROWS
+-- ROL3 = 'aig' (2 ROWS) and ROL3 = 'pap' (8 ROWS)
+DELETE FROM "tblLNG6LanguageAlternateNames" WHERE "ROG3" IS NULL;
+
+-- Now setup primary key
+ALTER TABLE "tblLNG6LanguageAlternateNames" ALTER COLUMN "ROG3" SET NOT NULL;
+ALTER TABLE "tblLNG6LanguageAlternateNames" ADD CONSTRAINT "tblLNG6LanguageAlternateNames_pkey" PRIMARY KEY ("ROL3", "ROG3", "LangAltName");

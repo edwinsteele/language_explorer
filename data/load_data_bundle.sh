@@ -28,6 +28,8 @@ psql jpharvest < JPHarvest.data 2>&1 |
   /^$/ {};
   /^Finished/ {print $3, c, "inserts"; c=0;};'
 
+echo -n "Processing JPHarvest schema hacks... "
+psql jpharvest < jpharvest_schema_hacks.schema
 echo -n "Loading SIL retired code element mappings (sil_rcem) schema... "
 psql -c "CREATE DATABASE sil_rcem"
 psql sil_rcem < iso-639-3_Retirements.schema
