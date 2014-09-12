@@ -1,6 +1,6 @@
 import os
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 def read(*paths):
@@ -18,7 +18,7 @@ setup(
     license='',
     author='Edwin Steele',
     author_email='edwin@wordspeak.org',
-    packages=['language_explorer', 'tests'],
+    packages=find_packages(),
     test_suite='tests',
     include_package_data=True,
     classifiers=[
