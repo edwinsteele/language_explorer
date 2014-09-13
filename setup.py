@@ -11,7 +11,7 @@ def read(*paths):
 
 setup(
     name='language_explorer',
-    version='0.1.0',
+    version='0.2.0',
     description='Explorer Australian aboriginal languages.',
     long_description=(read('README.md')),
     url='https://github.com/edwinsteele/language_explorer',
