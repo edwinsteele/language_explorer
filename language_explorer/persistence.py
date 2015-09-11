@@ -188,8 +188,8 @@ class LanguagePersistence(object):
             return iso_row["english_competency_pess"], \
                 iso_row["english_competency_optim"]
         else:
-            # Perhaps unknown, with a formatting method in the template?
-            return "N/A", "N/A"
+            return constants.ENGLISH_COMPETENCY_UNKNOWN_PESSIMISTIC, \
+                constants.ENGLISH_COMPETENCY_UNKNOWN_OPTIMISTIC
 
     def get_primary_name_for_display(self, iso):
         """Only for display. Use Ethnologue, or nothing
