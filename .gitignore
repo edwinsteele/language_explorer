@@ -1,5 +1,7 @@
 # Language explorer ethnologue web cache file location
 data/.cache
+# Dumping ground for wals import
+data/wals.sql
 
 # Mac stuffs
 .DS_Store
