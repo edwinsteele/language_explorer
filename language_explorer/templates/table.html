@@ -1,6 +1,5 @@
 {% extends "layout.html" %}
 {% block title %}Language Table{% endblock %}
-{% include "legend.html" %}
 {% block head_js %}
     <style type="text/css">
       .dataTables_filter { display: none; }
@@ -8,6 +7,7 @@
 {% endblock %}
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{{  url_for('static', filename='DataTables-1.10.9/css/jquery.dataTables.min.css') }}">
+{% include "legend.html" %}
 <h1>Language Table</h1>
 
 <table class="bordered_table" id="datatable_table">
