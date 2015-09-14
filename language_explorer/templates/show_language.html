@@ -104,7 +104,7 @@ Ethnologue: {{ constants.writing_state_abbrev_dict[writing_state] }}
   <li><a href="http://worldbibles.org/language_detail.php/eng/{{ iso639_3_code }}/{{ lp.get_primary_name_for_display(iso639_3_code) }}">World Bibles</a></li>
   <li><a href="http://multitree.org/codes/{{ iso639_3_code }}">Multitree</a></li>
   <li><a href="http://en.wikipedia.org/wiki/ISO_639:{{ iso639_3_code }}">Wikipedia</a></li>
-  <li><form name="lang_code" action="http://www.joshuaproject.net/languages.php" method="post" style="display:inline;">
+  <li><form name="lang_code" action="http://legacy.joshuaproject.net/languages.php" method="post" style="display:inline;">
     <input type="hidden" name="rol3" value="{{ iso639_3_code }}"><input type="submit" value="Joshua Project" name="submit"/></form></li>
   <li>WALS: {%  for wals_key in wals_keys %}
       <a href="http://wals.info/languoid/lect/wals_code_{{ wals_key }}">{{ wals_key }}</a>
