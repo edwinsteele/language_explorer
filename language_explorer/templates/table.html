@@ -87,6 +87,30 @@
 <script type="text/javascript" src="{{  url_for('static', filename='jquery-1.11.3.min.js') }}"></script>
 <script type="text/javascript" src="{{  url_for('static', filename='DataTables-1.10.9/js/jquery.dataTables.min.js') }}"></script>
 <script type="text/javascript">
+    /*
+    num and num-fmt sorts fall over when they encounter a non-integer so
+    this gives a far away value to strings so we still get numeric sorting
+    even when non-numerics are mixed in
+     */
+    jQuery.fn.dataTableExt.oSort["num-flex-desc"] = function (x, y) {
+        function getIntOrApproximation(str) {
+            var SENTINEL = -9999999999;
+            str = str.replace("%", '');
+            var val = parseInt(str);
+            if (isNaN(val)) {
+                val = SENTINEL;
+                /* try a little to differentiate unknown values */
+                for (var i = 0; i < str.length; i++) {
+                    val += str.charCodeAt(i);
+                }
+            }
+            return val;
+        }
+        return getIntOrApproximation(x) - getIntOrApproximation(y);
+    }
+    jQuery.fn.dataTableExt.oSort["num-flex-asc"] = function (x, y) {
+        return jQuery.fn.dataTableExt.oSort["num-flex-desc"](y, x);
+    }
     var asInitVals = [];
     $(document).ready( function() {
         var oTable = $('#datatable_table').dataTable( {
@@ -94,7 +118,17 @@
             "bSortClasses": true,
             "oLanguage": {
                 "sSearch": "Search all columns:"
-            }
+            },
+            "columns": [
+                null,
+                {"type": "num-flex"},
+                {"type": "num-flex"},
+                null,
+                null,
+                {"type": "num-flex"},
+                {"type": "num-fmt"},
+                null
+            ]
         } );
 
         var thi = $("thead input");
