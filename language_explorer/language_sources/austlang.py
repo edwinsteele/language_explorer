@@ -40,7 +40,7 @@ class AustlangAdapter(CachingWebLanguageSource):
         'Gundjeihmi': "gup",  # Dialect of Gunwinngu => 29 speakers
         'Kanai': "unn",  # Is Kurnai
         #'Kaurna', # Not in Ethnologue => 58 speakers. WALS code kaq
-        'Murrinh Patha': "wmf",  # Is Murrinh-Patha
+        'Murrinh Patha': "mwf",  # Is Murrinh-Patha
         "Ngan'gikurunggurr": "nam",  # Is Nangikurrunggurr
         'Nhangu, nec': "jay",  # Is Yan-nhangu (even though it is a Yolngu language)
         # 'Thaynakwith',  # Unable to find anything. => 3 speakers
