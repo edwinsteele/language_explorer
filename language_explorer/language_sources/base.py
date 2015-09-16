@@ -8,6 +8,13 @@ __author__ = 'esteele'
 
 class AbstractLanguageSource(object):
     SOURCE_NAME = None
+    # Non indigenous - out of scope
+    EXCLUDED_AU_LANGUAGES = set([
+        "coa",  # Malay, Cocos Island
+        "eng",  # English
+        "cmn",  # Chinese Mandarin
+        "asf",  # Australian Sign Language
+    ])
 
     def get_primary_name_for_iso(self, iso):
         raise NotImplementedError

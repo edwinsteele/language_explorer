@@ -9,8 +9,6 @@ __author__ = 'esteele'
 
 class JPHarvestAdapter(AbstractLanguageSource):
     SOURCE_NAME = constants.JOSHUA_PROJECT_SOURCE_ABBREV
-    # For filtering out known matches that aren't indigenous
-    NON_INDIGENOUS_AU_LANGUAGES = []
 
     def __init__(self, db_url):
         self.db = sqlsoup.SQLSoup(db_url)
@@ -38,10 +36,11 @@ class JPHarvestAdapter(AbstractLanguageSource):
                           self.db.tbllnkLNGtoPEOGEO.PeopleID3 ==
                           pg_labels.tblPEO3PeopleGroups_PeopleID3,
                           isouter=True)
-        all_iso = sorted(list(set([row.ROL3 for row in j1.filter(
+        all_iso = set([row.ROL3 for row in j1.filter(
             j1.ROG3 == "AS",
-            j1.tblPEO3PeopleGroups_PeopleID2 == 100).all()])))
-        return all_iso
+            j1.tblPEO3PeopleGroups_PeopleID2 == 100).all()])\
+            .difference(self.EXCLUDED_AU_LANGUAGES)
+        return sorted(list(all_iso))
 
     def get_primary_name_for_iso(self, iso):
         return self.db.tblLNG3Languages.get(iso).Language

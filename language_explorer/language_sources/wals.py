@@ -40,9 +40,11 @@ class WalsAdapter(AbstractLanguageSource):
         # we still have entries like 'aer, are' that we need to split and strip
         all_iso_codes_with_nested_lists = [re.split(",\s", x)
                                            for x in all_iso_code_fields]
-        # flatten and remove empty codes, and remove duplicates
+        # flatten and remove empty codes, and remove duplicates, and remove
+        #  those that we want to explicitly exclude
         return sorted(list(set(filter(
-            None, itertools.chain(*all_iso_codes_with_nested_lists)))))
+            None, itertools.chain(*all_iso_codes_with_nested_lists)))
+            .difference(self.EXCLUDED_AU_LANGUAGES)))
 
     def get_primary_name_for_iso(self, iso):
         # We use like %iso% because we want to include those that have several

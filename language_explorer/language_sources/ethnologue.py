@@ -18,13 +18,6 @@ class EthnologueAdapter(CachingWebLanguageSource):
     SOURCE_NAME = constants.ETHNOLOGUE_SOURCE_ABBREV
     ALL_LANGUAGES_URL = "http://www.ethnologue.com/country/AU/languages"
     ONE_LANGUAGE_URL_TEMPLATE = "http://www.ethnologue.com/language/%s"
-    # Non indigenous - out of scope
-    EXCLUDED_AU_LANGUAGES = [
-        "coa",  # Malay, Cocos Island
-        "eng",  # English
-        "cmn",  # Chinese Mandarin
-        "asf",  # Australian Sign Language
-    ]
 
     def get_language_iso_keys(self):
         soup = BeautifulSoup(
