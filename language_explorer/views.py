@@ -27,19 +27,6 @@ def show_all_languages():
     )
 
 
-@app.route('/search', methods=['GET', 'POST'])
-def search_languages_by_name():
-    language_name = request.form['language_name'].strip()
-    iso_set = set(lp.get_iso_list_from_name(language_name))
-    iso_set.update(lp.get_iso_list_from_iso(language_name))
-    return render_template(
-        'search.html',
-        lp=lp,
-        iso_list=sorted(list(iso_set)),
-        search_term=language_name,
-    )
-
-
 @app.route('/investigations')
 def show_investigations():
     sndi_list = lp.get_same_name_different_iso_list()
