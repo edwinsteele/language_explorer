@@ -32,8 +32,10 @@
     <div id="footer">
       {% block footer %}
           <hr>
-    <a href="/">Home</a> | <form name="search_code" action="/search" method="post" style="display:inline;">
-    <input type="text" name="language_name"><input type="submit" value="search"/></form>
+    <a href="/">Home</a> |
+    <a href="/search_static">Search2</a> |
+    <form name="search_code" action="/search_static" method="get" style="display:inline;">
+    <input type="text" name="search_term"><input type="submit" value="search"/></form>
       {% endblock %}
     </div>
   </body>

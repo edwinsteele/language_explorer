@@ -90,6 +90,15 @@ def show_table():
         constants=constants,
     )
 
+@app.route('/search_static')
+def show_search_table():
+    td = lp.get_search_table_data()
+    return render_template(
+        'search_static.html',
+        table_data=td,
+        lp=lp,
+        constants=constants,
+        )
 
 @app.route('/language/iso/<iso639_3_code>')
 def show_language(iso639_3_code):

@@ -452,3 +452,16 @@ class LanguagePersistence(object):
                         )
             table_data.append(iso_data)
         return table_data
+
+    def get_search_table_data(self):
+        table_data = []
+        all_isos = self.get_all_iso_codes()
+        for iso in all_isos:
+            name_set = set(itertools.chain(
+                *self.get_primary_names_by_iso(iso).values()))
+            name_set.union(itertools.chain(
+                *self.get_alternate_names_by_iso(iso).values()))
+            name_set.union(itertools.chain(
+                *self.get_dialect_names_by_iso(iso).values()))
+            table_data.append((iso, ", ".join(name_set)))
+        return table_data

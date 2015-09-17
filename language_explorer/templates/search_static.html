@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block title %}Language Table{% endblock %}
+{% block head_js %}
+{% endblock %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{{  url_for('static', filename='DataTables-1.10.9/css/jquery.dataTables.min.css') }}">
+{% include "legend.html" %}
+<h1>Language Table</h1>
+
+<table class="bordered_table" id="datatable_table">
+  <thead>
+      <tr>
+        <th>ISO</th>
+        <th>Speakers (Ethnologue)</th>
+      </tr>
+  </thead>
+  <tbody>
+{% for iso, names_str in table_data %}
+    <tr>
+      <td class="bordered_td">{{ macros.format_iso_as_href(iso) }}</td>
+      <td class="bordered_td">{{ names_str }}</td>
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
+
+<script type="text/javascript" src="{{  url_for('static', filename='jquery-1.11.3.min.js') }}"></script>
+<script type="text/javascript" src="{{  url_for('static', filename='DataTables-1.10.9/js/jquery.dataTables.min.js') }}"></script>
+<script type="text/javascript">
+    /* Pinched from http://stackoverflow.com/questions/11217023/datatables-how-to-pass-search-parameter-in-a-url */
+    // Read a page's GET URL variables and return them as an associative array.
+    function getUrlVars()
+    {
+     var vars = {};
+        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            vars[key] = value;
+        });
+        return vars;
+    }
+
+    $(document).ready( function() {
+        var search_term = getUrlVars()['search_term']
+        var oTable = $('#datatable_table').dataTable( {
+            "paging": false,
+            "ordering": false,
+            "info": false
+        } );
+        oTable.fnFilter(search_term);
+    } );
+</script>
+{% endblock %}

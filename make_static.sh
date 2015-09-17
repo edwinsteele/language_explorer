@@ -35,17 +35,19 @@ popd
 # Convert all hrefs to use .html suffixes (none are present in the
 #  dynamic site, so we can assume that this is safe to execute here.
 # Don't try to add a .html to hrefs to the root director
-y# We use gnu sed here so we have access to the -i argument
+# We use gnu sed here so we have access to the -i argument
 find $MIRROR_OUTPUT_DIR -type f | \
 	xargs gsed -i 's/href="\(\/[a-z][a-z/]*\)">/href="\1.html">/'
 
-# Adjust hrefs and src elements to be prefixed with the deployment
+# Adjust hrefs, action and src elements to be prefixed with the deployment
 #  prefix (if one is used)
 if [ -n "$DEPLOYMENT_PREFIX" ]; then
 	find $MIRROR_OUTPUT_DIR -type f -name "*.html" | \
 		xargs gsed -i 's/href="/href="\'$DEPLOYMENT_PREFIX'/'
 	find $MIRROR_OUTPUT_DIR -type f -name "*.html" | \
 		xargs gsed -i 's/src="/src="\'$DEPLOYMENT_PREFIX'/'
+	find $MIRROR_OUTPUT_DIR -type f -name "*.html" | \
+		xargs gsed -i 's/action="/action="\'$DEPLOYMENT_PREFIX'/'
 fi
 
 
