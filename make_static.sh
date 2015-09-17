@@ -13,6 +13,7 @@ MIRROR_OUTPUT_DIR="/Users/esteele/Sites/lex-mirror$DEPLOYMENT_PREFIX"
 LIBRARY_OUTPUT_DIR="$MIRROR_OUTPUT_DIR/lib"
 LEX_PROTOCOL="http://"
 LEX_INSTANCE="127.0.0.1:8000"
+SEARCH_FORM_DEST="/search"
 
 rm -rf $MIRROR_OUTPUT_DIR
 mkdir -p $MIRROR_OUTPUT_DIR
@@ -25,6 +26,9 @@ sleep 3
 pushd $MIRROR_OUTPUT_DIR
 wget --no-verbose --inet4-only --recursive --level=inf \
 	--no-remove-listing --adjust-extension ${LEX_PROTOCOL}${LEX_INSTANCE}
+# Search form is only accessible via a form, so needs to be scraped separately
+wget --no-verbose --inet4-only --no-remove-listing \
+	--adjust-extension ${LEX_PROTOCOL}${LEX_INSTANCE}${SEARCH_FORM_DEST}
 
 # Collapse host directory (wget --no-host-directories option doesn't seem
 #  to collapse)
@@ -32,12 +36,14 @@ mv "$MIRROR_OUTPUT_DIR/$LEX_INSTANCE/"* $MIRROR_OUTPUT_DIR
 rmdir "$MIRROR_OUTPUT_DIR/$LEX_INSTANCE"
 popd
 
-# Convert all hrefs to use .html suffixes (none are present in the
+# Convert all hrefs and actions to use .html suffixes (none are present in the
 #  dynamic site, so we can assume that this is safe to execute here.
 # Don't try to add a .html to hrefs to the root director
 # We use gnu sed here so we have access to the -i argument
 find $MIRROR_OUTPUT_DIR -type f | \
 	xargs gsed -i 's/href="\(\/[a-z][a-z/]*\)">/href="\1.html">/'
+find $MIRROR_OUTPUT_DIR -type f | \
+	xargs gsed -i 's/action="\(\/[a-z][a-z/]*\)"/action="\1.html"/'
 
 # Adjust hrefs, action and src elements to be prefixed with the deployment
 #  prefix (if one is used)

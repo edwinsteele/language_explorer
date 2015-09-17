@@ -77,7 +77,7 @@ def show_table():
         constants=constants,
     )
 
-@app.route('/search_static')
+@app.route('/search')
 def show_search_table():
     td = lp.get_search_table_data()
     return render_template(
