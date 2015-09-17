@@ -47,7 +47,7 @@ class AustlangAdapter(CachingWebLanguageSource):
         'Wagilak': "rit",  # Is Ritarungo => 16 speakers
         'Wangkatha': "pti",
         'Western Arrarnta': "are",
-        #'Wik Ngathan': "wig",  # Is Wig-Ngathana => 4 speakers  XXX seems too small
+        'Wik Ngathan': "wig",  # Is Wig-Ngathana => 4 speakers  XXX seems small
         'Yumplatok (Torres Strait Creole)': "tcs",  # => 5368 speakers
     }
 
