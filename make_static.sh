@@ -46,14 +46,17 @@ find $MIRROR_OUTPUT_DIR -type f | \
 	xargs gsed -i 's/action="\(\/[a-z][a-z/]*\)"/action="\1.html"/'
 
 # Adjust hrefs, action and src elements to be prefixed with the deployment
-#  prefix (if one is used)
+#  prefix (if one is used). Note that we only attempt to prefix with the
+#  deployment prefix if there is a leading slash. As all URLs are absolute
+#  this will give correct results and prevent external addresses e.g. http://
+#  from incorrectly being prefixed with the deployment prefix
 if [ -n "$DEPLOYMENT_PREFIX" ]; then
 	find $MIRROR_OUTPUT_DIR -type f -name "*.html" | \
-		xargs gsed -i 's/href="/href="\'$DEPLOYMENT_PREFIX'/'
+		xargs gsed -i 's/href="\//href="\'$DEPLOYMENT_PREFIX'\//'
 	find $MIRROR_OUTPUT_DIR -type f -name "*.html" | \
-		xargs gsed -i 's/src="/src="\'$DEPLOYMENT_PREFIX'/'
+		xargs gsed -i 's/src="\//src="\'$DEPLOYMENT_PREFIX'\//'
 	find $MIRROR_OUTPUT_DIR -type f -name "*.html" | \
-		xargs gsed -i 's/action="/action="\'$DEPLOYMENT_PREFIX'/'
+		xargs gsed -i 's/action="\//action="\'$DEPLOYMENT_PREFIX'\//'
 fi
 
 
