@@ -3,6 +3,7 @@
 {% include "legend.html" %}
 {% block content %}
 <h2>Possible scripture applicability by language common name</h2>
+    Languages with a common name where at least one has some scripture
     <ul>
         {% for sabn_item, sabn_common_name_list in sabn_info %}
             <li>{% for iso in sabn_item %}
@@ -12,12 +13,15 @@
     </ul>
 <h3>Notes</h3>
 <ul>
+  <li>kdd & pjt: related. kdd speakers also use pjt</li>
   <li>gbc & wrk: gbc code retired and split into wrk and wny</li>
-  <li>vku & yij: ?</li>
-  <li>bvr & dhg: ?</li>
-  <li>duj & gnn: ?</li>
-  <li>bvr & gge: ?  (note recurrance of bvr)</li>
-  <li>aer & are: ?</li>
+  <li>vku & yij: both classified as coastal ngayarda</li>
+  <li>bvr & dhg: classified differently (burraran vs yolŋu), but most speakers share a common L2</li>
+  <li>gnn & guf: both classified as yolŋu-dhuwal</li>
+  <li>gup & wlg: same classification (Ethn says wlg ethnic members generally speak gup) </li>
+  <li>duj & gnn: both classified as yolŋu-dhuwal</li>
+  <li>bvr & gge: same classification</li>
+  <li>aer & are: same classification</li>
   <li>unp & wro: unp code retired and split into wro and xgu</li>
 </ul>
 
