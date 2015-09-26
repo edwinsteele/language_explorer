@@ -449,11 +449,15 @@ class LanguagePersistence(object):
 
     def format_lat_lon(self, lat, lon):
         # XXX: workaround for float approx equals
+        # http://www.openstreetmap.org/?minlon=110&minlat=-20&maxlon=160&maxlat=-40&mlat=-33&mlon=151
         if int(lat) == int(constants.LATITUDE_UNKNOWN) or \
                 int(lon) == int(constants.LONGITUDE_UNKNOWN):
-            return "N/A"
+            return "Latitude, Longitude: N/A"
         else:
-            return "%.2f, %.2f" % (lat, lon)
+            return "<a href='http://www.openstreetmap.org/?" \
+                   "minlon=110&minlat=-20&maxlon=160&maxlat=-40&" \
+                   "mlat=%.2f&mlon=%.2f'>Latitude: %.2f, Longitude: %.2f</a>" \
+                   % (lat, lon, lat, lon)
 
     def get_table_data(self):
         table_data = []
