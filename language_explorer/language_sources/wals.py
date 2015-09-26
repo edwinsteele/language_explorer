@@ -1,3 +1,4 @@
+import logging
 import re
 import itertools
 
@@ -8,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from language_explorer import constants
 from language_explorer.language_sources.base import AbstractLanguageSource
 
+logging.basicConfig(level=logging.DEBUG)
 
 __author__ = 'esteele'
 
@@ -83,6 +85,32 @@ class WalsAdapter(AbstractLanguageSource):
                         wals3.models.Language.pk)
                 .filter(wals3.models.WalsLanguage.iso_codes
                 .like('%%%s%%' % (iso,))).all()]
+
+    def get_lat_lon_for_iso(self, iso):
+        lang = self.session.query(wals3.models.WalsLanguage) \
+            .filter(wals3.models.WalsLanguage.pk ==
+                    wals3.models.Language.pk) \
+            .filter(wals3.models.WalsLanguage.iso_codes.
+                    like('%%%s%%' % (iso,))).order_by("length(iso_codes)") \
+            .first()
+        if lang:
+            return lang.latitude, lang.longitude
+        else:
+            return constants.LATITUDE_UNKNOWN, constants.LONGITUDE_UNKNOWN
+
+    def persist_latitude_longitudes(self, persister):
+        for iso in self.get_language_iso_keys():
+            lat, lon = self.get_lat_lon_for_iso(iso)
+            if lat == constants.LATITUDE_UNKNOWN or \
+                    lon == constants.LONGITUDE_UNKNOWN:
+                logging.info("Unable to find lat lon for ISO %s. "
+                             "Not persisting.")
+            else:
+                logging.info("Persisting lat lon for ISO %s (%.2f, %.2f)",
+                             iso,
+                             lat,
+                             lon)
+                persister.persist_lat_lon(iso, lat, lon)
 
     def get_classification(self, iso):
         """Not worth implementing this, as there are only Family and Genus

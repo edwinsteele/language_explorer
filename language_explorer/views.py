@@ -103,6 +103,7 @@ def show_language(iso639_3_code):
         iso639_3_code, constants.ETHNOLOGUE_SOURCE_ABBREV)
     census_L1_count = lp.get_L1_speaker_count_by_iso(
         iso639_3_code, constants.AUS_CENSUS_2011_ABBREV)
+    lat, lon = lp.get_lat_lon_from_iso(iso639_3_code)
     return render_template(
         'show_language.html',
         lp=lp,
@@ -120,4 +121,6 @@ def show_language(iso639_3_code):
         census_L1_count=census_L1_count,
         english_competency_pessimistic=ecp,
         english_competency_optimistic=eco,
+        lat=lat,
+        lon=lon,
     )

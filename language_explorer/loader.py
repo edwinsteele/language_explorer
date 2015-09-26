@@ -45,6 +45,7 @@ def main():
     # Census relies on population of ABS names from Austlang, so this must be
     #  run before any census stuff
     austlang.persist_ABS_names(p)
+    wals.persist_latitude_longitudes(p)
 
     for lang in p.get_all_iso_codes():
         census.persist_L1_speaker_count(p, lang)

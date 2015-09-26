@@ -111,6 +111,8 @@ SPEAKER_COUNT_UNKNOWN_CSS_CLASS = "speakers_unknown"
 ENGLISH_COMPETENCY_UNKNOWN_PESSIMISTIC = -1
 ENGLISH_COMPETENCY_UNKNOWN_OPTIMISTIC = -1
 
+LATITUDE_UNKNOWN = 999
+LONGITUDE_UNKNOWN = 999
 
 def generate_l1_css_dict():
     # TODO: Move this into a class so that it's not executed for

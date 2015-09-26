@@ -120,6 +120,15 @@ class LanguagePersistence(object):
             ["iso"]
         )
 
+    def persist_lat_lon(self, iso, lat, lon):
+        self.lang_db[self.LANGUAGE_TABLE].upsert(
+            {"iso": iso,
+             "latitude": lat,
+             "longitude": lon,
+             },
+            ["iso"]
+        )
+
     def get_all_iso_codes(self):
         return sorted(list(set(
             [row["iso"] for row in
@@ -282,6 +291,16 @@ class LanguagePersistence(object):
                 self.lang_db[self.ALIAS_TABLE].
                 distinct("iso", iso=iso)]
 
+    def get_lat_lon_from_iso(self, iso):
+        iso_row = self.lang_db[self.LANGUAGE_TABLE].find_one(iso=iso)
+        if iso_row:
+            if iso_row["latitude"] is None or iso_row["longitude"] is None:
+                return constants.LATITUDE_UNKNOWN, constants.LONGITUDE_UNKNOWN
+            else:
+                return iso_row["latitude"], iso_row["longitude"]
+        else:
+            return constants.LATITUDE_UNKNOWN, constants.LONGITUDE_UNKNOWN
+
     def get_best_translation_state(self, iso):
         """
         return: best translation state associated with the iso in all sources
@@ -427,6 +446,14 @@ class LanguagePersistence(object):
             return "N/A"
         else:
             return "%s%%" % (perc,)
+
+    def format_lat_lon(self, lat, lon):
+        # XXX: workaround for float approx equals
+        if int(lat) == int(constants.LATITUDE_UNKNOWN) or \
+                int(lon) == int(constants.LONGITUDE_UNKNOWN):
+            return "N/A"
+        else:
+            return "%.2f, %.2f" % (lat, lon)
 
     def get_table_data(self):
         table_data = []
