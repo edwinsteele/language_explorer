@@ -458,6 +458,23 @@ class LanguagePersistence(object):
                    "mlat=%.2f&mlon=%.2f'>Latitude: %.2f, Longitude: %.2f</a>" \
                    % (lat, lon, lat, lon)
 
+    def get_cannot_read_english_count(self, iso):
+        # This is a percentage as an int
+        ecp, _ = self.get_english_competency_by_iso(iso)
+        census_speaker_count = self.get_L1_speaker_count_by_iso(
+            iso, constants.AUS_CENSUS_2011_ABBREV)
+        # We can only construct the cannot_read_english_count value if we have
+        #  values for speaker count and english language competency.
+        #  All constants that signify non-values are negative
+        if census_speaker_count in (
+                constants.SPEAKER_COUNT_NONE_EXPECTED,
+                constants.SPEAKER_COUNT_UNKNOWN,
+                constants.SPEAKER_COUNT_AMBIGUOUS) or \
+                ecp == constants.ENGLISH_COMPETENCY_UNKNOWN_PESSIMISTIC:
+            return "Unknown"
+        else:
+            return int(round((1 - (ecp / 100.0)) * census_speaker_count))
+
     def get_table_data(self):
         table_data = []
         all_isos = self.get_all_iso_codes()
@@ -468,16 +485,19 @@ class LanguagePersistence(object):
                          src, rel_type, obj_iso in
                          self.get_relationships_by_iso(iso)
                          if self.get_best_translation_state(obj_iso) > 1]
-            ecp, eco = self.get_english_competency_by_iso(iso)
+            # This is a percentage as an int
+            ecp, _ = self.get_english_competency_by_iso(iso)
+            census_speaker_count = self.get_L1_speaker_count_by_iso(
+                iso, constants.AUS_CENSUS_2011_ABBREV)
+            cannot_read_english_count = self.get_cannot_read_english_count(iso)
             iso_data = (iso,
                         self.get_L1_speaker_count_by_iso(
                             iso, constants.ETHNOLOGUE_SOURCE_ABBREV),
-                        self.get_L1_speaker_count_by_iso(
-                            iso, constants.AUS_CENSUS_2011_ABBREV),
+                        census_speaker_count,
                         self.get_best_translation_state(iso),
                         self.get_writing_state_by_iso(iso),
                         ecp,
-                        eco,
+                        cannot_read_english_count,
                         relations
                         )
             table_data.append(iso_data)
