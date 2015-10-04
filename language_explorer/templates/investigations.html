@@ -38,6 +38,16 @@
   <li>Wangurri {{ macros.format_iso_as_href("dhg") }}</li>
   <li>Golumala {{ macros.format_iso_as_href("dhg") }}</li>
 </ul>
+<h2>Census Ambiguity List</h2>
+List of languages where the Census name matches more than one language
+    i.e. the census name cannot be unambiguously mapped to a language
+<ul>
+{% for census_name, matching_iso_list in ca_info %}
+    <li>Census name: "{{ census_name }}" - Matching ISOs: {% for iso in matching_iso_list %}
+        {{ macros.format_iso_as_href(iso) }}
+    {% endfor %}</li>
+{% endfor %}
+</ul>
 <h2>Same Name, Different ISO</h2>
 The following iso keys are known by the same name/alias
 <ul>

@@ -135,7 +135,17 @@ class Census2011Adapter(AbstractLanguageSource):
             name = full_name.split(",")[0]
             self._lang_to_count_cache[name] = int(count)
             self._lang_to_count_cache[full_name] = int(count)
-            isos = self.persister.get_iso_list_from_name(name)
+            # The ABS_ISO_EXTRA_MAPPINGS are a curated list of mappings of
+            #  census name to single ISO that cleans up some of the names that
+            #  are otherwise ambiguous. It allows us to precisely map counts
+            #  and pse values to a single ISO - values that would otherwise be
+            #  unuseable.
+            # Only check full_name in ABS_ISO_EXTRA_MAPPINGS, because we only
+            #  put full names in that table as keys
+            if full_name in constants.ABS_ISO_EXTRA_MAPPINGS:
+                isos = [constants.ABS_ISO_EXTRA_MAPPINGS[full_name]]
+            else:
+                isos = self.persister.get_iso_list_from_name(name)
             # If we can't match the part name, try the full name
             if len(isos) == 0:
                 isos = self.persister.get_iso_list_from_name(full_name)

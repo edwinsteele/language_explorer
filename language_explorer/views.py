@@ -1,15 +1,16 @@
 __author__ = 'esteele'
 
-from flask import request
 from flask import render_template
 from language_explorer import app, settings, constants
 from language_explorer.language_sources.wals import WalsAdapter
+from language_explorer.language_sources.census_2011 import Census2011Adapter
 from language_explorer.persistence import LanguagePersistence
 
 #from flask_debugtoolbar_lineprofilerpanel.profile import line_profile
 
 lp = LanguagePersistence(settings.LANGUAGE_EXPLORER_DB_URL)
 wals = WalsAdapter(settings.WALS_DB_URL)
+census = Census2011Adapter(settings.CENSUS_CSV_SOURCE, lp)
 
 
 @app.route('/')
@@ -31,12 +32,12 @@ def show_all_languages():
 def show_investigations():
     sndi_list = lp.get_same_name_different_iso_list()
     common_name_list = []
+    # Same Name Different ISO
     for sndi_iso_tuple in sndi_list:
         common_name_list.append(
             lp.get_common_names_for_iso_list(sndi_iso_tuple))
     sndi_info = zip(sndi_list, common_name_list)
 
-    # SNDI list where one of the group has some confirmed scripture
     # Scripture Association By Name
     sabn_list = []
     sabn_common_name_list = []
@@ -59,11 +60,18 @@ def show_investigations():
             lp.get_common_names_for_iso_list(sabn_iso_tuple))
     sabn_info = zip(sabn_list, sabn_common_name_list)
 
+    # Census Ambiguity List
+    ca_info = sorted([(census_name, matching_iso_list)
+                      for census_name, matching_iso_list
+                      in census.get_lang_to_iso_dict().iteritems()
+                      if len(matching_iso_list) > 1])
+
     return render_template(
         'investigations.html',
         lp=lp,
         sndi_info=sndi_info,
         sabn_info=sabn_info,
+        ca_info=ca_info,
     )
 
 

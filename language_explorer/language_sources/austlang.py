@@ -21,36 +21,6 @@ class AustlangAdapter(CachingWebLanguageSource):
     ONE_LANGUAGE_URL_TEMPLATE = 'http://austlang.aiatsis.gov.au/php/public/' \
                                 'language_profile_all.php?id=%s'
 
-    # We can't associate the following ABS names with ISOs because the
-    #  particular spelling doesn't exist in our names or aliases. I've looked
-    #  at the Austlang records and have worked out the mappings below.
-    # It's possible that this extra set of mappings exists because austlang
-    #  mappings to ISO codes are incomplete, or because I've incorrectly
-    #  made an association, or that austlang records are more fine grained
-    #  than the records in this data, perhaps because austlang prefers not
-    #  to associate dialects with iso codes.
-    # We include the full ABS name, even the nfd "Not further defined"
-    #  (grouped bucket - coarser granularity and the nec
-    #  "Not elsewhere classified" (bucket of last resort)
-    ABS_ISO_EXTRA_MAPPINGS = {
-        'Bilinarra': "nbj",  # dialect of Ngarinyman (nbj) => 59 speakers
-        'Eastern Arrernte': "aer",
-        'Galpu': "dhg",  # Dialect of Djangu => 146 speakers
-        'Gun-nartpa': "bvr",  # Dialect of Burarra => 89 speakers
-        'Gundjeihmi': "gup",  # Dialect of Gunwinngu => 29 speakers
-        'Kanai': "unn",  # Is Kurnai
-        #'Kaurna', # Not in Ethnologue => 58 speakers. WALS code kaq
-        'Murrinh Patha': "mwf",  # Is Murrinh-Patha
-        "Ngan'gikurunggurr": "nam",  # Is Nangikurrunggurr
-        'Nhangu, nec': "jay",  # Is Yan-nhangu (even though it is a Yolngu language)
-        # 'Thaynakwith',  # Unable to find anything. => 3 speakers
-        'Wagilak': "rit",  # Is Ritarungo => 16 speakers
-        'Wangkatha': "pti",
-        'Western Arrarnta': "are",
-        'Wik Ngathan': "wig",  # Is Wig-Ngathana => 4 speakers  XXX seems small
-        'Yumplatok (Torres Strait Creole)': "tcs",  # => 5368 speakers
-    }
-
     def get_iso_list_from_austlang_id(self, austlang_id):
         iso_list = []
         langsoup = BeautifulSoup(self.get_text_from_url(
@@ -119,7 +89,7 @@ class AustlangAdapter(CachingWebLanguageSource):
                                                abs_name,
                                                self.ABS_SOURCE_NAME)
 
-        for abs_name, iso in self.ABS_ISO_EXTRA_MAPPINGS.items():
+        for abs_name, iso in constants.ABS_ISO_EXTRA_MAPPINGS.items():
             if iso in all_isos:
                 logging.info("Persisting ABS alias name for ISO %s (%s)",
                              iso,
