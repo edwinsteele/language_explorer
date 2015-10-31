@@ -274,7 +274,8 @@ class LanguagePersistence(object):
         """
         iso_group_set = set()
         for unsorted_group_list in self._isos_with_shared_aliases(
-                [(row["iso"], row["name"]) for row in self.lang_db.query(sql)]):
+                [(row["iso"], row["name"]) for
+                 row in self.lang_db.query(sql)]):
             iso_group_set.add(tuple(sorted(unsorted_group_list)))
         return list(iso_group_set)
 
@@ -374,8 +375,8 @@ class LanguagePersistence(object):
                              implied_source, rev_object_iso)
             else:
                 logging.info("Persisting rev rel: subj = %s verb = %s"
-                             " source = %s obj = %s", rev_subject_iso, rel_verb,
-                             implied_source, rev_object_iso)
+                             " source = %s obj = %s", rev_subject_iso,
+                             rel_verb, implied_source, rev_object_iso)
                 self.persist_relationship(rev_subject_iso,
                                           [(rel_verb, rev_object_iso)],
                                           implied_source)
