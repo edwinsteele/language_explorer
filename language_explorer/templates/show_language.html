@@ -94,7 +94,12 @@ Ethnologue: {{ constants.writing_state_abbrev_dict[writing_state] }}
 </ul>
 
 <h2>Location</h2>
-{{ lp.format_lat_lon(lat, lon)|safe }}
+<!-- XXX how is this impacted by float approx equals? -->
+{% if lat == constants.LATITUDE_UNKNOWN or lon == constants.LONGITUDE_UNKNOWN %}
+  Latitude, Longitude: N/A
+{% else %}
+  {{ lp.format_lat_lon(lat, lon)|safe }}
+{% endif %}
 <hr>
 
 <h2>External links</h2>

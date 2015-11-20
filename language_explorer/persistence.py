@@ -449,15 +449,10 @@ class LanguagePersistence(object):
             return "%s%%" % (perc,)
 
     def format_lat_lon(self, lat, lon):
-        # XXX: workaround for float approx equals
-        if int(lat) == int(constants.LATITUDE_UNKNOWN) or \
-                int(lon) == int(constants.LONGITUDE_UNKNOWN):
-            return "Latitude, Longitude: N/A"
-        else:
-            return "<a href='http://www.openstreetmap.org/?" \
-                   "minlon=110&minlat=-20&maxlon=160&maxlat=-40&" \
-                   "mlat=%.2f&mlon=%.2f'>Latitude: %.2f, Longitude: %.2f</a>" \
-                   % (lat, lon, lat, lon)
+        return "<a href='http://www.openstreetmap.org/?" \
+               "minlon=110&minlat=-20&maxlon=160&maxlat=-40&" \
+               "mlat=%.2f&mlon=%.2f'>Latitude: %.2f, Longitude: %.2f</a>" \
+               % (lat, lon, lat, lon)
 
     def get_cannot_read_english_count(self, iso):
         # This is a percentage as an int
