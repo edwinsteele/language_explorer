@@ -6,8 +6,6 @@ from language_explorer.language_sources.wals import WalsAdapter
 from language_explorer.language_sources.census_2011 import Census2011Adapter
 from language_explorer.persistence import LanguagePersistence
 
-#from flask_debugtoolbar_lineprofilerpanel.profile import line_profile
-
 lp = LanguagePersistence(settings.LANGUAGE_EXPLORER_DB_URL)
 wals = WalsAdapter(settings.WALS_DB_URL)
 census = Census2011Adapter(settings.CENSUS_CSV_SOURCE, lp)
@@ -85,6 +83,7 @@ def show_table():
         constants=constants,
     )
 
+
 @app.route('/search')
 def show_search_table():
     td = lp.get_search_table_data()
@@ -94,6 +93,7 @@ def show_search_table():
         lp=lp,
         constants=constants,
         )
+
 
 @app.route('/language/iso/<iso639_3_code>')
 def show_language(iso639_3_code):
