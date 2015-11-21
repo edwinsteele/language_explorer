@@ -51,6 +51,7 @@ find $MIRROR_OUTPUT_DIR -type f | \
 #  deployment prefix if there is a leading slash. As all URLs are absolute
 #  this will give correct results and prevent external addresses e.g. http://
 #  from incorrectly being prefixed with the deployment prefix
+# Also adjust d3 json calls
 if [ -n "$DEPLOYMENT_PREFIX" ]; then
 	find $MIRROR_OUTPUT_DIR -type f -name "*.html" | \
 		xargs gsed -i 's/href="\//href="\'$DEPLOYMENT_PREFIX'\//'
@@ -58,6 +59,8 @@ if [ -n "$DEPLOYMENT_PREFIX" ]; then
 		xargs gsed -i 's/src="\//src="\'$DEPLOYMENT_PREFIX'\//'
 	find $MIRROR_OUTPUT_DIR -type f -name "*.html" | \
 		xargs gsed -i 's/action="\//action="\'$DEPLOYMENT_PREFIX'\//'
+	find $MIRROR_OUTPUT_DIR -type f -name "*.html" | \
+		xargs gsed -i 's/d3\.json("\//d3.json("\'$DEPLOYMENT_PREFIX'\//'
 fi
 
 
