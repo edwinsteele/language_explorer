@@ -13,6 +13,7 @@ TEST_CACHE_ROOT = CACHE_ROOT  # For the moment
 TOOLBAR = DebugToolbarExtension
 # SECRET_KEY is required for toolbar (and only for toolbar)
 SECRET_KEY = "yourmum"
+SERVER_NAME = "localhost:8765"
 DEBUG = True
 DEBUG_TB_PANELS = [
     'flask_debugtoolbar.panels.timer.TimerDebugPanel',
