@@ -471,6 +471,26 @@ class LanguagePersistence(object):
         else:
             return int(round((1 - (ecp / 100.0)) * census_speaker_count))
 
+    def get_isos_lacking_latlon(self):
+        # Let's assume that a null latitude reflects that there
+        #  is no lat-lon data i.e. don't check both
+        return [row["iso"] for row in
+                self.lang_db[self.LANGUAGE_TABLE].find(latitude=None)]
+
+    def get_map_data(self):
+        """All the data required to plot and label a point on the map
+        but only for isos that have lat-lon data
+
+        returns a lists of tuples, each is (iso, lat, lon)
+        """
+        lang_table = self.lang_db[self.LANGUAGE_TABLE].table
+        # Let's assume that a null latitude reflects that there
+        #  is no lat-lon data i.e. don't check both
+        stmt = lang_table.select(lang_table.c.latitude != None)
+        result = self.lang_db.query(stmt)
+        return [(row["iso"], row["latitude"], row["longitude"])
+                for row in result]
+
     def get_table_data(self):
         table_data = []
         all_isos = self.get_all_iso_codes()

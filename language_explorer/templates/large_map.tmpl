@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block title %}Language Map{% endblock %}
+{% block head_js %}
+    <style type="text/css">
+      .dataTables_filter { display: none; }
+    </style>
+{% endblock %}
+{% block content %}
+<h1>Languages with Lat Lon</h1>
+<p>{{ map_data|length }} languages shown on map</p>
+{% for iso, lat, lon in map_data %}
+{{ macros.format_iso_as_href(iso) }} - ( {{ lat }}, {{ lon }} )
+{% endfor %}
+
+<h1>Languages without Lat Lon</h1>
+<p>{{ isos_not_shown|length }} languages not shown on map</p>
+{{ isos_not_shown|join(',') }}
+
+<script>
+</script>
+{% endblock %}
