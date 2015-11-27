@@ -14,6 +14,7 @@ AUSTLANG_ABS_SOURCE_ABBREV = "AB"
 SIL_RCEM_SOURCE_ABBREV = "SI"
 SIL_RCEM_IMPLIED_SOURCE_ABBREV = "SII"
 AUS_CENSUS_2011_ABBREV = "CN"
+TINDALE_SOURCE_ABBREV = "TI"
 
 source_abbrev_name_dict = {
     ETHNOLOGUE_SOURCE_ABBREV: "Ethnologue",
@@ -26,6 +27,8 @@ source_abbrev_name_dict = {
     AUSTLANG_SOURCE_ABBREV: "AustLang",
     AUSTLANG_ABS_SOURCE_ABBREV: "Australian Bureau of Statistics",
     AUS_CENSUS_2011_ABBREV: "Census 2011",
+    TINDALE_SOURCE_ABBREV: "Tindale's Catalogue of "
+                           "Australian Aboriginal Tribes",
 }
 
 TRANSLATION_STATE_WHOLE_BIBLE = 5  # Findabible
