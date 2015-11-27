@@ -7,7 +7,7 @@ data/wals.sql
 .DS_Store
 
 # vim
-.swp
+*.swp
 
 *.py[cod]
 
