@@ -22,7 +22,7 @@
 <h1>Languages without Lat Lon</h1>
 <p>{{ isos_not_shown|length }} languages not shown on map</p>
 {% for iso in isos_not_shown %}
-{{ macros.format_iso_as_href(iso) }}, 
+{{ macros.format_iso_as_href(iso) }},
 {% endfor %}
 {{ isos_not_shown|join(',') }}
 
@@ -34,9 +34,11 @@ var width = 960,
     height = 500,
     label_text_size_px = 12;
 
+// url field lacks a leading slash - this is added when the href
+// is constructed. See comments in that part of the code
 var locations = [
 {% for iso, lat, lon in map_data %}
-{ name: "{{ iso }}", lat: {{ lat }}, lon: {{ lon }}, css_class: "stuff", url: "../../language/iso/{{ iso }}" },
+{ name: "{{ iso }}", lat: {{ lat }}, lon: {{ lon }}, css_class: "stuff", url: "language/iso/{{ iso }}" },
 {% endfor %}
 ];
 
@@ -89,10 +91,12 @@ htmlDOMs = labelForeignObjects.append('xhtml:body')
 htmlLabels = htmlDOMs.append('div')
   .classed('htmlLabel', true)
 
+// URL has a leading slash so that the path is transformed when the
+// static site is made.
 htmlLabels.append('p')
   .attr("class", function(d) { return d.css_class })
   .style("font-size", label_text_size_px + "px")
-  .html(function(d) {return "<a href='" + d.url + "'>" + d.name + "</a>"})
+  .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a>'})
 
 </script>
 {% endblock %}
