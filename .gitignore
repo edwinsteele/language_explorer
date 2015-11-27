@@ -6,6 +6,9 @@ data/wals.sql
 # Mac stuffs
 .DS_Store
 
+# vim
+.swp
+
 *.py[cod]
 
 # PyCharm
