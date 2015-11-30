@@ -96,6 +96,9 @@ relationship_abbrev_name_dict = {
     RELTYPE_RETIREMENT_MERGED_FROM: "merged from retired ISO",
 }
 
+ISO_MULTI_MATCH = "m"
+ISO_NO_MATCH = "n"
+
 # See note in EthnologueAdapter.get_L1_speaker_count_for_iso
 SPEAKER_COUNT_NONE_EXPECTED = -1
 SPEAKER_COUNT_UNKNOWN = -2

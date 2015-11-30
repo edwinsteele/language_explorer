@@ -8,6 +8,7 @@ from language_explorer.language_sources.findabible import FindABibleAdapter
 from language_explorer.language_sources.sil_rcem import SilRcemAdapter
 from language_explorer.language_sources.austlang import AustlangAdapter
 from language_explorer.language_sources.census_2011 import Census2011Adapter
+from language_explorer.language_sources.tindale import TindaleAdapter
 from persistence import LanguagePersistence
 
 
@@ -23,6 +24,7 @@ def main():
     wals = WalsAdapter(settings.WALS_DB_URL)
     sil_rcem = SilRcemAdapter(settings.SIL_RCEM_TSV_SOURCE)
     census = Census2011Adapter(settings.CENSUS_CSV_SOURCE, p)
+    tindale = TindaleAdapter(settings.CACHE_ROOT, p)
     for source in (ethnologue, joshuaproject, wals):
         for lang in source.get_language_iso_keys():
             source.persist_language(p, lang)
@@ -50,6 +52,10 @@ def main():
     for lang in p.get_all_iso_codes():
         census.persist_L1_speaker_count(p, lang)
         census.persist_english_competency(p, lang)
+    for tid in tindale.get_all_tindale_ids():
+        print tindale.get_lat_lon_from_tindale_id(tid)
+    tindale.persist_latitude_longitudes()
+
 
 if __name__ == '__main__':
     sys.exit(main())

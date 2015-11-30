@@ -109,6 +109,15 @@ class CachingWebLanguageSource(AbstractLanguageSource):
                 f.write(r.content)
         # Yeah, we're writing then reading if we don't have a cached copy
         #  but it simplifies the unicode handling
-        with codecs.open(cached_location, "r", encoding="utf-8") as f:
-            text = f.read()
+        # I'm not sure what's changed with ethnologue, so we can't download
+        #  current files, but tindale expects ascii for later conversion to
+        #  utf-8 which means we can't read utf-8 like we do for the other
+        #  saved files. I'm probably doing something wrong here, but this
+        #  gets me moving forward.
+        if "tindaletribes" in url:
+            with open(cached_location, "r") as f:
+                text = f.read()
+        else:
+            with codecs.open(cached_location, "r", encoding="utf-8") as f:
+                text = f.read()
         return text

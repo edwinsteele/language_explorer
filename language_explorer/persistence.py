@@ -302,6 +302,18 @@ class LanguagePersistence(object):
         else:
             return constants.LATITUDE_UNKNOWN, constants.LONGITUDE_UNKNOWN
 
+    def get_no_lat_lon_count(self):
+        """
+        table = self.lang_db[self.LANGUAGE_TABLE].table
+        stmt = table.select(table.c.latitude
+        """
+        sql = """
+        SELECT count(*) from "%s"
+        WHERE "latitude" != %s
+        """ % (self.LANGUAGE_TABLE, constants.LATITUDE_UNKNOWN)
+        row = self.lang_db.query(sql)
+        print list(row)
+
     def get_best_translation_state(self, iso):
         """
         return: best translation state associated with the iso in all sources
