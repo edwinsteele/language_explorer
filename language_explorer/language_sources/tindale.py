@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 __author__ = 'esteele'
 import logging
+import math
 import string
 
 from bs4 import BeautifulSoup
@@ -18,12 +19,26 @@ class TindaleAdapter(CachingWebLanguageSource):
                          "tindaletribes/%s.htm"
     # a-y, with no x
     INDEX_PAGES = string.lowercase.translate(None, "xz")
-    # Administrative areas: ACT
-    # Broken page: koko-
+    # Non-existant page: act, koko-
     # Entries without lat lon: kurnai, murngin, wik-
-    # XXX - Entries needing alternative parsing (but data is there):
-    #       njangarmarda
-    FALSE_IDS = ["act", "koko-", "kurnai", "murngin", "njangamarda", "wik-"]
+    FALSE_IDS = ["act", "koko-", "kurnai", "murngin", "wik-"]
+    # These need manual adjustment due to errors in source data
+    #  or unparseable coordinates (njangamarda)
+    MANUALLY_ADJUSTED_LAT_LON_DICT = {
+        "ngaliwuru": (-16.1666666667, 130.666666667),  # 120E -> 130E
+        "kamilaroi": (-30.25, 150.583333333),  # 140E -> 150E
+        "njangamarda": (-20.666666667, 122.0),  # Avg of 2 locations
+    }
+    # Hand-matching
+    TINDALE_ID_TO_ISO_OVERRIDE_DICT = {
+        "wik-kalkan": "wik",
+        "anmatjera": "amk",
+        "antakirinja": "ant",
+    }
+    REVIEWED_LAT_LON_DISCREPANCIES = [
+        "nbj",
+        "wmb",
+    ]
 
     def __init__(self, cache_root, persister):
         self.persister = persister
@@ -44,47 +59,51 @@ class TindaleAdapter(CachingWebLanguageSource):
         # e.g. kungkalenja
         if lat_lon_splitter not in utf8_coord_str:
             lat_lon_splitter = "x"
-        lat, lon = utf8_coord_str.split(lat_lon_splitter)
-        lat_degs, lat_mins = lat.split(degree_symbol)
+        # Tindale entries put longitude first, then latitude.
+        lon, lat = utf8_coord_str.split(lat_lon_splitter)
+        lon_degs, lon_mins = lon.split(degree_symbol)
         # Some entries do not have minutes but only have degress
         # e.g. Rembarunga
-        if lat_mins == "E":
-            lat_mins = "0"
+        if lon_mins == "E":
+            lon_mins = "0"
             minute_splitter = minute_symbol
         else:
-            if minute_symbol not in lat_mins:
+            if minute_symbol not in lon_mins:
                 # Some entries have ´ instead of ' as the symbol for minutes
                 # e.g. gungorogone
                 minute_splitter = alt_minute_symbol
             else:
                 minute_splitter = minute_symbol
-            lat_mins = lat_mins.split(minute_splitter)[0]
+            lon_mins = lon_mins.split(minute_splitter)[0]
 
         # Some entries incorrectly drop the degree symbol when
         #  the minutes value is 0
         # e.g. ngarlawongga
-        if degree_symbol not in lon:
-            lon_degs = lon.split(minute_splitter)[0]
-            lon_mins = "0"
+        if degree_symbol not in lat:
+            lat_degs = lat.split(minute_splitter)[0]
+            lat_mins = "0"
         else:
-            lon_degs, lon_mins = lon.split(degree_symbol)
+            lat_degs, lat_mins = lat.split(degree_symbol)
             # Some entries do not have minutes but only have degrees
             # e.g. niabali
-            if lon_mins == "S":
-                lon_mins = "0"
+            if lat_mins == "S":
+                lat_mins = "0"
             else:
-                lon_mins = lon_mins.split(minute_splitter)[0]
+                lat_mins = lat_mins.split(minute_splitter)[0]
 
         # Several entries have typos where l replaces a 1
         # e.g. bilingara, indjilandji, kokobujundji, wurango
-        lon_degs = lon_degs.replace("l", "1")
+        lat_degs = lat_degs.replace("l", "1")
         # Convert minutes to decimal degrees
-        lat_as_decimal = int(lat_degs) + float(lat_mins) / 60
         lon_as_decimal = int(lon_degs) + float(lon_mins) / 60
+        lat_as_decimal = int(lat_degs) + float(lat_mins) / 60
         # Negate longitude, as all are south
-        return lat_as_decimal, -lon_as_decimal
+        return -lat_as_decimal, lon_as_decimal
 
     def get_lat_lon_from_tindale_id(self, tindale_id):
+        # Some lat lon are hard-coded
+        if tindale_id in self.MANUALLY_ADJUSTED_LAT_LON_DICT:
+            return self.MANUALLY_ADJUSTED_LAT_LON_DICT[tindale_id]
         langsoup = BeautifulSoup(self.get_text_from_url(
             self.ONE_LANGUAGE_URL_TEMPLATE % (tindale_id,)))
         coord_str = langsoup.find("td", text="Co-ordinates")\
@@ -99,6 +118,8 @@ class TindaleAdapter(CachingWebLanguageSource):
         # XXX - need to do better than just simple capitalisation but
         #  it's a start. Perhaps it's not that bad... there appear to
         #  only be 3 that have a dash Koko- Wiki- Wik-kalkan
+        if tindale_id in self.TINDALE_ID_TO_ISO_OVERRIDE_DICT:
+            return self.TINDALE_ID_TO_ISO_OVERRIDE_DICT[tindale_id]
         tindale_id = tindale_id.capitalize()
         exact_iso_matches = self.persister.get_iso_list_from_name(tindale_id)
         if len(exact_iso_matches) == 1:
@@ -131,24 +152,90 @@ class TindaleAdapter(CachingWebLanguageSource):
         return sorted(list(tindale_ids))
 
     def persist_latitude_longitudes(self):
-        new_latlon = already_has_latlon = multi = nomatch = 0
+        added_count = 0
+        multi_match_count = 0
+        no_match_count = 0
         for tindale_id in self.get_all_tindale_ids():
             iso = self.get_iso_from_tindale_id(tindale_id)
             if iso == constants.ISO_NO_MATCH:
-                nomatch += 1
+                no_match_count += 1
             elif iso == constants.ISO_MULTI_MATCH:
-                multi += 1
+                multi_match_count += 1
             else:
-                db_lat, db_lon = self.persister.get_lat_lon_from_iso(iso)
-                if db_lat != constants.LATITUDE_UNKNOWN and \
-                   db_lon != constants.LONGITUDE_UNKNOWN:
-                    logging.info("Able to add lat lon for %s", iso)
-                    new_latlon += 1
-                else:
-                    # XXX check that it's not too dissimilar to existing one
-                    logging.info("Lat lon already exists for %s", iso)
-                    already_has_latlon += 1
+                tindale_lat, tindale_lon = \
+                    self.get_lat_lon_from_tindale_id(tindale_id)
+                logging.debug("Adding tindale location to %s. "
+                             "lat: %.3f lon: %.3f",
+                             iso,
+                             tindale_lat,
+                             tindale_lon)
+                self.persister.persist_tindale_lat_lon(
+                    iso,
+                    tindale_lat,
+                    tindale_lon)
+                added_count += 1
 
-        print self.persister.get_no_lat_lon_count()
-        logging.info("Able to add %s, already has %s, no match %s, multi %s",
-                     new_latlon, already_has_latlon, nomatch, multi)
+        logging.info("Able to add %s, no match %s, multi %s",
+                     added_count, no_match_count, multi_match_count)
+
+    def compare_tindale_wals_lat_lons(self):
+        """Compares tindale and WALS lat lons for all ISOs
+        Assumes all persistence has been done"""
+        def ll_is_unknown(lat, lon):
+            return lat == constants.LATITUDE_UNKNOWN and \
+                lon == constants.LONGITUDE_UNKNOWN
+
+        no_lat_lon_count = 0
+        wals_lat_lon_count = 0
+        tindale_lat_lon_count = 0
+        both_lat_lon_count = 0
+        for iso in self.persister.get_all_iso_codes():
+            db_lat, db_lon = self.persister.get_lat_lon_from_iso(iso)
+            tindale_lat, tindale_lon = \
+                self.persister.get_tindale_lat_lon_from_iso(iso)
+            if ll_is_unknown(db_lat, db_lon):
+                if ll_is_unknown(tindale_lat, tindale_lon):
+                    no_lat_lon_count += 1
+                    logging.info("ISO %s has no lat lon", iso)
+                else:
+                    tindale_lat_lon_count += 1
+                    logging.info("ISO %s has only tindale lat lon "
+                                 "(%.2f, %.2f)",
+                                 iso,
+                                 tindale_lat,
+                                 tindale_lon)
+            else:
+                if ll_is_unknown(tindale_lat, tindale_lon):
+                    wals_lat_lon_count += 1
+                    logging.info("ISO %s has only WALS lat lon "
+                                 "(%.2f, %.2f)",
+                                 iso,
+                                 db_lat,
+                                 db_lon)
+                else:
+                    both_lat_lon_count += 1
+                    max_discrepancy = max(
+                        math.ceil(abs(db_lat - tindale_lat)),
+                        math.ceil(abs(db_lon - tindale_lon))
+                    )
+                    # 1 deg lon in Australia is about 100km
+                    # 1 deg lat is about 100km everywhere
+                    logging.info("ISO %s has WALS and Tindale lat lon. "
+                                 "Max discrepancy < %d deg. "
+                                 "WALS: (%.2f, %.2f) "
+                                 "Tindale: (%.2f, %.2f) "
+                                 "Reviewed: %s",
+                                 iso,
+                                 max_discrepancy,
+                                 db_lat,
+                                 db_lon,
+                                 tindale_lat,
+                                 tindale_lon,
+                                 iso in self.REVIEWED_LAT_LON_DISCREPANCIES)
+
+        logging.info("Summary. None: %s, Tindale only: %s, "
+                     "WALS only: %s, Both: %s",
+                     no_lat_lon_count,
+                     tindale_lat_lon_count,
+                     wals_lat_lon_count,
+                     both_lat_lon_count)

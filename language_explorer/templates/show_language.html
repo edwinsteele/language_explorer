@@ -98,14 +98,31 @@ Ethnologue: {{ constants.writing_state_abbrev_dict[writing_state] }}
 {# include mapping elements, but only if we're going to use them
    we include the scripting at the bottom of the page, for rendering performance
 #}
-{% if lat == constants.LATITUDE_UNKNOWN or lon == constants.LONGITUDE_UNKNOWN %}
-  Latitude, Longitude: N/A
-{% else %}
+{% if lat != constants.LATITUDE_UNKNOWN
+	or lon != constants.LONGITUDE_UNKNOWN
+	or tindale_lat != constants.LATITUDE_UNKNOWN
+	or tindale_lon != constants.LONGITUDE_UNKNOWN %}
   <svg>
     <g id="art" />
   </svg>
-  <p>Latitude: {{ lat }} Longitude: {{ lon }}</p>
 {% endif %}
+<p>
+{% if lat == constants.LATITUDE_UNKNOWN or lon == constants.LONGITUDE_UNKNOWN %}
+WALS Latitude, Longitude: N/A
+{% else %}
+<span style="background-color: steelblue">&nbsp;&nbsp;</span>
+WALS Latitude: {{ "%.2f"|format(lat) }} Longitude: {{ "%.2f"|format(lon) }}
+{% endif %}
+<br>
+{% if tindale_lat == constants.LATITUDE_UNKNOWN or
+	tindale_lon == constants.LONGITUDE_UNKNOWN %}
+Tindale Latitude, Longitude: N/A
+{% else %}
+<span style="background-color: red">&nbsp;&nbsp;</span>
+Tindale Latitude: {{ "%.2f"|format(tindale_lat) }}
+Longitude: {{ "%.2f"|format(tindale_lon) }} (Red)
+{% endif %}
+</p>
 <hr>
 
 <h2>External links</h2>
@@ -126,7 +143,10 @@ Ethnologue: {{ constants.writing_state_abbrev_dict[writing_state] }}
 </ul>
 
 {# include mapping, if we're going to use it #}
-{% if lat != constants.LATITUDE_UNKNOWN and lon != constants.LONGITUDE_UNKNOWN %}
+{% if lat != constants.LATITUDE_UNKNOWN
+	or lon != constants.LONGITUDE_UNKNOWN
+	or tindale_lat != constants.LATITUDE_UNKNOWN
+	or tindale_lon != constants.LONGITUDE_UNKNOWN %}
   {% include "map.tmpl" %}
 {% endif %}
 {% endblock %}

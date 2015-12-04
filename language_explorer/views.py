@@ -126,6 +126,7 @@ def show_language(iso639_3_code):
     census_L1_count = lp.get_L1_speaker_count_by_iso(
         iso639_3_code, constants.AUS_CENSUS_2011_ABBREV)
     lat, lon = lp.get_lat_lon_from_iso(iso639_3_code)
+    tindale_lat, tindale_lon = lp.get_tindale_lat_lon_from_iso(iso639_3_code)
     return render_template(
         'show_language.html',
         lp=lp,
@@ -143,6 +144,6 @@ def show_language(iso639_3_code):
         census_L1_count=census_L1_count,
         english_competency_pessimistic=ecp,
         cannot_read_english_count=lp.get_cannot_read_english_count(iso639_3_code),
-        lat=lat,
-        lon=lon,
+        lat=lat, lon=lon,
+        tindale_lat=tindale_lat, tindale_lon=tindale_lon,
     )

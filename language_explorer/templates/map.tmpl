@@ -4,7 +4,10 @@
 var width = 300,
     height = 250;
 
-var locations = [ { name: "", lat: {{ lat }}, lon: {{ lon }}, css_class: "", link: ""}, ];
+var locations = [
+{ name: "", lat: {{ lat }}, lon: {{ lon }}, fill: "steelblue", link: ""},
+{ name: "", lat: {{ tindale_lat }}, lon: {{ tindale_lon }}, fill: "red", link: ""},
+];
 
 var projection = d3.geo.mercator()
     .center([200, -50])
@@ -37,5 +40,5 @@ art.selectAll('circle')
   .attr('cx', function(d) {return projection([d.lon, d.lat])[0]})
   .attr('cy', function(d) {return projection([d.lon, d.lat])[1]})
   .attr('r', 5)
-  .attr('fill', 'steelblue');
+  .attr('fill', function(d) {return d.fill});
 </script>

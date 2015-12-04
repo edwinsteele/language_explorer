@@ -129,6 +129,15 @@ class LanguagePersistence(object):
             ["iso"]
         )
 
+    def persist_tindale_lat_lon(self, iso, lat, lon):
+        self.lang_db[self.LANGUAGE_TABLE].upsert(
+            {"iso": iso,
+             "tindale_latitude": lat,
+             "tindale_longitude": lon,
+             },
+            ["iso"]
+        )
+
     def get_all_iso_codes(self):
         return sorted(list(set(
             [row["iso"] for row in
@@ -299,6 +308,18 @@ class LanguagePersistence(object):
                 return constants.LATITUDE_UNKNOWN, constants.LONGITUDE_UNKNOWN
             else:
                 return iso_row["latitude"], iso_row["longitude"]
+        else:
+            return constants.LATITUDE_UNKNOWN, constants.LONGITUDE_UNKNOWN
+
+    def get_tindale_lat_lon_from_iso(self, iso):
+        iso_row = self.lang_db[self.LANGUAGE_TABLE].find_one(iso=iso)
+        if iso_row:
+            if iso_row["tindale_latitude"] is None or \
+               iso_row["tindale_longitude"] is None:
+                return constants.LATITUDE_UNKNOWN, constants.LONGITUDE_UNKNOWN
+            else:
+                return iso_row["tindale_latitude"], \
+                    iso_row["tindale_longitude"]
         else:
             return constants.LATITUDE_UNKNOWN, constants.LONGITUDE_UNKNOWN
 
