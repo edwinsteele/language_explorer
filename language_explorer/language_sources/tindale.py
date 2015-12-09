@@ -31,13 +31,30 @@ class TindaleAdapter(CachingWebLanguageSource):
     }
     # Hand-matching
     TINDALE_ID_TO_ISO_OVERRIDE_DICT = {
-        "wik-kalkan": "wik",
-        "anmatjera": "amk",
-        "antakirinja": "ant",
+        "wik-kalkan": ["wik"],
+        "anmatjera": ["amk"],
+        "antakirinja": ["ant"],
+        "biria": [constants.ISO_NO_MATCH],  # Bowen River QLD. Not xpa
+        "jangaa": [constants.ISO_NO_MATCH],  # Pre-contact group. Not nny
+        "jeidji": ["vmi"],  # Not wub
+        "miwa": ["vmi"],  # Not wub
+        "inawongga": [constants.ISO_NO_MATCH],  # matches nlr, but too distant
+        "ninanu": [constants.ISO_NO_MATCH],  # matches nlr, but too distant
+        "barkindji": ["drl"],  # Most accurate drl
+        "barindji": [constants.ISO_NO_MATCH],  # drl dialect - not best latlon
+        "kula": [constants.ISO_NO_MATCH],  # drl dialect - not best latlon
+        "milpulo": [constants.ISO_NO_MATCH],  # drl dialect - not best latlon
+        "wiri": [constants.ISO_NO_MATCH],  # not xnk. does not appear anywhere
     }
     REVIEWED_LAT_LON_DISCREPANCIES = [
         "nbj",
         "wmb",
+        "dhu",  # Inconclusive: Doesn't appear on AIATSIS Map. No speakers.
+        "djd",  # Pref WALS: WALS is closer to AIATSIS Map location.
+        "gue",  # Avg: Tindale close to AIATSIS, but no convincing consensus
+        "kld",  # Pref Tindale: Large area but Tindale closer to AIATSIS
+        "wrg",  # Inconclusive. Not on AIATSIS. No speakers.
+        "zmc",  # Pref Tindale: Agree with AIATSIS.
     ]
 
     def __init__(self, cache_root, persister):
@@ -114,14 +131,17 @@ class TindaleAdapter(CachingWebLanguageSource):
 
     def get_iso_from_tindale_id(self, tindale_id):
         # tindale_ids are all lower case, but matching routines are
-        #  case sensitive and are stored capitalised
-        # XXX - need to do better than just simple capitalisation but
-        #  it's a start. Perhaps it's not that bad... there appear to
-        #  only be 3 that have a dash Koko- Wiki- Wik-kalkan
+        #  case sensitive and are stored capitalised. This is ok
+        #  because for the few ids that need something more complex
+        #  we have used the override dictionary e.g. those with a
+        #  dash in their name
         if tindale_id in self.TINDALE_ID_TO_ISO_OVERRIDE_DICT:
-            return self.TINDALE_ID_TO_ISO_OVERRIDE_DICT[tindale_id]
-        tindale_id = tindale_id.capitalize()
-        exact_iso_matches = self.persister.get_iso_list_from_name(tindale_id)
+            exact_iso_matches = \
+                self.TINDALE_ID_TO_ISO_OVERRIDE_DICT[tindale_id]
+        else:
+            tindale_id = tindale_id.capitalize()
+            exact_iso_matches = \
+                self.persister.get_iso_list_from_name(tindale_id)
         if len(exact_iso_matches) == 1:
             logging.debug("Exact match for Tindale id '%s' to iso %s",
                           tindale_id,
@@ -152,9 +172,12 @@ class TindaleAdapter(CachingWebLanguageSource):
         return sorted(list(tindale_ids))
 
     def persist_latitude_longitudes(self):
+        def approx_equal(a, b, tol=1.0):
+            return abs(a - b) < tol
         added_count = 0
         multi_match_count = 0
         no_match_count = 0
+        attempted_overwrite_count = 0
         for tindale_id in self.get_all_tindale_ids():
             iso = self.get_iso_from_tindale_id(tindale_id)
             if iso == constants.ISO_NO_MATCH:
@@ -162,21 +185,40 @@ class TindaleAdapter(CachingWebLanguageSource):
             elif iso == constants.ISO_MULTI_MATCH:
                 multi_match_count += 1
             else:
+                existing_tindale_lat, existing_tindale_lon = \
+                    self.persister.get_tindale_lat_lon_from_iso(iso)
                 tindale_lat, tindale_lon = \
                     self.get_lat_lon_from_tindale_id(tindale_id)
-                logging.debug("Adding tindale location to %s. "
-                             "lat: %.3f lon: %.3f",
-                             iso,
-                             tindale_lat,
-                             tindale_lon)
-                self.persister.persist_tindale_lat_lon(
-                    iso,
-                    tindale_lat,
-                    tindale_lon)
-                added_count += 1
+                if not approx_equal(tindale_lat, existing_tindale_lat) and \
+                        not approx_equal(tindale_lon, existing_tindale_lon) and \
+                        existing_tindale_lat != constants.LATITUDE_UNKNOWN and \
+                        existing_tindale_lon != constants.LONGITUDE_UNKNOWN:
+                    logging.warning("Attempting to overwrite existing tindale "
+                                    "lat lon for %s with very diff value "
+                                    "Current: %.2f, %.2f "
+                                    "New: %.2f, %.2f "
+                                    "Not overwriting.",
+                                    iso,
+                                    existing_tindale_lat,
+                                    existing_tindale_lon,
+                                    tindale_lat,
+                                    tindale_lon)
+                    attempted_overwrite_count += 1
+                else:
+                    logging.debug("Adding tindale location to %s. "
+                                  "lat: %.3f lon: %.3f",
+                                  iso,
+                                  tindale_lat,
+                                  tindale_lon)
+                    self.persister.persist_tindale_lat_lon(
+                        iso,
+                        tindale_lat,
+                        tindale_lon)
+                    added_count += 1
 
-        logging.info("Able to add %s, no match %s, multi %s",
-                     added_count, no_match_count, multi_match_count)
+        logging.info("Able to add %s, no match %s, multi %s, overwrite %s",
+                     added_count, no_match_count, multi_match_count,
+                     attempted_overwrite_count)
 
     def compare_tindale_wals_lat_lons(self):
         """Compares tindale and WALS lat lons for all ISOs
