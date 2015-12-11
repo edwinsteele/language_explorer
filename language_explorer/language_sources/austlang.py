@@ -25,7 +25,7 @@ class AustlangAdapter(CachingWebLanguageSource):
         iso_list = []
         langsoup = BeautifulSoup(self.get_text_from_url(
             self.ONE_LANGUAGE_URL_TEMPLATE % (austlang_id,)))
-        iso_text = langsoup.find("a",  onmouseover=re.compile(
+        iso_text = langsoup.find("a", onmouseover=re.compile(
             "International Organization for Standardization")).parent \
             .text.rpartition(":")[2].strip()
         if iso_text:
@@ -43,7 +43,7 @@ class AustlangAdapter(CachingWebLanguageSource):
     def get_ABS_name_from_austlang_id(self, austlang_id):
         langsoup = BeautifulSoup(self.get_text_from_url(
             self.ONE_LANGUAGE_URL_TEMPLATE % (austlang_id,)))
-        abn_text = langsoup.find("a",  onmouseover=re.compile(
+        abn_text = langsoup.find("a", onmouseover=re.compile(
             "Australian Bureau of Statistics")).parent \
             .text.rpartition(":")[2].strip()
         return abn_text
@@ -52,8 +52,8 @@ class AustlangAdapter(CachingWebLanguageSource):
         soup = BeautifulSoup(
             self.get_text_from_url(self.ALL_LANGUAGES_URL))
         keys = []
-        for language_link in soup.find_all(
-                "a", href=re.compile("parent.webpageMngr.displayTypeMetadata")):
+        metadata_re = re.compile("parent.webpageMngr.displayTypeMetadata")
+        for language_link in soup.find_all("a", href=metadata_re):
             mo = re.search(r"(\d+)", language_link.attrs["href"])
             if mo:
                 keys.append(int(mo.group(0)))
@@ -81,9 +81,13 @@ class AustlangAdapter(CachingWebLanguageSource):
             if abs_name and iso_list:
                 for iso in iso_list:
                     all_isos.append(iso)
-                    logging.info("Persisting ABS name for ISO %s (%s)",
-                                 iso,
-                                 abs_name)
+                    is_existing_iso = persister.get_iso_list_from_iso(iso)
+                    if is_existing_iso:
+                        logging.info("Persisting ABS name to existing "
+                                     "ISO %s (%s)", iso, abs_name)
+                    else:
+                        logging.info("Persisting ABS name to new "
+                                     "ISO %s (%s)", iso, abs_name)
                     persister.persist_language(iso,
                                                abs_name,
                                                self.ABS_SOURCE_NAME)
@@ -97,9 +101,15 @@ class AustlangAdapter(CachingWebLanguageSource):
                                             abs_name,
                                             self.ABS_SOURCE_NAME)
             else:
-                logging.info("Persisting ABS name for ISO %s (%s)",
-                             iso,
-                             abs_name)
+                is_existing_iso = persister.get_iso_list_from_iso(iso)
+                if is_existing_iso:
+                    logging.info("Persisting ABS name to existing "
+                                 "ISO %s (%s) (ABS Extra Mappings)",
+                                 iso, abs_name)
+                else:
+                    logging.info("Persisting ABS name to new "
+                                 "ISO %s (%s) (ABS Extra Mappings)",
+                                 iso, abs_name)
                 persister.persist_language(iso,
                                            abs_name,
                                            self.ABS_SOURCE_NAME)
