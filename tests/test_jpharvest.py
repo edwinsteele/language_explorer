@@ -11,11 +11,10 @@ class TestJPHarvestAdapter(BaseAdapterTestCase):
     def setUp(self):
         self.source = JPHarvestAdapter(settings.JPHARVEST_DB_URL)
 
-    @unittest.skip("Review - can't explain why this has regressed")
     def test_all_iso_keys(self):
         keys = self.source.get_language_iso_keys()
-        self.assertEquals(len(keys), 67)
-        self.assertEquals(keys[0], "aer")
+        self.assertEquals(len(keys), 82)
+        self.assertEquals(keys[0], "adt")
         self.assertEquals(keys[-1], "zmt")
         self._do_test_all_iso_keys_common()
 
