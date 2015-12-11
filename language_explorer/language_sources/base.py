@@ -14,6 +14,7 @@ class AbstractLanguageSource(object):
         "eng",  # English
         "cmn",  # Chinese Mandarin
         "asf",  # Australian Sign Language
+        "pih",  # Pitcairn/Norfolk Island
     ])
 
     def get_primary_name_for_iso(self, iso):
