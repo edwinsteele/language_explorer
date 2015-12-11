@@ -52,12 +52,16 @@ class WalsAdapter(AbstractLanguageSource):
         # We use like %iso% because we want to include those that have several
         #  iso_codes, but we make sure we get the best match by returning the
         #  one with the shortest iso_codes field i.e. the most specific one.
-        return self.session.query(wals3.models.WalsLanguage) \
+        lang = self.session.query(wals3.models.WalsLanguage) \
             .filter(wals3.models.WalsLanguage.pk ==
                     wals3.models.Language.pk) \
             .filter(wals3.models.WalsLanguage.iso_codes.
                     like('%%%s%%' % (iso,))).order_by("length(iso_codes)")\
-            .first().name
+            .first()
+        if lang:
+            return lang.name
+        else:
+            return None
 
     def get_alternate_names_for_iso(self, iso):
         # WALS includes alternative names from other sources. We will treat
@@ -68,15 +72,17 @@ class WalsAdapter(AbstractLanguageSource):
             .filter(wals3.models.WalsLanguage.iso_codes.
                     like('%%%s%%' % (iso,))).order_by("length(iso_codes)") \
             .first()
-        # We already have Ethnologue, so exclude them. They also split on commas
-        #  which means we'd need extra logic to extract the names from what is
-        #  normally a comma separated string
-        alt_name_strings = [
-            i.name for i in lang.identifiers if i.type == 'name' and
-            i.description.capitalize() != "ethnologue".capitalize()]
-        # We have several alternate sources, and they are dupes sometimes
-        return list(set([s2.strip() for s2 in itertools.chain(
-            *[s.split(",") for s in alt_name_strings])]))
+        if lang:
+            alt_name_strings = [i.name for i in lang.identifiers
+                                if i.type == 'name']
+            # Some alternate name strings are actually comma separated list
+            #  of names, so we need to split them first, then flatten the
+            #  nested lists and strip any whitespace. Given we have several
+            #  alternate sources with duplicate names, we remove dupes
+            return list(set([s2.strip() for s2 in itertools.chain(
+                *[s.split(",") for s in alt_name_strings])]))
+        else:
+            return []
 
     def get_wals_keys_for_iso(self, iso):
         return [l.id for l in

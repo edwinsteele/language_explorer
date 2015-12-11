@@ -19,9 +19,6 @@ class LanguagePersistence(object):
     ALTERNATE_NAME_TYPE = "a"
     DIALECT_TYPE = "d"
     REVERSIBLE_RELATIONSHIPS = [
-        constants.RELTYPE_SIMILAR_TO,
-        constants.RELTYPE_SIMILAR_TO,
-        constants.RELTYPE_LIMITED_MUTUAL_INTELLIGIBILITY,
         constants.RELTYPE_RETIREMENT_SPLIT_INTO,
         constants.RELTYPE_RETIREMENT_MERGED_INTO]
 
@@ -29,8 +26,8 @@ class LanguagePersistence(object):
         self.lang_db = dataset.connect(db_url)
         self.translation_state_cache = {}
         self.l1_speaker_count_cache = {}
-        self.ethnologue_primary_name_cache = {}
         self.retirement_state_cache = {}
+        self.wals_primary_name_cache = {}
 
     def persist_language(self, iso, primary_name, source):
         """write iso to main table
@@ -96,17 +93,6 @@ class LanguagePersistence(object):
         self.lang_db[self.LANGUAGE_TABLE].upsert(
             {"iso": iso,
              "L1_speaker_count_%s" % (source,): c,
-             },
-            ["iso"]
-        )
-
-    def persist_writing_state(self, iso, state):
-        """Persist state of writing. Only ethnologue at this stage
-        (hence no source)
-        """
-        self.lang_db[self.LANGUAGE_TABLE].upsert(
-            {"iso": iso,
-             "writing_state": state,
              },
             ["iso"]
         )
@@ -193,13 +179,6 @@ class LanguagePersistence(object):
              for r_row in
              self.lang_db[self.RELATIONSHIP_TABLE].find(subject_iso=iso)])
 
-    def get_writing_state_by_iso(self, iso):
-        iso_row = self.lang_db[self.LANGUAGE_TABLE].find_one(iso=iso)
-        if iso_row:
-            return iso_row["writing_state"]
-        else:
-            return constants.WRITING_STATE_NOT_RECORDED
-
     def get_english_competency_by_iso(self, iso):
         iso_row = self.lang_db[self.LANGUAGE_TABLE].find_one(iso=iso)
         if iso_row:
@@ -210,19 +189,18 @@ class LanguagePersistence(object):
                 constants.ENGLISH_COMPETENCY_UNKNOWN_OPTIMISTIC
 
     def get_primary_name_for_display(self, iso):
-        """Only for display. Use Ethnologue, or nothing
+        """Only for display. Use WALS, or nothing
 
         duplicates a bit of logic from get_primary_names_by_iso but this
         code is here for a significant optimisation on rendering"""
-        if not self.ethnologue_primary_name_cache:
+        if not self.wals_primary_name_cache:
             all_rows = self.lang_db[self.ALIAS_TABLE] \
                 .find(alias_type=self.PRIMARY_NAME_TYPE,
-                      source=constants.ETHNOLOGUE_SOURCE_ABBREV)
+                      source=constants.WALS_SOURCE_ABBREV)
             for row in all_rows:
-                self.ethnologue_primary_name_cache[row["iso"]] = row["name"]
+                self.wals_primary_name_cache[row["iso"]] = row["name"]
 
-        return self.ethnologue_primary_name_cache.get(iso,
-                                                      "Not in Ethnologue")
+        return self.wals_primary_name_cache.get(iso, "Not in WALS")
 
     def _isos_with_shared_aliases(self, iso_name_list):
         """Yields a tuple of isos that share an alias
@@ -313,7 +291,9 @@ class LanguagePersistence(object):
 
     def get_tindale_lat_lon_from_iso(self, iso):
         iso_row = self.lang_db[self.LANGUAGE_TABLE].find_one(iso=iso)
-        if iso_row:
+        if iso_row and \
+                "tindale_latitude" in iso_row and \
+                "tindale_longitude" in iso_row:
             if iso_row["tindale_latitude"] is None or \
                iso_row["tindale_longitude"] is None:
                 return constants.LATITUDE_UNKNOWN, constants.LONGITUDE_UNKNOWN
@@ -368,11 +348,7 @@ class LanguagePersistence(object):
         """
         New source is old source name + I (i.e. implied from original source).
         """
-        if rel_type in [constants.RELTYPE_RELATED_TO,
-                        constants.RELTYPE_SIMILAR_TO,
-                        constants.RELTYPE_LIMITED_MUTUAL_INTELLIGIBILITY]:
-            return [object_iso, rel_type, source + "I", subject_iso]
-        elif rel_type == constants.RELTYPE_RETIREMENT_MERGED_INTO:
+        if rel_type == constants.RELTYPE_RETIREMENT_MERGED_INTO:
             return [object_iso,
                     constants.RELTYPE_RETIREMENT_MERGED_FROM,
                     source + "I",
@@ -418,9 +394,14 @@ class LanguagePersistence(object):
         """True if a language either has L1 speakers, or the number of L1
         speakers is unknown
         """
-        c = self.get_L1_speaker_count_by_iso(
-            iso, constants.ETHNOLOGUE_SOURCE_ABBREV)
-        return c > 0 or c == constants.SPEAKER_COUNT_UNKNOWN
+        jpc = self.get_L1_speaker_count_by_iso(
+            iso, constants.JOSHUA_PROJECT_SOURCE_ABBREV)
+        cnc = self.get_L1_speaker_count_by_iso(
+            iso, constants.AUS_CENSUS_2011_ABBREV)
+        return jpc > 0 or \
+            cnc > 0 or \
+            jpc == constants.SPEAKER_COUNT_UNKNOWN or \
+            cnc == constants.SPEAKER_COUNT_UNKNOWN
 
     def iso_is_retired(self, iso):
         if not self.retirement_state_cache:
@@ -447,10 +428,10 @@ class LanguagePersistence(object):
         # probably should live elsewhere... fix later
         scripture_css_class = constants.translation_abbrev_css_class_dict[
             self.get_best_translation_state(iso)]
-        # Only use Ethnologue ATM. Expand to add others at some stage,
+        # XXX Only use Joshua Project ATM. Expand to add others at some stage,
         #  with preference stated
         l1_speaker_count = self.get_L1_speaker_count_by_iso(
-            iso, constants.ETHNOLOGUE_SOURCE_ABBREV)
+            iso, constants.JOSHUA_PROJECT_SOURCE_ABBREV)
         l1_speaker_css_class = constants.l1_speaker_css_class_dict[
             l1_speaker_count]
         if self.iso_is_retired(iso):
@@ -475,8 +456,9 @@ class LanguagePersistence(object):
 
     def format_ebu_percentage(self, perc):
         """English bible users"""
-        if int(perc) in (constants.ENGLISH_COMPETENCY_UNKNOWN_OPTIMISTIC,
-                         constants.ENGLISH_COMPETENCY_UNKNOWN_PESSIMISTIC):
+        if not perc or int(perc) in \
+                (constants.ENGLISH_COMPETENCY_UNKNOWN_OPTIMISTIC,
+                 constants.ENGLISH_COMPETENCY_UNKNOWN_PESSIMISTIC):
             return "N/A"
         else:
             return "%s%%" % (perc,)
@@ -541,10 +523,9 @@ class LanguagePersistence(object):
             cannot_read_english_count = self.get_cannot_read_english_count(iso)
             iso_data = (iso,
                         self.get_L1_speaker_count_by_iso(
-                            iso, constants.ETHNOLOGUE_SOURCE_ABBREV),
+                            iso, constants.JOSHUA_PROJECT_SOURCE_ABBREV),
                         census_speaker_count,
                         self.get_best_translation_state(iso),
-                        self.get_writing_state_by_iso(iso),
                         ecp,
                         cannot_read_english_count,
                         relations

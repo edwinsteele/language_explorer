@@ -4,8 +4,6 @@ __author__ = 'esteele'
 
 # Primary sources have two characters
 # Implied or derived sources have three characters
-ETHNOLOGUE_SOURCE_ABBREV = "EL"
-ETHNOLOGUE_IMPLIED_SOURCE_ABBREV = "ELI"
 FIND_A_BIBLE_SOURCE_ABBREV = "FB"
 WALS_SOURCE_ABBREV = "WA"
 JOSHUA_PROJECT_SOURCE_ABBREV = "JP"
@@ -17,8 +15,6 @@ AUS_CENSUS_2011_ABBREV = "CN"
 TINDALE_SOURCE_ABBREV = "TI"
 
 source_abbrev_name_dict = {
-    ETHNOLOGUE_SOURCE_ABBREV: "Ethnologue",
-    ETHNOLOGUE_IMPLIED_SOURCE_ABBREV: "Ethnologue (implied)",
     SIL_RCEM_SOURCE_ABBREV: "SIL Retired Codes",
     SIL_RCEM_IMPLIED_SOURCE_ABBREV: "SIL Retired Codes (implied)",
     FIND_A_BIBLE_SOURCE_ABBREV: "Find A Bible",
@@ -33,7 +29,7 @@ source_abbrev_name_dict = {
 
 TRANSLATION_STATE_WHOLE_BIBLE = 5  # Findabible
 TRANSLATION_STATE_NEW_TESTAMENT = 4  # Findabible
-TRANSLATION_STATE_PORTIONS = 3  # Ethnologue isn't specific
+TRANSLATION_STATE_PORTIONS = 3  # Joshua Project isn't specific
 TRANSLATION_STATE_COMPLETE_BOOK = 2  # Findabible
 TRANSLATION_STATE_NO_SCRIPTURE = 1  # Findabible
 TRANSLATION_STATE_NO_RECORD = 0
@@ -64,12 +60,6 @@ translation_abbrev_css_class_dict = {
 ISO_RETIRED_CSS_STATE = "retired_iso"
 ISO_ACTIVE_CSS_STATE = "active_iso"
 
-RELTYPE_SIMILAR_TO = "SI"  # Ethnologue
-RELTYPE_RELATED_TO = "RE"  # Ethnologue
-RELTYPE_DIFFERENT_FROM = "DI"  # Ethnologue
-RELTYPE_MAY_BE_INTELLIGIBLE = "MI"  # Ethnologue
-RELTYPE_LIMITED_MUTUAL_INTELLIGIBILITY = "LI"  # Ethnologue
-
 RELTYPE_RETIREMENT_CHANGE = "C"  # SIL
 RELTYPE_RETIREMENT_DUPLICATE = "D"  # SIL
 RELTYPE_RETIREMENT_NON_EXISTENT = "N"  # SIL
@@ -82,11 +72,6 @@ RELTYPE_RETIREMENT_MERGED_FROM = "MF"  # SIL (implied)
 DIALECT_NAME = "DN"
 
 relationship_abbrev_name_dict = {
-    RELTYPE_SIMILAR_TO: "is similar to",
-    RELTYPE_RELATED_TO: "is related to",
-    RELTYPE_DIFFERENT_FROM: "is different to",
-    RELTYPE_MAY_BE_INTELLIGIBLE: "may be intelligible with",
-    RELTYPE_LIMITED_MUTUAL_INTELLIGIBILITY: "limited intelligibility with",
     RELTYPE_RETIREMENT_CHANGE: "retired, changed into",
     RELTYPE_RETIREMENT_DUPLICATE: "retired, duplicates",
     RELTYPE_RETIREMENT_NON_EXISTENT: "retired, does not exist",
@@ -99,7 +84,7 @@ relationship_abbrev_name_dict = {
 ISO_MULTI_MATCH = "m"
 ISO_NO_MATCH = "n"
 
-# See note in EthnologueAdapter.get_L1_speaker_count_for_iso
+# See note in JPHarvestAdapter:get_L1_speaker_count_for_iso
 SPEAKER_COUNT_NONE_EXPECTED = -1
 SPEAKER_COUNT_UNKNOWN = -2
 SPEAKER_COUNT_AMBIGUOUS = -3  # Census data
@@ -142,18 +127,6 @@ def generate_l1_css_dict():
 l1_speaker_css_class_dict = generate_l1_css_dict()
 
 TABLE_SPEAKER_COUNT_COL = "SC"
-
-WRITING_STATE_UNWRITTEN = "U"   # Ethnologue. Unwritten
-WRITING_STATE_LATIN_SCRIPT = "L"  # Ethnologue. Latin script.
-WRITING_STATE_LATIN_SCRIPT_NIU = "N"  # Ethnologue. Latin script, but not in use
-WRITING_STATE_NOT_RECORDED = "R"  # Not recorded in Ethnologue
-
-writing_state_abbrev_dict = {
-    WRITING_STATE_UNWRITTEN: "Unwritten",
-    WRITING_STATE_LATIN_SCRIPT: "Latin script",
-    WRITING_STATE_LATIN_SCRIPT_NIU: "Latin script, unused",
-    WRITING_STATE_NOT_RECORDED: "Not recorded",
-}
 
 # We can't associate the following ABS names with ISOs because the
 #  particular spelling doesn't exist in our names or aliases. I've looked

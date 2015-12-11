@@ -18,7 +18,7 @@
                      class="search_init"/>
           </label></th>
           <th><label>
-              <input type="text" name="search_Speakers_eth" value="Search Speakers (Ethnologue)"
+              <input type="text" name="search_Speakers_jp" value="Search Speakers (Joshua Project)"
                      class="search_init"/>
           </label></th>
           <th><label>
@@ -28,10 +28,6 @@
           <th><label>
               <input type="text" name="search_Translations"
                      value="Search Translations" class="search_init"/>
-          </label></th>
-          <th><label>
-              <input type="text" name="search_WrittenState"
-                     value="Search Written State" class="search_init"/>
           </label></th>
           <th><label>
               <input type="text" name="search_PotentialEnglishBibleUsersPerce"
@@ -48,23 +44,21 @@
       </tr>
       <tr>
         <th>ISO</th>
-        <th>Speakers (Ethnologue)</th>
+        <th>Speakers (Joshua Project)</th>
         <th>Speakers (Census 2011)</th>
         <th>Translations</th>
-        <th>Written State</th>
         <th>Potential English Bible Users (%)</th>
         <th>Cannot Read English Bible Count</th>
         <th>Related ISOs with Bible</th>
       </tr>
   </thead>
   <tbody>
-{% for iso, speaker_count_eth, speaker_count_census, tr_status, written_state, ecp, non_english_readers, related_list in table_data %}
+{% for iso, speaker_count_eth, speaker_count_census, tr_status, ecp, non_english_readers, related_list in table_data %}
     <tr>
       <td class="bordered_td">{{ macros.format_iso_as_href(iso) }}</td>
       <td class="bordered_td">{{ lp.format_speaker_count(speaker_count_eth) }}</td>
       <td class="bordered_td">{{ lp.format_speaker_count(speaker_count_census) }}</td>
       <td class="bordered_td">{{ constants.translation_abbrev_name_dict[tr_status|int] }}</td>
-      <td class="bordered_td">{{ constants.writing_state_abbrev_dict[written_state] }}</td>
       <td class="bordered_td">{{ lp.format_ebu_percentage(ecp) }}</td>
       <td class="bordered_td">{{ non_english_readers }}</td>
       <td class="bordered_td">

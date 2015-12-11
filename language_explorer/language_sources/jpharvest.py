@@ -1,10 +1,10 @@
+import logging
 import sqlsoup
 
 from language_explorer import constants
 from language_explorer.language_sources.base import AbstractLanguageSource
 
-
-__author__ = 'esteele'
+logging.basicConfig(level=logging.DEBUG)
 
 
 class JPHarvestAdapter(AbstractLanguageSource):
@@ -16,12 +16,12 @@ class JPHarvestAdapter(AbstractLanguageSource):
     def get_language_iso_keys(self):
         """get a list of languages, with the most common key available in the db
 
-        this might mean we can insert it straight into our db, but it might need
-        some processing if the available keys need translation to be a key in
-        our db
+        this might mean we can insert it straight into our db, but it might
+        need some processing if the available keys need translation to be a
+        key in our db.
 
-
-        SELECT DISTINCT("tblLNG3Languages"."ROL3"), "Language" FROM "tbllnkLNGtoPEOGEO", "tblPEO3PeopleGroups", "tblLNG3Languages" where
+        SELECT DISTINCT("tblLNG3Languages"."ROL3"), "Language" FROM
+        "tbllnkLNGtoPEOGEO", "tblPEO3PeopleGroups", "tblLNG3Languages" where
         "tblPEO3PeopleGroups"."PeopleID3" = "tbllnkLNGtoPEOGEO"."PeopleID3" AND
         "tbllnkLNGtoPEOGEO"."ROL3" = "tblLNG3Languages"."ROL3" AND
         "tblPEO3PeopleGroups"."PeopleID2" = '100' and
@@ -30,7 +30,6 @@ class JPHarvestAdapter(AbstractLanguageSource):
         """
         # We need labels because both tables have PeopleID3 as the join key
         #  and sqlsoup needs labels to avoid ambiguity
-        l_to_pg_labels = self.db.with_labels(self.db.tbllnkLNGtoPEOGEO)
         pg_labels = self.db.with_labels(self.db.tblPEO3PeopleGroups)
         j1 = self.db.join(self.db.tbllnkLNGtoPEOGEO, pg_labels,
                           self.db.tbllnkLNGtoPEOGEO.PeopleID3 ==
@@ -43,7 +42,11 @@ class JPHarvestAdapter(AbstractLanguageSource):
         return sorted(list(all_iso))
 
     def get_primary_name_for_iso(self, iso):
-        return self.db.tblLNG3Languages.get(iso).Language
+        language = self.db.tblLNG3Languages.get(iso)
+        if language:
+            return language.Language
+        else:
+            return None
 
     def get_alternate_names_for_iso(self, iso):
         return [l.LangAltName for l in
@@ -62,6 +65,23 @@ class JPHarvestAdapter(AbstractLanguageSource):
         """Can't be implemented. JPHarvest doesn't provide classification"""
         return []
 
+    def get_L1_speaker_count_for_iso(self, iso):
+        # JoshuaProject does not have speaker count for some languages
+        #  despite having language records for that language.
+        # => bzr, dif, gnr, nid, wkw, wrg, wrz
+        # All of these languages are 8b, 9 or 10 on EGIDS
+        # i.e. extinct, dormant or nearly extinct
+        # So will infer that there aren't any remaining L1 speakers and
+        #  record that they have SPEAKER_COUNT_NONE_EXPECTED speakers
+        language = self.db.tblLNG3Languages.get(iso)
+        if language:
+            if language.WorldSpeakers:
+                return language.WorldSpeakers
+            else:
+                return constants.SPEAKER_COUNT_NONE_EXPECTED
+        else:
+            return constants.SPEAKER_COUNT_UNKNOWN
+
     def get_translation_info_for_iso(self, iso):
         """Has additional information on top of ethnologue and findabible
         e.g. mwp and rop have NT dates
@@ -76,9 +96,13 @@ class JPHarvestAdapter(AbstractLanguageSource):
         d = {}
         STATE = constants.TRANSLATION_STATE_STATE_KEY
         YEAR = constants.TRANSLATION_STATE_YEAR_KEY
-        # Combine into a single query
-        bible_year = self.db.tblLNG3Languages.filter(
-            self.db.tblLNG3Languages.ROL3 == iso).first().BibleYear
+        language = self.db.tblLNG3Languages.filter(
+            self.db.tblLNG3Languages.ROL3 == iso).first()
+        # If we don't know about this iso
+        if not language:
+            return {}
+
+        bible_year = language.BibleYear
         if bible_year:
             d[STATE] = constants.TRANSLATION_STATE_WHOLE_BIBLE
             d[YEAR] = int(bible_year.rpartition("-")[2])

@@ -41,7 +41,7 @@
 
 <h2>Number of L1 Speakers</h2>
 <ul>
-    <li>Ethnologue: {{ lp.format_speaker_count(eth_L1_count) }}</li>
+    <li>Joshua Project: {{ lp.format_speaker_count(jp_L1_count) }}</li>
     <li>Census (2011): {{ lp.format_speaker_count(census_L1_count) }}</li>
 </ul>
 
@@ -73,10 +73,6 @@
     No relationships
 {% endfor %}
 </ul>
-
-<h2>Writing</h2>
-Ethnologue: {{ constants.writing_state_abbrev_dict[writing_state] }}
-
 
 <h2>Bible Translations</h2>
 <ul>

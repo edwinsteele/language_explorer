@@ -40,10 +40,15 @@ class AbstractLanguageSource(object):
 
     def persist_language(self, persister, iso):
         primary_name = self.get_primary_name_for_iso(iso)
-        logging.info("Persisting language entry for ISO %s (%s)",
-                     iso,
-                     primary_name)
-        persister.persist_language(iso, primary_name, source=self.SOURCE_NAME)
+        if primary_name:
+            logging.info("Persisting language %s entry for ISO %s (%s)",
+                         self.SOURCE_NAME, iso, primary_name)
+            persister.persist_language(iso, primary_name,
+                                       source=self.SOURCE_NAME)
+        else:
+            logging.info("Not persisting %s language entry for ISO %s "
+                         "because no primary names could be found",
+                         self.SOURCE_NAME, iso)
 
     def persist_alternate_names(self, persister, iso):
         alternate_names = self.get_alternate_names_for_iso(iso)
@@ -110,7 +115,7 @@ class CachingWebLanguageSource(AbstractLanguageSource):
                 f.write(r.content)
         # Yeah, we're writing then reading if we don't have a cached copy
         #  but it simplifies the unicode handling
-        # I'm not sure what's changed with ethnologue, so we can't download
+        # I'm not sure what's changed with some sources, so we can't download
         #  current files, but tindale expects ascii for later conversion to
         #  utf-8 which means we can't read utf-8 like we do for the other
         #  saved files. I'm probably doing something wrong here, but this

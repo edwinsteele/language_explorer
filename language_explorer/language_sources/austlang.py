@@ -36,9 +36,8 @@ class AustlangAdapter(CachingWebLanguageSource):
         else:
             # TODO: What if we can't find one? Make one up in the austlang NS?
             # TODO: Do we store a map of austlang to iso?
-            # logging.warn("Unable to find ISO for Austlang id %s",
-            #              austlang_id)
-            pass
+            logging.warn("Unable to find ISO text for Austlang id %s",
+                         austlang_id)
         return iso_list
 
     def get_ABS_name_from_austlang_id(self, austlang_id):
