@@ -25,6 +25,7 @@ class NamingHelper(object):
         ('th', 't'),
         ('nh', 'n'),
         ('tyn', 'tn'),
+        ('rmb', 'mb'),  # particularly nrx
         ('p', 'b'),
         ('^gn', 'ng'),
         ('k', 'g'),

@@ -81,7 +81,7 @@ class NamingHelperTestCase(unittest.TestCase):
         )
 
     def test_nrx_signature(self):
-        """Ignore gnumbu and oormbur as they look more like outliers that
+        """Ignore gnumbu, and oormbur as they look more like outliers than
         other forms"""
         self._perform_signature_test(
             "ngmbr",
