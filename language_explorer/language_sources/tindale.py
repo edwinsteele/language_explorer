@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 class TindaleAdapter(CachingWebLanguageSource):
-    SOURCE_NAME = constants.ETHNOLOGUE_SOURCE_ABBREV
+    SOURCE_NAME = constants.TINDALE_SOURCE_ABBREV
     ONE_LANGUAGE_URL_TEMPLATE = "http://archives.samuseum.sa.gov.au/" \
                                 "tindaletribes/%s.htm"
     INDEX_URL_TEMPLATE = "http://archives.samuseum.sa.gov.au/" \
