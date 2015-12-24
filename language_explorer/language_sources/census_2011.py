@@ -216,6 +216,10 @@ class Census2011Adapter(AbstractLanguageSource):
                 if len(self.get_lang_to_iso_dict()[lang]) > 1:
                     # Then the language count is shared among several isos
                     #  and so we can't use it.
+                    logging.info("Census data '%s' is associated with "
+                                 "multiple ISOs: %s",
+                                 lang,
+                                 self.get_lang_to_iso_dict()[lang])
                     return constants.SPEAKER_COUNT_AMBIGUOUS
                 else:
                     c += self.get_lang_to_count_dict()[lang]
@@ -277,7 +281,26 @@ class Census2011Adapter(AbstractLanguageSource):
                 constants.ENGLISH_COMPETENCY_UNKNOWN_OPTIMISTIC
 
     def persist_english_competency(self, persister, iso):
+        ecp_db, eco_db = persister.get_english_competency_by_iso(iso)
         ecp, eco = self.get_english_competency_percentages(iso)
-        logging.info("Persisting english language competency for ISO %s: "
-                     "pess = %s, opt = %s", iso, ecp, eco)
-        persister.persist_english_competency(iso, ecp, eco)
+        # Don't overwrite an existing legit value. It's ok to overwrite
+        #  an UNKNOWN value... it can't get worse
+        if ecp >= 0 or eco >= 0:
+            logging.info("Not persisting english language competency for "
+                         "ISO %s as values already exist (%s, %s). "
+                         "New values were (%s, %s).",
+                         iso,
+                         ecp_db,
+                         eco_db,
+                         ecp,
+                         eco)
+        else:
+            if eco == constants.ENGLISH_COMPETENCY_UNKNOWN_OPTIMISTIC or \
+                    ecp == constants.ENGLISH_COMPETENCY_UNKNOWN_PESSIMISTIC:
+                logging.info("Persisting english language competency for ISO "
+                             "%s (overwriting UNKNOWN values): "
+                             "pess = %s, opt = %s", iso, ecp, eco)
+            else:
+                logging.info("Persisting english language competency for ISO "
+                             "%s: pess = %s, opt = %s", iso, ecp, eco)
+            persister.persist_english_competency(iso, ecp, eco)
