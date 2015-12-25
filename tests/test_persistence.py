@@ -23,19 +23,16 @@ class TestPersistence(unittest.TestCase):
     def test_same_name_different_iso(self):
         sndi_list = self.p.get_same_name_different_iso_list()
         print sndi_list
-        self.assertEquals(len(sndi_list), 59)
-        self.assertIn(('tbh', 'yxg'), sndi_list)
-        self.assertIn(('aer', 'are', 'axl'), sndi_list)
+        self.assertEquals(len(sndi_list), 13)
+        self.assertIn(('duj', 'gnn'), sndi_list)
+        self.assertIn(('unp', 'wro'), sndi_list)
         # Should have same contents with different order
-        self.assertNotIn(('yxg', 'tbh'), sndi_list)
+        self.assertNotIn(('gnn', 'duj'), sndi_list)
 
     def test_common_names_for_iso_list(self):
         iso_list_common_name_list = \
-            [(("nny", "wgu"), ["Njangga", "Nyangga"]),  # Two matches
-             (("jbi", "ekc"), ["Ngura"]),
-             # One match where names appear in 1 DBs (EL & EL)
-             (("aer", "are"), ["Arrernte", "Aranda", "Arunta"]),
-             # One match where names appear in 3 DBs (JP+EL+AB)
+            [(("aer", "are"), ["Arrernte", "Aranda", "Arunta"]),
+             # One match where names appear in 2 DBs (JP+AB)
              ]
         for iso_list, common_name_list in iso_list_common_name_list:
             self.assertEqual(common_name_list,
@@ -44,8 +41,8 @@ class TestPersistence(unittest.TestCase):
     def test_get_iso_list_from_name(self):
         name_iso_list = \
             [("terry", []),  # no match
-             ("Arunta", ["aer", "are", "axl"]),  # 3 matches
-             ("Yugambal", ["yub"]),  # 1 match
+             ("Arunta", ["aer", "are"]),  # 2 matches
+             ("Adynyamathanha", ["adt"]),  # 1 match
              (" Yugambal ", []),  # no matches. string stripping done in flask
              ("yugambal", []),  # no matches, we're case sensitive
              ]
