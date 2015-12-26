@@ -1,6 +1,7 @@
 # -*- coding utf-8 -*-
 
 import collections
+import itertools
 import re
 import logging
 # from language_explorer import constants
@@ -94,3 +95,18 @@ class NamingHelper(object):
                      sigs_per_iso.items())
         logging.info("SUMMARY: isos per sig. %s",
                      isos_per_sig.items())
+
+    @staticmethod
+    def get_name_summary_list(persister):
+        nsl = []
+        all_isos = persister.get_all_iso_codes()
+        for iso in all_isos:
+            name_set = set(itertools.chain(
+                *persister.get_primary_names_by_iso(iso).values()))
+            name_set.update(itertools.chain(
+                *persister.get_alternate_names_by_iso(iso).values()))
+            name_set.update(itertools.chain(
+                *persister.get_dialect_names_by_iso(iso).values()))
+            for name in name_set:
+                nsl.append((iso, name))
+        return nsl
