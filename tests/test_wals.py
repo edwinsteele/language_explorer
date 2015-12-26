@@ -33,9 +33,10 @@ class TestWalsAdapter(BaseAdapterTestCase):
         iso_alternate_name_pairs = [
             ("yij", ["Yindjibarndi", "Kurama"]),  # Two unique alternates
             ("adt", ["Adynyamathanha", "Atynyamathanha", "Atynyamatana",
-                     "Wailpi"]),
+                     "Adnyamathanha", "Wailpi"]),
             ("aer", ["Aranda", "E. Arrernte", "Arrernte (Eastern)",
-                     "Aranda (Eastern)", "Mparntwe Arrernte", "E Aranda"]),
+                     "Aranda (Eastern)", "Mparntwe Arrernte",
+                     "Arrernte, Eastern", "E Aranda"]),
             # aer has multiple matches
         ]
         self._do_test_alternate_name_retrieval(iso_alternate_name_pairs)

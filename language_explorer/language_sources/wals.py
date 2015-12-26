@@ -75,12 +75,11 @@ class WalsAdapter(AbstractLanguageSource):
         if lang:
             alt_name_strings = [i.name for i in lang.identifiers
                                 if i.type == 'name']
-            # Some alternate name strings are actually comma separated list
-            #  of names, so we need to split them first, then flatten the
-            #  nested lists and strip any whitespace. Given we have several
+            # Previously though alternate name strings might be a
+            #  comma separated list of names, but this is actually untrue
+            #  so there's no need to split and strip. Given we have several
             #  alternate sources with duplicate names, we remove dupes
-            return list(set([s2.strip() for s2 in itertools.chain(
-                *[s.split(",") for s in alt_name_strings])]))
+            return list(set([s.strip() for s in alt_name_strings]))
         else:
             return []
 
