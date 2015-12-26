@@ -21,7 +21,7 @@ class NamingHelperTestCase(unittest.TestCase):
 
     def test_dwm_signature(self):
         self._perform_signature_test(
-            "mtbr",
+            "mtbrA",
             ["Mutpura", "Mudbara", "Mudbera", "Moodburra", "Mudbra",
              "Mudburra", "Madbara", "Mudbura", "Mootburra"]
         )
@@ -40,7 +40,7 @@ class NamingHelperTestCase(unittest.TestCase):
            Stop before vowel is different to stop before consonant
            Ignore the latter in both cases"""
         self._perform_signature_test(
-            "tnymtn",
+            "tnymtnA",
             ["Adynyamathanha", "Ad'n'amadana", "Ad'n'amadana", "Adnyamathanha",
              "Adnymathanha", "Atynyamatana", "Atynyamathanha"]
         )
@@ -56,27 +56,32 @@ class NamingHelperTestCase(unittest.TestCase):
     def test_aly_signature(self):
         """Ignore 'yowera' - diff number of syllables"""
         self._perform_signature_test(
+            "lywrA",
+            ["Alyawarra", "Iliaura", "Aljawara"]
+        )
+
+    def test_aly2_signature(self):
+        self._perform_signature_test(
             "lywr",
-            ["Alyawarr", "Alyawarra", "Alyawarre",
-             "Iliaura", "Aljawara"]
+            ["Alyawarr"]
         )
 
     def test_nid_signature(self):
         self._perform_signature_test(
-            "ngntj",
+            "ngntjI",
             ["Ngandi", "Ngandji"]
         )
 
     def test_drl_signature(self):
         self._perform_signature_test(
-            "bgntj",
+            "bgntjI",
             ["Paakantyi", "Paakintyi", "Bagandji",
              "Baagandji", "Paakanti"]
         )
 
     def test_nck_signature(self):
         self._perform_signature_test(
-            "ngr",
+            "ngrA",
             ["Na-kara", "Nagara", "Nakara", "Nakarra", "Nakkara"]
         )
 
@@ -87,3 +92,6 @@ class NamingHelperTestCase(unittest.TestCase):
             "ngmbr",
             ["Ngumbur", "Ngormbur", "Ngurmbur", "Gnormbur"]
         )
+
+    def test_summarising(self):
+        pass
