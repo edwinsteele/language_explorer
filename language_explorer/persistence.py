@@ -181,7 +181,9 @@ class LanguagePersistence(object):
 
     def get_english_competency_by_iso(self, iso):
         iso_row = self.lang_db[self.LANGUAGE_TABLE].find_one(iso=iso)
-        if iso_row:
+        if iso_row \
+                and "english_competency_pess" in iso_row \
+                and "english_competency_optim" in iso_row:
             return iso_row["english_competency_pess"], \
                 iso_row["english_competency_optim"]
         else:
