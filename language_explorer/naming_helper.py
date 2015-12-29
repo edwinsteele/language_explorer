@@ -4,11 +4,12 @@ import collections
 import itertools
 import re
 import logging
-# from language_explorer import constants
+from language_explorer.utils import memoized
 
 __author__ = 'esteele'
 
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 class NamingHelper(object):
@@ -43,12 +44,15 @@ class NamingHelper(object):
         (r'(.)\1', r'\g<1>'),  # conflate repeating letters
     ]
 
+    def __init__(self):
+        self._primary_sig_cache = {}
+
     @staticmethod
     def signature(word):
-        logging.debug(">>> %s", word.encode('utf-8'))
+        logger.debug(">>> %s", word.encode('utf-8'))
         word = word.lower()
         for patt, repl in NamingHelper.mappings:
-            logging.debug(">%s<", word.encode('utf-8'))
+            logger.debug(">%s<", word.encode('utf-8'))
             word = re.sub(patt, repl, word, flags=re.UNICODE)
         return word
 
@@ -110,3 +114,20 @@ class NamingHelper(object):
             for name in name_set:
                 nsl.append((iso, name))
         return nsl
+
+    @memoized
+    def summarise_list_as_dict(self, l):
+        sigs = collections.defaultdict(set)
+        for d in l:
+            sigs[NamingHelper.signature(d.name)].add(d.iso)
+        return sigs
+
+    def get_matching_iso_list_from_name(self, name_to_match, t):
+        sigs = self.summarise_list_as_dict(t)
+        return sigs[NamingHelper.signature(name_to_match)]
+
+if __name__ == "__main__":
+    import sys
+    name = sys.argv[1]
+    logger.setLevel(logging.DEBUG)
+    print "Signature for %s is %s" % (name, NamingHelper.signature(name))

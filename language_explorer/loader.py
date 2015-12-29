@@ -92,8 +92,10 @@ def main():
 
 def test():
     # [(iso, <str of comma sep names>), (..) ]
-    nsl_data = NamingHelper.get_name_summary_list(p)
-    NamingHelper.format_mappings(NamingHelper.summarise_mappings(nsl_data))
+    # nsl_data = NamingHelper.get_name_summary_list(p)
+    # NamingHelper.format_mappings(NamingHelper.summarise_mappings(nsl_data))
+
+    census.print_stuff()
     return
 
 

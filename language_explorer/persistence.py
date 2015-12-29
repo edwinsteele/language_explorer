@@ -3,10 +3,15 @@ import collections
 import dataset
 import logging
 from language_explorer import constants
+from language_explorer import naming_helper
+from language_explorer.utils import memoized
 
 __author__ = 'esteele'
 
 logging.basicConfig(level=logging.DEBUG)
+
+CacheableAliasRow = collections.namedtuple(
+    "CacheableAliasRow", ["iso", "name", "alias_type"])
 
 
 class LanguagePersistence(object):
@@ -28,6 +33,7 @@ class LanguagePersistence(object):
         self.l1_speaker_count_cache = {}
         self.retirement_state_cache = {}
         self.wals_primary_name_cache = {}
+        self.naming_helper = naming_helper.NamingHelper()
 
     def persist_language(self, iso, primary_name, source):
         """write iso to main table
@@ -129,33 +135,42 @@ class LanguagePersistence(object):
             [row["iso"] for row in
              self.lang_db[self.ALIAS_TABLE].distinct("iso")])))
 
+    @memoized
+    def get_alias_table_contents(self):
+        return tuple([CacheableAliasRow(
+                      row["iso"], row["name"], row["alias_type"])
+                      for row in self.lang_db[self.ALIAS_TABLE].all()])
+
     def get_primary_names_by_iso(self, iso):
         """Return list of primary names from each data source"""
-        primary_list = self.lang_db[self.ALIAS_TABLE] \
-            .find(iso=iso, alias_type=self.PRIMARY_NAME_TYPE)
         d = collections.defaultdict(list)
-        for primary_row in primary_list:
-            d[primary_row["source"]].append(primary_row["name"])
+        [d[row.source].append(row.name) for
+         row in self.get_alias_table_contents() if
+         row.iso == iso and
+         row.alias_type == self.PRIMARY_NAME_TYPE
+         ]
         return d
 
     def get_alternate_names_by_iso(self, iso):
         """Return list of alternate names from each data source"""
-        alternate_list = self.lang_db[self.ALIAS_TABLE] \
-            .find(iso=iso, alias_type=self.ALTERNATE_NAME_TYPE)
+        alternate_list = [row for row in self.get_alias_table_contents() if
+                          row.iso == iso and
+                          row.alias_type == self.ALTERNATE_NAME_TYPE]
         d = collections.defaultdict(list)
-        for primary_row in alternate_list:
-            d[primary_row["source"]].append(primary_row["name"])
-            d[primary_row["source"]].sort()
+        for row in alternate_list:
+            d[row.source].append(row.name)
+            d[row.source].sort()
         return d
 
     def get_dialect_names_by_iso(self, iso):
         """Return list of dialect names from each data source"""
-        dialect_list = self.lang_db[self.ALIAS_TABLE] \
-            .find(iso=iso, alias_type=self.DIALECT_TYPE)
+        dialect_list = [row for row in self.get_alias_table_contents() if
+                        row.iso == iso and
+                        row.alias_type == self.DIALECT_TYPE]
         d = collections.defaultdict(list)
-        for primary_row in dialect_list:
-            d[primary_row["source"]].append(primary_row["name"])
-            d[primary_row["source"]].sort()
+        for row in dialect_list:
+            d[row.source].append(row.name)
+            d[row.source].sort()
         return d
 
     def get_classifications_by_iso(self, iso):
@@ -270,9 +285,20 @@ class LanguagePersistence(object):
 
     def get_iso_list_from_name(self, name):
         # exact match on name only
-        return [row["iso"] for row in
-                self.lang_db[self.ALIAS_TABLE].
-                distinct("iso", name=name)]
+        db_exact_match_list = list(set([row.iso for row in
+                                       self.get_alias_table_contents()
+                                       if row.name == name]))
+        # Compare signatures
+        sig_match_list = \
+            list(self.naming_helper.get_matching_iso_list_from_name(
+                 name, self.get_alias_table_contents()))
+        if db_exact_match_list != sig_match_list:
+            logging.info("%s matches differ: %s (DB) %s (sig)",
+                         name,
+                         db_exact_match_list,
+                         sig_match_list)
+        return db_exact_match_list
+        # return sig_match_list
 
     def get_iso_list_from_iso(self, iso):
         # probably redundant, but just in case we want to search on partial iso
