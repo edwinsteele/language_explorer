@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from language_explorer import naming_helper
+from language_explorer import data_massaging
+from language_explorer.persistence import CacheableAliasRow
 import unittest
 
 
@@ -11,9 +13,9 @@ class NamingHelperTestCase(unittest.TestCase):
     def _perform_signature_test(self, ref_sig, names):
         for name in names:
             name_sig = self.nh.signature(name)
-            print "ref_sig ->%s<- name_sig ->%s<-" % \
-                ([ord(c) for c in ref_sig],
-                 [ord(c) for c in name_sig])
+            #print "ref_sig ->%s<- name_sig ->%s<-" % \
+            #    ([ord(c) for c in ref_sig],
+            #     [ord(c) for c in name_sig])
             self.assertEqual(ref_sig, name_sig,
                              "name '%s' has signature '%s' instead of "
                              "expected signature of '%s'" %
@@ -93,5 +95,28 @@ class NamingHelperTestCase(unittest.TestCase):
             ["Ngumbur", "Ngormbur", "Ngurmbur", "Gnormbur"]
         )
 
-    def test_summarising(self):
-        pass
+    def test_guradjara_signature(self):
+        """Used below for no-iso test so make sure it's being
+        signature'd in line with the test below"""
+        self._perform_signature_test(
+            "grtyrA",
+            ["Guradjara"]
+        )
+
+    def test_summarising_standard_single_iso_single_name(self):
+        t = (CacheableAliasRow("aly", "Alywarr", "_"),)
+        self.assertEquals(self.nh.summarise_list_as_dict(t)["lywr"],
+                          set(['aly']))
+
+    def test_summarising_standard_single_iso_mult_names(self):
+        t = (CacheableAliasRow("aly", "Alywarr", "_"),
+             CacheableAliasRow("aly", "Yowera", "_"))
+        self.assertEquals(self.nh.summarise_list_as_dict(t)["lywr"],
+                          set(['aly']))
+        self.assertEquals(self.nh.summarise_list_as_dict(t)["ywrA"],
+                          set(['aly']))
+
+    def test_summarising_override_noiso(self):
+        t = (CacheableAliasRow("gbd", "Guradjara", "_"),)
+        self.assertEquals(self.nh.summarise_list_as_dict(t)["grtyrA"],
+                          set([]))

@@ -3,8 +3,10 @@
 import collections
 import itertools
 import re
+import sys
 import logging
 from language_explorer.utils import memoized
+from language_explorer import data_massaging
 
 __author__ = 'esteele'
 
@@ -43,9 +45,6 @@ class NamingHelper(object):
         ('k', 'g'),
         (r'(.)\1', r'\g<1>'),  # conflate repeating letters
     ]
-
-    def __init__(self):
-        self._primary_sig_cache = {}
 
     @staticmethod
     def signature(word):
@@ -119,7 +118,13 @@ class NamingHelper(object):
     def summarise_list_as_dict(self, l):
         sigs = collections.defaultdict(set)
         for d in l:
-            sigs[NamingHelper.signature(d.name)].add(d.iso)
+            override_iso = data_massaging.signature_overrides.get(d.name)
+            if override_iso == data_massaging.NO_ISO:
+                continue
+            elif override_iso:
+                sigs[NamingHelper.signature(d.name)].add(override_iso)
+            else:
+                sigs[NamingHelper.signature(d.name)].add(d.iso)
         return sigs
 
     def get_matching_iso_list_from_name(self, name_to_match, t):
@@ -127,7 +132,7 @@ class NamingHelper(object):
         return sigs[NamingHelper.signature(name_to_match)]
 
 if __name__ == "__main__":
-    import sys
-    name = sys.argv[1]
+    test_name = sys.argv[1]
     logger.setLevel(logging.DEBUG)
-    print "Signature for %s is %s" % (name, NamingHelper.signature(name))
+    print "Signature for %s is %s" % (test_name,
+                                      NamingHelper.signature(test_name))

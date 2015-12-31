@@ -293,12 +293,23 @@ class LanguagePersistence(object):
             list(self.naming_helper.get_matching_iso_list_from_name(
                  name, self.get_alias_table_contents()))
         if db_exact_match_list != sig_match_list:
-            logging.info("%s matches differ: %s (DB) %s (sig)",
-                         name,
-                         db_exact_match_list,
-                         sig_match_list)
-        return db_exact_match_list
-        # return sig_match_list
+            if db_exact_match_list:
+                logging.info("%s matches differ: %s (exact db) %s (sig) "
+                             "- returning exact db match.",
+                             name,
+                             db_exact_match_list,
+                             sig_match_list)
+                return db_exact_match_list
+            else:
+                logging.info("%s matches differ: %s (exact db) %s (sig) "
+                             "- returning signature match.",
+                             name,
+                             db_exact_match_list,
+                             sig_match_list)
+                return sig_match_list
+        else:
+            # sig and exact are identical... just pick one
+            return sig_match_list
 
     def get_iso_list_from_iso(self, iso):
         # probably redundant, but just in case we want to search on partial iso
