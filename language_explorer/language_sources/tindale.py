@@ -1,5 +1,4 @@
 # -*- coding: utf8 -*-
-__author__ = 'esteele'
 import logging
 import math
 import string
@@ -28,12 +27,11 @@ class TindaleAdapter(CachingWebLanguageSource):
         "ngaliwuru": (-16.1666666667, 130.666666667),  # 120E -> 130E
         "kamilaroi": (-30.25, 150.583333333),  # 140E -> 150E
         "njangamarda": (-20.666666667, 122.0),  # Avg of 2 locations
+        "lardiil": (-16.583, 139.333),  # 137E -> 139E
     }
     # Hand-matching
     TINDALE_ID_TO_ISO_OVERRIDE_DICT = {
         "wik-kalkan": ["wik"],
-        "anmatjera": ["amk"],
-        "antakirinja": ["ant"],
         "biria": [constants.ISO_NO_MATCH],  # Bowen River QLD. Not xpa
         "jangaa": [constants.ISO_NO_MATCH],  # Pre-contact group. Not nny
         "jeidji": ["vmi"],  # Not wub
@@ -45,6 +43,16 @@ class TindaleAdapter(CachingWebLanguageSource):
         "kula": [constants.ISO_NO_MATCH],  # drl dialect - not best latlon
         "milpulo": [constants.ISO_NO_MATCH],  # drl dialect - not best latlon
         "wiri": [constants.ISO_NO_MATCH],  # not xnk. does not appear anywhere
+        "goeng": [constants.ISO_NO_MATCH],  # sig match for bxj but too distant
+        "dalla": [constants.ISO_NO_MATCH],  # sig match for duj but too distant
+        "tulua": [constants.ISO_NO_MATCH],  # sig match for duj but too distant
+        "maduwongga": [constants.ISO_NO_MATCH],  # same name as SA tribe but
+        # this is in WA
+        "ngewin": [constants.ISO_NO_MATCH],  # sig match for nxn but in NT
+        "wakaman": ["gvn"],  # dialect of gvn. AIATSIS Y223 -> Y78
+        "wikmean": ["wih"],  # Few speakers. AIATSIS Y53
+        "mingin": [constants.ISO_NO_MATCH],  # sig match for wim.
+        # AIATSIS G26 but no ISO
     }
     REVIEWED_LAT_LON_DISCREPANCIES = [
         "nbj",
@@ -216,7 +224,8 @@ class TindaleAdapter(CachingWebLanguageSource):
                         tindale_lon)
                     added_count += 1
 
-        logging.info("Able to add %s, no match %s, multi %s, overwrite %s",
+        logging.info("SUMMARY: Able to add %s, no match %s, multi %s, "
+                     "overwrite %s",
                      added_count, no_match_count, multi_match_count,
                      attempted_overwrite_count)
 
@@ -275,7 +284,7 @@ class TindaleAdapter(CachingWebLanguageSource):
                                  tindale_lon,
                                  iso in self.REVIEWED_LAT_LON_DISCREPANCIES)
 
-        logging.info("Summary. None: %s, Tindale only: %s, "
+        logging.info("SUMMARY. None: %s, Tindale only: %s, "
                      "WALS only: %s, Both: %s",
                      no_lat_lon_count,
                      tindale_lat_lon_count,
