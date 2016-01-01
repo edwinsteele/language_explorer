@@ -11,7 +11,7 @@ __author__ = 'esteele'
 logging.basicConfig(level=logging.DEBUG)
 
 CacheableAliasRow = collections.namedtuple(
-    "CacheableAliasRow", ["iso", "name", "alias_type"])
+    "CacheableAliasRow", ["iso", "name", "alias_type", "source"])
 
 
 class LanguagePersistence(object):
@@ -20,6 +20,7 @@ class LanguagePersistence(object):
     CLASSIFICATION_TABLE = "classification"
     TRANSLATION_TABLE = "translation"
     RELATIONSHIP_TABLE = "relationship"
+    REFERENCE_TABLE = "reference"
     PRIMARY_NAME_TYPE = "p"
     ALTERNATE_NAME_TYPE = "a"
     DIALECT_TYPE = "d"
@@ -33,34 +34,30 @@ class LanguagePersistence(object):
         self.l1_speaker_count_cache = {}
         self.retirement_state_cache = {}
         self.wals_primary_name_cache = {}
+        self._highest_alias_id = 0
         self.naming_helper = naming_helper.NamingHelper()
 
     def persist_language(self, iso, primary_name, source):
-        """write iso to main table
-
-        write primary source to language names table
-        """
-        self.lang_db[self.ALIAS_TABLE].upsert(dict(
-            iso=iso,
-            alias_type=self.PRIMARY_NAME_TYPE,
-            name=primary_name,
-            source=source,
-        ), ["iso", "alias_type", "source", "name"])
+        self._persist_alias(iso, self.PRIMARY_NAME_TYPE,
+                            primary_name, source)
 
     def persist_dialect(self, iso, alternate_name, source):
-        self._persist_alias(iso, self.DIALECT_TYPE, alternate_name, source)
+        self._persist_alias(iso, self.DIALECT_TYPE,
+                            alternate_name, source)
 
     def persist_alternate(self, iso, alternate_name, source):
         self._persist_alias(iso, self.ALTERNATE_NAME_TYPE,
                             alternate_name, source)
 
     def _persist_alias(self, iso, alternate_type, alternate_name, source):
-        self.lang_db[self.ALIAS_TABLE].upsert(dict(
+        new_id = self.lang_db[self.ALIAS_TABLE].insert(dict(
             iso=iso,
             alias_type=alternate_type,
             name=alternate_name,
             source=source,
-        ), ["iso", "alias_type", "source", "name"])
+        ))
+        self._highest_alias_id = max(self._highest_alias_id, new_id)
+        logging.info("New Highest Alias ID is %s", self._highest_alias_id)
 
     def persist_classification(self, iso, c_list, source):
         for c_idx, c_name in enumerate(c_list):
@@ -130,16 +127,35 @@ class LanguagePersistence(object):
             ["iso"]
         )
 
+    def persist_external_reference(self, iso, ext_ref_id, ext_ref_source):
+        self.lang_db[self.REFERENCE_TABLE].upsert(
+            {"iso": iso,
+             "ext_ref_id": ext_ref_id,
+             "ext_ref_source": ext_ref_source,
+             },
+            ["iso", "ext_ref_id", "ext_ref_source"]
+        )
+
     def get_all_iso_codes(self):
         return sorted(list(set(
             [row["iso"] for row in
              self.lang_db[self.ALIAS_TABLE].distinct("iso")])))
 
     @memoized
-    def get_alias_table_contents(self):
+    def _do_get_alias_table_contents(self, highest_id):
+        """highest_id will cause cache to be invalid if new rows
+        have been added"""
+        logging.info("Hitting get_alias_table_contents with id: %s",
+                     highest_id)
         return tuple([CacheableAliasRow(
-                      row["iso"], row["name"], row["alias_type"])
+                      row["iso"],
+                      row["name"],
+                      row["alias_type"],
+                      row["source"])
                       for row in self.lang_db[self.ALIAS_TABLE].all()])
+
+    def get_alias_table_contents(self):
+        return self._do_get_alias_table_contents(self._highest_alias_id)
 
     def get_primary_names_by_iso(self, iso):
         """Return list of primary names from each data source"""

@@ -104,19 +104,19 @@ class NamingHelperTestCase(unittest.TestCase):
         )
 
     def test_summarising_standard_single_iso_single_name(self):
-        t = (CacheableAliasRow("aly", "Alywarr", "_"),)
+        t = (CacheableAliasRow("aly", "Alywarr", "_", "_"),)
         self.assertEquals(self.nh.summarise_list_as_dict(t)["lywr"],
                           set(['aly']))
 
     def test_summarising_standard_single_iso_mult_names(self):
-        t = (CacheableAliasRow("aly", "Alywarr", "_"),
-             CacheableAliasRow("aly", "Yowera", "_"))
+        t = (CacheableAliasRow("aly", "Alywarr", "_", "_"),
+             CacheableAliasRow("aly", "Yowera", "_", "_"))
         self.assertEquals(self.nh.summarise_list_as_dict(t)["lywr"],
                           set(['aly']))
         self.assertEquals(self.nh.summarise_list_as_dict(t)["ywrA"],
                           set(['aly']))
 
     def test_summarising_override_noiso(self):
-        t = (CacheableAliasRow("gbd", "Guradjara", "_"),)
+        t = (CacheableAliasRow("gbd", "Guradjara", "_", "_"),)
         self.assertEquals(self.nh.summarise_list_as_dict(t)["grtyrA"],
                           set([]))
