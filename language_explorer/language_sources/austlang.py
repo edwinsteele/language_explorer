@@ -48,6 +48,22 @@ class AustlangAdapter(CachingWebLanguageSource):
             .text.rpartition(":")[2].strip()
         return abn_text
 
+    def get_aiatsis_code_from_austlang_id(self, austlang_id):
+        langsoup = BeautifulSoup(self.get_text_from_url(
+            self.ONE_LANGUAGE_URL_TEMPLATE % (austlang_id,)))
+        aiatsis_name = langsoup.find("a", onmouseover=re.compile(
+            "Language identification code used at AIATSIS")) \
+                .next_sibling.strip()
+        return aiatsis_name
+
+    def get_aiatsis_name_from_austlang_id(self, austlang_id):
+        langsoup = BeautifulSoup(self.get_text_from_url(
+            self.ONE_LANGUAGE_URL_TEMPLATE % (austlang_id,)))
+        aiatsis_name = langsoup.find("a", onmouseover=re.compile(
+            "Language identification code used at AIATSIS")) \
+                .next_sibling.strip()
+        return aiatsis_name
+
     def get_all_austlang_keys(self):
         soup = BeautifulSoup(
             self.get_text_from_url(self.ALL_LANGUAGES_URL))
@@ -113,3 +129,12 @@ class AustlangAdapter(CachingWebLanguageSource):
                 persister.persist_language(iso,
                                            abs_name,
                                            self.ABS_SOURCE_NAME)
+
+    def persist_external_references(self, persister):
+        for key in self.get_all_austlang_keys():
+            iso_list = self.get_iso_list_from_austlang_id(key)
+            for iso in iso_list:
+                persister.persist_external_reference(
+                    iso, key,
+                    self.get_aiatsis_code_from_austlang_id(key),
+                    constants.AUSTLANG_SOURCE_ABBREV)

@@ -48,10 +48,10 @@ class NamingHelper(object):
 
     @staticmethod
     def signature(word):
-        logger.debug(">>> %s", word.encode('utf-8'))
+        #logger.debug(">>> %s", word.encode('utf-8'))
         word = word.lower()
         for patt, repl in NamingHelper.mappings:
-            logger.debug(">%s<", word.encode('utf-8'))
+            #logger.debug(">%s<", word.encode('utf-8'))
             word = re.sub(patt, repl, word, flags=re.UNICODE)
         return word
 

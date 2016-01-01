@@ -8,7 +8,6 @@ from language_explorer.language_sources.sil_rcem import SilRcemAdapter
 from language_explorer.language_sources.austlang import AustlangAdapter
 from language_explorer.language_sources.census_2011 import Census2011Adapter
 from language_explorer.language_sources.tindale import TindaleAdapter
-from language_explorer.naming_helper import NamingHelper
 from persistence import LanguagePersistence
 
 
@@ -71,6 +70,7 @@ def main():
     # Austlang can create new ISOs, so from this point we need to ask the
     #  db for all it's ISO codes instead of using "all_known_isos"
     austlang.persist_ABS_names(p)
+    austlang.persist_external_references(p)
     # Tindale can also create new ISOs, based on an override dictionary
     tindale.persist_latitude_longitudes()
     # tindale.compare_tindale_wals_lat_lons()
@@ -92,15 +92,20 @@ def main():
 
 def test():
     # [(iso, <str of comma sep names>), (..) ]
+    # from language_explorer.naming_helper import NamingHelper
     # nsl_data = NamingHelper.get_name_summary_list(p)
     # NamingHelper.format_mappings(NamingHelper.summarise_mappings(nsl_data))
-
-    census.print_stuff()
-    return
+    # census.print_stuff()
+    # tindale.persist_latitude_longitudes()
+    # tindale.compare_tindale_wals_lat_lons()
+    austlang.persist_external_references(p)
+    #print austlang.get_aiatsis_name_from_austlang_id(989)
 
 
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == "-t":
+        logger = logging.getLogger()
+        logger.setLevel(logging.DEBUG)
         sys.exit(test())
     else:
         sys.exit(main())

@@ -136,6 +136,9 @@ Longitude: {{ "%.2f"|format(tindale_lon) }}
       <a href="http://wals.info/languoid/lect/wals_code_{{ wals_key }}">{{ wals_key }}</a>
       {% endfor %}
   </li>
+  <li>AUSTLANG: {%  for austlang_key, austlang_label in austlang_refs %}
+      <a href="http://austlang.aiatsis.gov.au/php/public/language_profile_all.php?id={{ austlang_key }}">{{ austlang_label }}</a>
+      {% endfor %}
 </ul>
 
 {# include mapping, if we're going to use it #}

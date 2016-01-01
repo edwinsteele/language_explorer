@@ -127,14 +127,22 @@ class LanguagePersistence(object):
             ["iso"]
         )
 
-    def persist_external_reference(self, iso, ext_ref_id, ext_ref_source):
+    def persist_external_reference(self, iso, ext_ref_id, label, source):
         self.lang_db[self.REFERENCE_TABLE].upsert(
             {"iso": iso,
              "ext_ref_id": ext_ref_id,
-             "ext_ref_source": ext_ref_source,
+             "ext_ref_label": label,
+             "ext_ref_source": source,
              },
             ["iso", "ext_ref_id", "ext_ref_source"]
         )
+
+    def get_external_references_by_iso(self, iso, source):
+        """list of external reference tuples by source"""
+        ref_list = self.lang_db[self.REFERENCE_TABLE] \
+            .find(iso=iso, ext_ref_source=source, order_by=["ext_ref_label"])
+        return [(row["ext_ref_id"], row["ext_ref_label"]) for row in ref_list]
+        #return {"AL": ((123, "X999*"), (456, "Y12.1"))}
 
     def get_all_iso_codes(self):
         return sorted(list(set(
