@@ -285,7 +285,7 @@ class Census2011Adapter(AbstractLanguageSource):
         ecp, eco = self.get_english_competency_percentages(iso)
         # Don't overwrite an existing legit value. It's ok to overwrite
         #  an UNKNOWN value... it can't get worse
-        if ecp >= 0 or eco >= 0:
+        if ecp_db and eco_db and ecp_db >= 0 and eco_db >= 0:
             logging.info("Not persisting english language competency for "
                          "ISO %s as values already exist (%s, %s). "
                          "New values were (%s, %s).",
