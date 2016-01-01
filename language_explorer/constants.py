@@ -20,7 +20,7 @@ source_abbrev_name_dict = {
     FIND_A_BIBLE_SOURCE_ABBREV: "Find A Bible",
     WALS_SOURCE_ABBREV: "WALS",
     JOSHUA_PROJECT_SOURCE_ABBREV: "Joshua Project",
-    AUSTLANG_SOURCE_ABBREV: "AustLang",
+    AUSTLANG_SOURCE_ABBREV: "AUSTLANG",
     AUSTLANG_ABS_SOURCE_ABBREV: "Australian Bureau of Statistics",
     AUS_CENSUS_2011_ABBREV: "Census 2011",
     TINDALE_SOURCE_ABBREV: "Tindale's Catalogue of "

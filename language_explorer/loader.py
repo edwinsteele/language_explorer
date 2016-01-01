@@ -69,12 +69,14 @@ def main():
     #  be run before any census stuff.
     # Austlang can create new ISOs, so from this point we need to ask the
     #  db for all it's ISO codes instead of using "all_known_isos"
+    austlang.persist_languages(p)
     austlang.persist_ABS_names(p)
     austlang.persist_external_references(p)
+    all_known_isos = load_data_for_new_isos(all_known_isos)
+
     # Tindale can also create new ISOs, based on an override dictionary
     tindale.persist_latitude_longitudes()
     # tindale.compare_tindale_wals_lat_lons()
-
     all_known_isos = load_data_for_new_isos(all_known_isos)
 
     for lang in all_known_isos:
@@ -98,8 +100,7 @@ def test():
     # census.print_stuff()
     # tindale.persist_latitude_longitudes()
     # tindale.compare_tindale_wals_lat_lons()
-    austlang.persist_external_references(p)
-    #print austlang.get_aiatsis_name_from_austlang_id(989)
+    austlang.persist_languages(p)
 
 
 if __name__ == '__main__':

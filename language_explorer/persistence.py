@@ -142,7 +142,6 @@ class LanguagePersistence(object):
         ref_list = self.lang_db[self.REFERENCE_TABLE] \
             .find(iso=iso, ext_ref_source=source, order_by=["ext_ref_label"])
         return [(row["ext_ref_id"], row["ext_ref_label"]) for row in ref_list]
-        #return {"AL": ((123, "X999*"), (456, "Y12.1"))}
 
     def get_all_iso_codes(self):
         return sorted(list(set(

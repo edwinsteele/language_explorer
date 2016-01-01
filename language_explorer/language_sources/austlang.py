@@ -3,6 +3,7 @@ import logging
 
 from bs4 import BeautifulSoup
 from language_explorer import constants
+from language_explorer.utils import memoized
 
 from language_explorer.language_sources.base import CachingWebLanguageSource
 
@@ -21,6 +22,7 @@ class AustlangAdapter(CachingWebLanguageSource):
     ONE_LANGUAGE_URL_TEMPLATE = 'http://austlang.aiatsis.gov.au/php/public/' \
                                 'language_profile_all.php?id=%s'
 
+    @memoized
     def get_iso_list_from_austlang_id(self, austlang_id):
         iso_list = []
         langsoup = BeautifulSoup(self.get_text_from_url(
@@ -35,7 +37,6 @@ class AustlangAdapter(CachingWebLanguageSource):
             iso_list = [iso.lower().strip() for iso in iso_text.split(",")]
         else:
             # TODO: What if we can't find one? Make one up in the austlang NS?
-            # TODO: Do we store a map of austlang to iso?
             logging.warn("Unable to find ISO text for Austlang id %s",
                          austlang_id)
         return iso_list
@@ -53,17 +54,18 @@ class AustlangAdapter(CachingWebLanguageSource):
             self.ONE_LANGUAGE_URL_TEMPLATE % (austlang_id,)))
         aiatsis_name = langsoup.find("a", onmouseover=re.compile(
             "Language identification code used at AIATSIS")) \
-                .next_sibling.strip()
+            .next_sibling.strip()
         return aiatsis_name
 
     def get_aiatsis_name_from_austlang_id(self, austlang_id):
         langsoup = BeautifulSoup(self.get_text_from_url(
             self.ONE_LANGUAGE_URL_TEMPLATE % (austlang_id,)))
         aiatsis_name = langsoup.find("a", onmouseover=re.compile(
-            "Language identification code used at AIATSIS")) \
-                .next_sibling.strip()
+            "name used in AUSTLANG")) \
+            .next_sibling.strip()
         return aiatsis_name
 
+    @memoized
     def get_all_austlang_keys(self):
         soup = BeautifulSoup(
             self.get_text_from_url(self.ALL_LANGUAGES_URL))
@@ -79,6 +81,7 @@ class AustlangAdapter(CachingWebLanguageSource):
 
         return keys
 
+    @memoized
     def get_language_iso_keys(self):
         isos = []
         for key in self.get_all_austlang_keys():
@@ -138,3 +141,12 @@ class AustlangAdapter(CachingWebLanguageSource):
                     iso, key,
                     self.get_aiatsis_code_from_austlang_id(key),
                     constants.AUSTLANG_SOURCE_ABBREV)
+
+    def persist_languages(self, persister):
+        for key in self.get_all_austlang_keys():
+            a_name = self.get_aiatsis_name_from_austlang_id(key)
+            iso_list = self.get_iso_list_from_austlang_id(key)
+            for iso in iso_list:
+                persister.persist_language(iso,
+                                           a_name,
+                                           constants.AUSTLANG_SOURCE_ABBREV)
