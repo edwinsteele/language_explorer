@@ -34,7 +34,11 @@ class LanguagePersistence(object):
         self.l1_speaker_count_cache = {}
         self.retirement_state_cache = {}
         self.wals_primary_name_cache = {}
-        self._highest_alias_id = 0
+        # Serves to invalidate cache on potential writes
+        # See note on _do_get_alias_table_contents
+        # Doesn't need to be particulary efficient given this
+        #  is only relevant in the already-slow loader run
+        self._alias_table_write_id = 0
         self.naming_helper = naming_helper.NamingHelper()
 
     def persist_language(self, iso, primary_name, source):
@@ -50,14 +54,15 @@ class LanguagePersistence(object):
                             alternate_name, source)
 
     def _persist_alias(self, iso, alternate_type, alternate_name, source):
-        new_id = self.lang_db[self.ALIAS_TABLE].insert(dict(
+        self.lang_db[self.ALIAS_TABLE].upsert(dict(
             iso=iso,
             alias_type=alternate_type,
             name=alternate_name,
             source=source,
-        ))
-        self._highest_alias_id = max(self._highest_alias_id, new_id)
-        logging.info("New Highest Alias ID is %s", self._highest_alias_id)
+            ),
+            ["iso", "alias_type", "name", "source"]
+        )
+        self._alias_table_write_id += 1
 
     def persist_classification(self, iso, c_list, source):
         for c_idx, c_name in enumerate(c_list):
@@ -162,7 +167,7 @@ class LanguagePersistence(object):
                       for row in self.lang_db[self.ALIAS_TABLE].all()])
 
     def get_alias_table_contents(self):
-        return self._do_get_alias_table_contents(self._highest_alias_id)
+        return self._do_get_alias_table_contents(self._alias_table_write_id)
 
     def get_primary_names_by_iso(self, iso):
         """Return list of primary names from each data source"""
