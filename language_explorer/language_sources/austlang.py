@@ -137,6 +137,9 @@ class AustlangAdapter(CachingWebLanguageSource):
         for key in self.get_all_austlang_keys():
             iso_list = self.get_iso_list_from_austlang_id(key)
             for iso in iso_list:
+                logging.info("Creating ext ref for iso %s to %s as %s",
+                             iso, key,
+                             self.get_aiatsis_code_from_austlang_id(key))
                 persister.persist_external_reference(
                     iso, key,
                     self.get_aiatsis_code_from_austlang_id(key),
