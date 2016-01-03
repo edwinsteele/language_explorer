@@ -569,7 +569,7 @@ class LanguagePersistence(object):
         lang_table = self.lang_db[self.LANGUAGE_TABLE].table
         # Let's assume that a null latitude reflects that there
         #  is no lat-lon data i.e. don't check both
-        stmt = lang_table.select(lang_table.c.latitude != None)
+        stmt = lang_table.select(lang_table.c.latitude != None) # flake8: noqa
         result = self.lang_db.query(stmt)
         return [(row["iso"], row["latitude"], row["longitude"])
                 for row in result]

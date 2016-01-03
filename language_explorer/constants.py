@@ -147,13 +147,15 @@ ABS_ISO_EXTRA_MAPPINGS = {
     'Gun-nartpa': "bvr",  # Dialect of Burarra => 89 speakers
     'Gundjeihmi': "gup",  # Dialect of Gunwinngu => 29 speakers
     'Kanai': "unn",  # Is Kurnai
-    #'Kaurna', # Not in Ethnologue => 58 speakers. WALS code kaq. Adelaide
+    # 'Kaurna', # Not in Ethnologue => 58 speakers. WALS code kaq. Adelaide
     'Mudburra': "dmw",  # Matches dmw and mwd but mwd has been retired
     'Murrinh Patha': "mwf",  # Is Murrinh-Patha
     "Ngan'gikurunggurr": "nam",  # Is Nangikurrunggurr
     'Nyungar': "nys",  # Matches nys and xrg, but xrg has no speakers
-    'Nhangu, nec': "jay",  # Is Yan-nhangu (even though it is a Yolngu language)
-    'Pitjantjatjara': "pjt",  # While Yankunytjatjara is related to Pitjantjatjara, it has its own Census code so this is just about pjt
+    'Nhangu, nec': "jay",  # Is Yan-nhangu (even though it is a Yolngu
+    # language)
+    'Pitjantjatjara': "pjt",  # While Yankunytjatjara is related to
+    # Pitjantjatjara, it has its own Census code so this is just about pjt
     # 'Thaynakwith',  # Unable to find anything. => 3 speakers
     'Wagilak': "rit",  # Is Ritarungo => 16 speakers
     'Wangkatha': "pti",

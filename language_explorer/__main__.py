@@ -1,4 +1,3 @@
-from werkzeug.contrib.fixers import ProxyFix
 from language_explorer import app
 import settings
 

@@ -1,10 +1,8 @@
-__author__ = 'esteele'
-
-from flask import render_template
 from language_explorer import app, settings, constants
 from language_explorer.language_sources.wals import WalsAdapter
 from language_explorer.language_sources.census_2011 import Census2011Adapter
 from language_explorer.persistence import LanguagePersistence
+from flask import render_template
 
 lp = LanguagePersistence(settings.LANGUAGE_EXPLORER_DB_URL)
 wals = WalsAdapter(settings.WALS_DB_URL)
@@ -128,6 +126,7 @@ def show_language(iso639_3_code):
     tindale_lat, tindale_lon = lp.get_tindale_lat_lon_from_iso(iso639_3_code)
     austlang_refs = lp.get_external_references_by_iso(
         iso639_3_code, constants.AUSTLANG_SOURCE_ABBREV)
+    cannot_read_english_count = lp.get_cannot_read_english_count(iso639_3_code)
     return render_template(
         'show_language.html',
         lp=lp,
@@ -143,7 +142,7 @@ def show_language(iso639_3_code):
         jp_L1_count=jp_L1_count,
         census_L1_count=census_L1_count,
         english_competency_pessimistic=ecp,
-        cannot_read_english_count=lp.get_cannot_read_english_count(iso639_3_code),
+        cannot_read_english_count=cannot_read_english_count,
         lat=lat, lon=lon,
         austlang_refs=austlang_refs,
         tindale_lat=tindale_lat, tindale_lon=tindale_lon,

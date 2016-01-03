@@ -19,11 +19,11 @@ WSGI_APP = None
 
 deployment_type = get_env_variable("LANGUAGE_EXPLORER_DEPLOYMENT")
 if deployment_type == "dev":
-    from dev_settings import *
+    from dev_settings import *  # flake8: noqa
 elif deployment_type == "staging":
-    from staging_settings import *
+    from staging_settings import *  # flake8: noqa
 elif deployment_type == "prod":
-    from prod_settings import *
+    from prod_settings import *  # flake8: noqa
 else:
     raise RuntimeError("Invalid LANGUAGE_EXPLORER_DEPLOYMENT type"
                        " '%s'. Valid types are dev/staging/prod" %
