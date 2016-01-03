@@ -234,18 +234,19 @@ class LanguagePersistence(object):
                 constants.ENGLISH_COMPETENCY_UNKNOWN_OPTIMISTIC
 
     def get_primary_name_for_display(self, iso):
-        """Only for display. Use WALS, or nothing
-
-        duplicates a bit of logic from get_primary_names_by_iso but this
-        code is here for a significant optimisation on rendering"""
-        if not self.wals_primary_name_cache:
-            all_rows = self.lang_db[self.ALIAS_TABLE] \
-                .find(alias_type=self.PRIMARY_NAME_TYPE,
-                      source=constants.WALS_SOURCE_ABBREV)
-            for row in all_rows:
-                self.wals_primary_name_cache[row["iso"]] = row["name"]
-
-        return self.wals_primary_name_cache.get(iso, "Not in WALS")
+        primary_names = dict(
+            [(row.source, row.name) for
+             row in self.get_alias_table_contents() if
+             row.iso == iso and
+             row.alias_type == self.PRIMARY_NAME_TYPE
+             ])
+        # Try Joshua Project, then AUSTLANG, then WALS, then Tindale
+        return primary_names.get(
+            constants.JOSHUA_PROJECT_SOURCE_ABBREV, primary_names.get(
+                constants.AUSTLANG_SOURCE_ABBREV, primary_names.get(
+                    constants.WALS_SOURCE_ABBREV, primary_names.get(
+                        constants.TINDALE_SOURCE_ABBREV,
+                        "Cannot lookup name"))))
 
     def _isos_with_shared_aliases(self, iso_name_list):
         """Yields a tuple of isos that share an alias
