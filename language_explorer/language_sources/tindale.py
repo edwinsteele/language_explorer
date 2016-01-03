@@ -6,6 +6,7 @@ import string
 from bs4 import BeautifulSoup
 from language_explorer import constants
 from language_explorer.language_sources.base import CachingWebLanguageSource
+from language_explorer.utils import memoized
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -53,6 +54,28 @@ class TindaleAdapter(CachingWebLanguageSource):
         "wikmean": ["wih"],  # Few speakers. AIATSIS Y53
         "mingin": [constants.ISO_NO_MATCH],  # sig match for wim.
         # AIATSIS G26 but no ISO
+        "gia": [constants.ISO_NO_MATCH],  # sig match for gia. E58 which is a
+        # likely dialect of AIATSIS E56
+        "koamu": ["gwu"],  # sig match for xmu but is actually gwu via D33
+        "keinjan": [constants.ISO_NO_MATCH],  # sig match for gni but is D36.
+        # (no iso).
+        "kureinji": [constants.ISO_NO_MATCH],  # sig match for gue but is D6.1
+        # (no iso).
+        "djiwali": ["dze"],  # sig match for mem. Is W28 -> dze
+        "maraura": [constants.ISO_NO_MATCH],  # sig match for mem but is D6
+        #  which is a dialect of drl. not best latlon per other drl dialects
+        "noala": ["nhf"],  # sig match for jao but is W30 (nhf)
+        "potidjara": [constants.ISO_NO_MATCH],  # sig match for bym but is
+        #  A54 which is a dialect of mpj, and we already have a tindale match
+        "bitjara": [constants.ISO_NO_MATCH],  # sig match for bym but is
+        #  L43* and only has very old references
+        "tedei": [constants.ISO_NO_MATCH],  # sig match for dax but is W46
+        #  which is a dialect of vml (better match with Malgana)
+        "wadja": ["wdu"],  # sig match for ibd but is E39/wdu. Location is
+        #  imperfect, see E39 comment.
+        "njunga": ["nys"],  # W41
+        "wudjari": [constants.ISO_NO_MATCH],  # sig match for wbv but is W8
+        #  which is a dialect of W41
     }
     REVIEWED_LAT_LON_DISCREPANCIES = [
         "nbj",
@@ -166,6 +189,7 @@ class TindaleAdapter(CachingWebLanguageSource):
                           tindale_id)
             return constants.ISO_NO_MATCH
 
+    @memoized
     def get_all_tindale_ids(self):
         tindale_ids = set()
         for index_page in self.INDEX_PAGES:
@@ -225,7 +249,7 @@ class TindaleAdapter(CachingWebLanguageSource):
                     added_count += 1
 
         logging.info("SUMMARY: Able to add %s, no match %s, multi %s, "
-                     "overwrite %s",
+                     "attempted-overwrite %s",
                      added_count, no_match_count, multi_match_count,
                      attempted_overwrite_count)
 
