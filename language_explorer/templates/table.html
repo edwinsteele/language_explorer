@@ -53,10 +53,10 @@
       </tr>
   </thead>
   <tbody>
-{% for iso, speaker_count_eth, speaker_count_census, tr_status, ecp, non_english_readers, related_list in table_data %}
+{% for iso, speaker_count_jp, speaker_count_census, tr_status, ecp, non_english_readers, related_list in table_data %}
     <tr>
       <td class="bordered_td">{{ macros.format_iso_as_href(iso) }}</td>
-      <td class="bordered_td">{{ lp.format_speaker_count(speaker_count_eth) }}</td>
+      <td class="bordered_td">{{ lp.format_speaker_count(speaker_count_jp) }}</td>
       <td class="bordered_td">{{ lp.format_speaker_count(speaker_count_census) }}</td>
       <td class="bordered_td">{{ constants.translation_abbrev_name_dict[tr_status|int] }}</td>
       <td class="bordered_td">{{ lp.format_ebu_percentage(ecp) }}</td>
@@ -117,7 +117,6 @@
                 null,
                 {"type": "num-flex"},
                 {"type": "num-flex"},
-                null,
                 null,
                 {"type": "num-flex"},
                 {"type": "num-flex"},
