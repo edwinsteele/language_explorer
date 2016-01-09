@@ -96,6 +96,24 @@ def show_map():
     )
 
 
+@app.route('/map2')
+def show_map2():
+    map_data = lp.get_map_data()
+    labels = [str(d[0]) for d in map_data]  # str, not unicode
+    lats = [d[1] for d in map_data]
+    lons = [d[2] for d in map_data]
+    # lp needed for iso formatting
+    return render_template(
+        'large_map2.tmpl',
+        lp=lp,
+        constants=constants,
+        labels=labels,
+        lats=lats,
+        lons=lons,
+        isos_not_shown=[],
+    )
+
+
 @app.route('/search')
 def show_search_table():
     td = lp.get_search_table_data()

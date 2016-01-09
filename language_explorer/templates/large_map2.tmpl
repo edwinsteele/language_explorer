@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+{% block title %}Language Map{% endblock %}
+{% include "legend.html" %}
+{% block head_js %}
+<meta charset="utf-8">
+{% endblock %}
+{% block content %}
+<h1>Languages with Lat Lon</h1>
+<p>{{ map_data|length }} languages shown on map</p>
+<div id="map" style="width:900px;height:700px;"></div>
+
+<h1>Languages without Lat Lon</h1>
+<p>{{ isos_not_shown|length }} languages not shown on map</p>
+{% for iso in isos_not_shown %}
+{{ macros.format_iso_as_href(iso) }},
+{% endfor %}
+{{ isos_not_shown|join(',') }}
+
+<script type="text/javascript" src="{{ url_for('static', filename='plotly.min.js') }}"></script>
+<script type="text/javascript">
+    // By default, geographic data is loaded asynchronously from
+    // the topojson subdirectory located at the root of the plotlyjs directory.
+    //
+    // To remove this asynchronous step, include:
+    // 
+    // after 'plotly.min.js'.
+    // Note that this bundle is quite large.
+    // Serving it from a network is not recommended.
+    //
+    // If you choose to rename or move the topojson subdirectory, include
+    // 
+    // after 'plotly.min.js'
+
+    var data = [{
+        type: 'scattergeo',
+        mode: 'markers+text',
+        text: {{ labels }},
+        lon: {{ lons }},
+        lat: {{ lats }},
+        marker: {
+            color: [
+                '#bebada', '#fdb462', '#fb8072', '#d9d9d9', '#bc80bd',
+                '#b3de69', '#8dd3c7', '#80b1d3', '#fccde5', '#ffffb3'
+            ],
+            line: {
+                width: 1
+            }
+        },
+        textposition: 'bottom right',
+    }];
+
+    var layout = {
+        //width: 900,
+        //height: 700,
+        margin: {
+            l: 10,
+            r: 10,
+            t: 10,
+            b: 10,
+        },
+        font: {
+            family: 'Droid Serif, serif',
+            size: 6
+        },
+        titlefont: {
+            size: 16
+        },
+        geo: {
+            scope: 'world',
+            resolution: 110,
+            projection: {
+                'scale': 5
+            },
+            lonaxis: {
+                //'range': [110, 155]  // this is the range of the AU map,
+                //  but need to fudge so it scales to show the map properly
+               'range': [115, 165]
+            },
+            lataxis: {
+                //'range': [-10, -45]  // this is the range of the AU map,
+                //  but need to fudge so it scales to show the map properly
+                'range': [-10, -45]
+            },
+            showrivers: true,
+            showlakes: true,
+            showland: true,
+        }
+    };
+
+    MAP = document.getElementById('map');
+    Plotly.newPlot(MAP, data, layout);
+
+</script>
+{% endblock %}
