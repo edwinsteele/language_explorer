@@ -566,13 +566,28 @@ class LanguagePersistence(object):
 
         returns a lists of tuples, each is (iso, lat, lon)
         """
-        lang_table = self.lang_db[self.LANGUAGE_TABLE].table
-        # Let's assume that a null latitude reflects that there
-        #  is no lat-lon data i.e. don't check both
-        stmt = lang_table.select(lang_table.c.latitude != None) # flake8: noqa
-        result = self.lang_db.query(stmt)
-        return [(row["iso"], row["latitude"], row["longitude"])
-                for row in result]
+        map_data = []
+        rows = self.lang_db[self.LANGUAGE_TABLE].all()
+        for row in rows:
+            # Take Tindale, then fall back to WALS
+            # Just check lon - we update in pairs so if it's null
+            #  then latitude will be too
+            if row["tindale_longitude"]:
+                lat = row["tindale_latitude"]
+                lon = row["tindale_longitude"]
+            elif row["longitude"]:
+                lat = row["latitude"]
+                lon = row["longitude"]
+            else:
+                lat = None
+                lon = None
+
+            # We can only plot points that have lat lon
+            if lat:
+                map_data.append((row["iso"],
+                                 lat,
+                                 lon))
+        return map_data
 
     def get_table_data(self):
         table_data = []
