@@ -65,8 +65,8 @@ function get_label_font_size_str(d) {
 // url field lacks a leading slash - this is added when the href
 // is constructed. See comments in that part of the code
 var locations = [
-{% for iso, lat, lon in map_data %}
-{ name: "{{ iso }}", lat: {{ lat }}, lon: {{ lon }}, css_class: "xxx", url: "language/iso/{{ iso }}" },
+{% for iso, lat, lon, css_class in map_data %}
+{ name: "{{ iso }}", lat: {{ lat }}, lon: {{ lon }}, css_class: "{{ css_class }}", url: "language/iso/{{ iso }}" },
 {% endfor %}
 ];
 

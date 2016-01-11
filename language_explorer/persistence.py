@@ -1,7 +1,7 @@
 import itertools
 import collections
-import dataset
 import logging
+import dataset
 from language_explorer import constants
 from language_explorer import naming_helper
 from language_explorer.utils import memoized
@@ -491,9 +491,7 @@ class LanguagePersistence(object):
 
         return self.retirement_state_cache.get(iso, False)
 
-    def format_iso(self, iso):
-        # html element
-        # probably should live elsewhere... fix later
+    def get_css_class_for_iso(self, iso):
         scripture_css_class = constants.translation_abbrev_css_class_dict[
             self.get_best_translation_state(iso)]
         # XXX Only use Joshua Project ATM. Expand to add others at some stage,
@@ -506,11 +504,14 @@ class LanguagePersistence(object):
             retirement_css_class = constants.ISO_RETIRED_CSS_STATE
         else:
             retirement_css_class = constants.ISO_ACTIVE_CSS_STATE
-        return '<span class="%s %s %s">%s</span>' % \
-               (scripture_css_class,
-                l1_speaker_css_class,
-                retirement_css_class,
-                iso)
+
+        return " ".join(
+            [scripture_css_class, l1_speaker_css_class, retirement_css_class])
+
+    def format_iso(self, iso):
+        # html element - probably should live elsewhere... fix later
+        return '<span class="%s">%s</span>' % \
+               (self.get_css_class_for_iso(iso), iso)
 
     def format_speaker_count(self, count):
         if int(count) == constants.SPEAKER_COUNT_UNKNOWN:
@@ -558,7 +559,8 @@ class LanguagePersistence(object):
         # Let's assume that a null latitude reflects that there
         #  is no lat-lon data i.e. don't check both
         return [row["iso"] for row in
-                self.lang_db[self.LANGUAGE_TABLE].find(latitude=None)]
+                self.lang_db[self.LANGUAGE_TABLE].find(latitude=None,
+                                                       tindale_latitude=None)]
 
     def get_map_data(self):
         """All the data required to plot and label a point on the map
@@ -586,7 +588,8 @@ class LanguagePersistence(object):
             if lat:
                 map_data.append((row["iso"],
                                  lat,
-                                 lon))
+                                 lon,
+                                 self.get_css_class_for_iso(row["iso"])))
         return map_data
 
     def get_table_data(self):
