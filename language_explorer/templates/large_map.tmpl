@@ -23,7 +23,7 @@
 
 var width = 960,
     height = 500,
-    speaker_count_display_threshold = 0,
+    speaker_count_display_threshold = -3,  // Negative for ambiguous points
     circle_base_radius = 5,
     label_orig_width_px = 9,
     label_base_px = 2,
@@ -115,18 +115,19 @@ var svg = d3.select("#d3_container").append("svg")
 
 svg_container = svg.append("g");
 // Drawings go in #art, and labels go in #labels
-art = svg_container.append("g");
-labels = svg_container.append("g");
+var art = svg_container.append("g");
+var labels = svg_container.append("g");
 
 d3.json("{{ url_for('static', filename='au-states-topo.json') }}", function(error, data) {
   if (error) return console.error(error);
   art.selectAll("path")
-      .data(topojson.feature(data, data.objects.austates).features)
-    .enter().append("path")
-      .attr("d", path)
-      .attr("fill", "#fff")
-      .attr("fill-opacity", 0)
-      .attr("stroke", "#ddd")
+    .data(topojson.feature(data, data.objects.austates).features)
+    .enter()
+    .append("path")
+    .attr("d", path)
+    .attr("fill", "#fff")
+    .attr("fill-opacity", 0)
+    .attr("stroke", "#ddd")
 
   var locations_to_plot = locations.filter(function(x) {
     return x["speaker_count"] >= speaker_count_display_threshold && x["lat"] != null;
@@ -135,31 +136,33 @@ d3.json("{{ url_for('static', filename='au-states-topo.json') }}", function(erro
     return x["speaker_count"] < speaker_count_display_threshold || x["lat"] == null;
   });
 
-  var locationPoints = art.selectAll('circle').data(locations_to_plot);
-  var locationLabels = labels.selectAll('foreignObject').data(locations_to_plot);
-
-  locationPoints.enter()
+  // Points
+  art.selectAll('circle')
+    .data(locations_to_plot)
+    .enter()
     .append('circle')
     .attr('cx', function(d) {return projection([d.lon, d.lat])[0]})
     .attr('cy', function(d) {return projection([d.lon, d.lat])[1]})
     .attr('r', circle_base_radius)
     .attr('fill', 'steelblue');
 
-  labelForeignObjects = locationLabels.enter()
+  // Label SVG container
+  var labelForeignObjects = labels.selectAll('foreignObject')
+    .data(locations_to_plot) 
+    .enter()
     .append('foreignObject')
     .attr('x', function(d) {return get_label_x_coord(d)})
     .attr('y', function(d) {return get_label_y_coord(d)})
     .attr('width', function(d) {return get_svg_label_width(d)})
     .attr('height', 2.5 * (label_base_px + label_var_px) + "px")
 
-  htmlDOMs = labelForeignObjects.append('xhtml:body')
-
-  htmlLabels = htmlDOMs.append('div')
+  // HTML Label within the SVG container. The label is a p within a div.
+  // The URL in the href has a leading slash so that the path is transformed
+  //  when the static site is made.
+  labelForeignObjects.append("xhtml:body")
+    .append('div')
     .classed('htmlLabel', true)
-
-  // URL has a leading slash so that the path is transformed when the
-  // static site is made.
-  htmlLabels.append('p')
+    .append('p')
     .attr("class", function(d) { return d.css_class })
     .style("font-size", function(d) {return get_label_font_size_str(d)})
     .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a>'})
@@ -194,14 +197,14 @@ d3.json("{{ url_for('static', filename='au-states-topo.json') }}", function(erro
 function zoomHandler() {
   console.log(d3.event.scale);
   // Resize Points
-  svg_container.selectAll('circle')
+  d3.selectAll('circle')
     .attr('r', function(d) { return circle_base_radius / d3.event.scale; });
   // Resize Labels
-  htmlLabels.selectAll("p")
+  d3.selectAll(".htmlLabel").selectAll("p")
     .style("font-size", function(d) {return get_label_font_size_str(d)})
   // Shift placement of labels to be closer to the points
   // And resize labels given font size changes
-  labels.selectAll("foreignObject")
+  d3.selectAll("foreignObject")
     .attr('x', function(d) {return get_label_x_coord(d)})
     .attr('y', function(d) {return get_label_y_coord(d)})
     .attr('width', function(d) {return get_svg_label_width(d)})
