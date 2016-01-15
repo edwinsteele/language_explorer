@@ -85,14 +85,12 @@ def show_table():
 @app.route('/map')
 def show_map():
     map_data = lp.get_map_data()
-    isos_not_shown = lp.get_isos_lacking_latlon()
     # lp needed for iso formatting
     return render_template(
         'large_map.tmpl',
         lp=lp,
         constants=constants,
         map_data=map_data,
-        isos_not_shown=isos_not_shown,
     )
 
 
