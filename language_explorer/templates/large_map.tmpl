@@ -23,6 +23,7 @@
 
 var width = 960,
     height = 500,
+    //speaker_count_display_threshold = 50,  // Negative for ambiguous points
     speaker_count_display_threshold = -3,  // Negative for ambiguous points
     circle_base_radius = 5,
     label_orig_width_px = 9,
@@ -98,7 +99,6 @@ var locations = [
 ];
 
 var zoomListener = d3.behavior.zoom()
-  .scaleExtent([1, 10])
   .on("zoom", zoomHandler);
 
 var projection = d3.geo.mercator()
@@ -148,7 +148,7 @@ d3.json("{{ url_for('static', filename='au-states-topo.json') }}", function(erro
 
   // Label SVG container
   var labelForeignObjects = labels.selectAll('foreignObject')
-    .data(locations_to_plot) 
+    .data(locations_to_plot)
     .enter()
     .append('foreignObject')
     .attr('x', function(d) {return get_label_x_coord(d)})
@@ -163,9 +163,8 @@ d3.json("{{ url_for('static', filename='au-states-topo.json') }}", function(erro
     .append('div')
     .classed('htmlLabel', true)
     .append('p')
-    .attr("class", function(d) { return d.css_class })
     .style("font-size", function(d) {return get_label_font_size_str(d)})
-    .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a>'})
+    .html(function(d) {return '<a class="' + d.css_class + '" href="/' + d.url + '">' + d.name + '</a>'})
 
   d3.select("#shown_list").selectAll("p")
     .data([locations_to_plot.length])
@@ -196,18 +195,21 @@ d3.json("{{ url_for('static', filename='au-states-topo.json') }}", function(erro
 
 function zoomHandler() {
   console.log(d3.event.scale);
+
   // Resize Points
   d3.selectAll('circle')
     .attr('r', function(d) { return circle_base_radius / d3.event.scale; });
+
   // Resize Labels
   d3.selectAll(".htmlLabel").selectAll("p")
     .style("font-size", function(d) {return get_label_font_size_str(d)})
+
   // Shift placement of labels to be closer to the points
   // And resize labels given font size changes
   d3.selectAll("foreignObject")
     .attr('x', function(d) {return get_label_x_coord(d)})
     .attr('y', function(d) {return get_label_y_coord(d)})
-    .attr('width', function(d) {return get_svg_label_width(d)})
+
   // And zoom the SVG
   svg_container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
