@@ -11,25 +11,39 @@
 </style>
 {% endblock %}
 {% block content %}
-<h1>Languages with Lat Lon</h1>
-<p>{{ map_data|length }} languages shown on map</p>
-  <div id="d3_container"></div>
+<div id="d3_container"></div>
 
-<h1>Languages without Lat Lon</h1>
-<p>{{ isos_not_shown|length }} languages not shown on map</p>
-{% for iso in isos_not_shown %}
-{{ macros.format_iso_as_href(iso) }},
-{% endfor %}
+<p><div id="shown_list"></div></p>
+<p><div id="not_shown_list"></div></p>
 
+<form><button onclick='render([5, 15])'>Only Show Big Languages</button></form>
 <script type="text/javascript" src="{{ url_for('static', filename='d3.v359.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='topojson.min.js') }}"></script>
 <script type="text/javascript">
 
 var width = 960,
     height = 500,
+    speaker_count_display_threshold = 0,
     circle_base_radius = 5,
+    label_orig_width_px = 9,
     label_base_px = 2,
     label_var_px = 10;  // font size = base + variable
+
+function render(dataToRender) {
+    var selector = d3.select('body')
+        .selectAll('div')
+        .data(dataToRender);
+
+    var entering = selector.enter();
+
+    entering.append('div')
+        .text(function(d) { return d; });
+
+    selector.text(function(d) { return d; });
+
+    var exiting = selector.exit();
+    exiting.remove();
+}
 
 function get_label_x_coord(d) {
   var orig_x = projection([d.lon, d.lat])[0];
@@ -62,11 +76,24 @@ function get_label_font_size_str(d) {
   }
 }
 
+function get_svg_label_width(d) {
+  initial_width = d.name.length * (label_orig_width_px * 0.9)
+  if (d3.event == null) {
+    return String(initial_width) + "px"
+  }
+  else {
+    //return String(d.name.length * (label_base_px + ((label_var_px / d3.event.scale) * 1.0))) + "px"
+    return String(Math.min(initial_width,
+        d.name.length * (label_orig_width_px / d3.event.scale) * 0.9)) + "px"
+    //return String(d.name.length * (label_base_px + (label_var_px * 1.0))) + "px"
+  }
+}
+
 // url field lacks a leading slash - this is added when the href
 // is constructed. See comments in that part of the code
 var locations = [
-{% for iso, lat, lon, css_class in map_data %}
-{ name: "{{ iso }}", lat: {{ lat }}, lon: {{ lon }}, css_class: "{{ css_class }}", url: "language/iso/{{ iso }}" },
+{% for iso, lat, lon, speaker_count, css_class in map_data %}
+{ name: "{{ iso }}", lat: {{ lat }}, lon: {{ lon }}, speaker_count: {{ speaker_count }}, css_class: "{{ css_class }}", url: "language/iso/{{ iso }}" },
 {% endfor %}
 ];
 
@@ -81,7 +108,7 @@ var projection = d3.geo.mercator()
 var path = d3.geo.path()
     .projection(projection);
 
-// Set dimensions of SVG elemet
+// Set dimensions of SVG element
 var svg = d3.select("#d3_container").append("svg")
     .attr("width", width)
     .attr("height", height);
@@ -100,38 +127,72 @@ d3.json("{{ url_for('static', filename='au-states-topo.json') }}", function(erro
       .attr("fill", "#fff")
       .attr("fill-opacity", 0)
       .attr("stroke", "#ddd")
+
+  var locations_to_plot = locations.filter(function(x) {
+    return x["speaker_count"] >= speaker_count_display_threshold && x["lat"] != null;
+  });
+  var locations_to_hide = locations.filter(function(x) {
+    return x["speaker_count"] < speaker_count_display_threshold || x["lat"] == null;
+  });
+
+  var locationPoints = art.selectAll('circle').data(locations_to_plot);
+  var locationLabels = labels.selectAll('foreignObject').data(locations_to_plot);
+
+  locationPoints.enter()
+    .append('circle')
+    .attr('cx', function(d) {return projection([d.lon, d.lat])[0]})
+    .attr('cy', function(d) {return projection([d.lon, d.lat])[1]})
+    .attr('r', circle_base_radius)
+    .attr('fill', 'steelblue');
+
+  labelForeignObjects = locationLabels.enter()
+    .append('foreignObject')
+    .attr('x', function(d) {return get_label_x_coord(d)})
+    .attr('y', function(d) {return get_label_y_coord(d)})
+    .attr('width', function(d) {return get_svg_label_width(d)})
+    .attr('height', 2.5 * (label_base_px + label_var_px) + "px")
+
+  htmlDOMs = labelForeignObjects.append('xhtml:body')
+
+  htmlLabels = htmlDOMs.append('div')
+    .classed('htmlLabel', true)
+
+  // URL has a leading slash so that the path is transformed when the
+  // static site is made.
+  htmlLabels.append('p')
+    .attr("class", function(d) { return d.css_class })
+    .style("font-size", function(d) {return get_label_font_size_str(d)})
+    .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a>'})
+
+  d3.select("#shown_list").selectAll("p")
+    .data([locations_to_plot.length])
+    .enter()
+    .append("p")
+    .html(function(d) {return "Showing " + d + " languages on map:";});
+
+  d3.select("#shown_list").selectAll("span")
+    .data(locations_to_plot)
+    .enter()
+    .append("span")
+    .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
+    .attr("class", function(d) { return d.css_class });
+
+  d3.select("#not_shown_list").selectAll("p")
+    .data([locations_to_hide.length])
+    .enter()
+    .append("p")
+    .html(function(d) {return "Not showing " + d + " languages on map (below population threshold or no location data):";});
+
+  d3.select("#not_shown_list").selectAll("span")
+    .data(locations_to_hide)
+    .enter()
+    .append("span")
+    .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
+    .attr("class", function(d) { return d.css_class });
 });
 
-var locationPoints = art.selectAll('circle').data(locations);
-var locationLabels = labels.selectAll('foreignObject').data(locations);
-
-locationPoints.enter()
-  .append('circle')
-  .attr('cx', function(d) {return projection([d.lon, d.lat])[0]})
-  .attr('cy', function(d) {return projection([d.lon, d.lat])[1]})
-  .attr('r', circle_base_radius)
-  .attr('fill', 'steelblue');
-
-labelForeignObjects = locationLabels.enter()
-  .append('foreignObject')
-  .attr('x', function(d) {return get_label_x_coord(d)})
-  .attr('y', function(d) {return get_label_y_coord(d)})
-  .attr('width', function(d) {return String(d.name.length * (label_base_px + label_var_px) * 0.75) + "px"})
-  .attr('height', 2.5 * (label_base_px + label_var_px) + "px")
-
-htmlDOMs = labelForeignObjects.append('xhtml:body')
-
-htmlLabels = htmlDOMs.append('div')
-  .classed('htmlLabel', true)
-
-// URL has a leading slash so that the path is transformed when the
-// static site is made.
-htmlLabels.append('p')
-  .attr("class", function(d) { return d.css_class })
-  .style("font-size", function(d) {return get_label_font_size_str(d)})
-  .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a>'})
-
 function zoomHandler() {
+  console.log(d3.event.scale);
   // Resize Points
   svg_container.selectAll('circle')
     .attr('r', function(d) { return circle_base_radius / d3.event.scale; });
@@ -139,10 +200,11 @@ function zoomHandler() {
   htmlLabels.selectAll("p")
     .style("font-size", function(d) {return get_label_font_size_str(d)})
   // Shift placement of labels to be closer to the points
+  // And resize labels given font size changes
   labels.selectAll("foreignObject")
     .attr('x', function(d) {return get_label_x_coord(d)})
     .attr('y', function(d) {return get_label_y_coord(d)})
-
+    .attr('width', function(d) {return get_svg_label_width(d)})
   // And zoom the SVG
   svg_container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }

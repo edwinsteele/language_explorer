@@ -581,15 +581,33 @@ class LanguagePersistence(object):
                 lat = row["latitude"]
                 lon = row["longitude"]
             else:
-                lat = None
-                lon = None
+                # For the sake of the javascript consumer i.e. don't use None
+                lat = "null"
+                lon = "null"
 
-            # We can only plot points that have lat lon
-            if lat:
-                map_data.append((row["iso"],
-                                 lat,
-                                 lon,
-                                 self.get_css_class_for_iso(row["iso"])))
+            # Take Census, then fall back to JP
+            census_sc = row["L1_speaker_count_CN"]
+            jp_sc = row["L1_speaker_count_JP"]
+            if census_sc:
+                if census_sc >= 0:
+                    speaker_count = census_sc
+                if jp_sc:
+                    speaker_count = jp_sc
+                else:
+                    # Will fall back to negative number, but that's ok
+                    speaker_count = census_sc
+            else:
+                if jp_sc:
+                    speaker_count = jp_sc
+                else:
+                    # No jp_sc, fall back to census, whatever it was
+                    speaker_count = constants.SPEAKER_COUNT_UNKNOWN
+
+            map_data.append((row["iso"],
+                             lat,
+                             lon,
+                             speaker_count,
+                             self.get_css_class_for_iso(row["iso"])))
         return map_data
 
     def get_table_data(self):
