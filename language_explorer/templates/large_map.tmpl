@@ -8,6 +8,9 @@
     font-family: arial,helvetica,'sans-serif';
     text-align: left;
 }
+.labelBody {
+/*    margin: 0; */
+}
 </style>
 {% endblock %}
 {% block content %}
@@ -27,8 +30,8 @@ var width = 960,
     speaker_count_display_threshold = -3,  // Negative for ambiguous points
     circle_base_radius = 5,
     label_orig_width_px = 9,
-    label_base_px = 2,
-    label_var_px = 10;  // font size = base + variable
+    label_base_px = 1.5,
+    label_var_px = 10.5  // font size = base + variable
 
 function render(dataToRender) {
     var selector = d3.select('body')
@@ -48,6 +51,8 @@ function render(dataToRender) {
 
 function get_label_x_coord(d) {
   var orig_x = projection([d.lon, d.lat])[0];
+  return orig_x - (get_label_font_size(d) / 2);
+/*
   // Haven't zoomed yet
   if (d3.event == null) {
     return orig_x;
@@ -55,10 +60,12 @@ function get_label_x_coord(d) {
   else {
     return orig_x - Math.min(6, (d3.event.scale * 1.5));
   }
+*/
 }
 
 function get_label_y_coord(d) {
   var orig_y = projection([d.lon, d.lat])[1];
+  //return orig_y - get_label_font_size(d);
   // Haven't zoomed yet
   if (d3.event == null) {
     return orig_y - label_base_px - label_var_px;
@@ -68,24 +75,28 @@ function get_label_y_coord(d) {
   }
 }
 
-function get_label_font_size_str(d) {
+function get_label_font_size(d) {
   if (d3.event == null) {
-    return label_base_px + label_var_px + "px";
+    return label_base_px + label_var_px;
   }
   else {
-    return label_base_px + (label_var_px / d3.event.scale) + "px";
+    //return label_base_px + (label_var_px / Math.exp(d3.event.scale * 0.5));
+    return label_base_px + (label_var_px / d3.event.scale);
   }
+}
+
+function get_label_font_size_str(d) {
+  return get_label_font_size(d) + "px";
 }
 
 function get_svg_label_width(d) {
   initial_width = d.name.length * (label_orig_width_px * 0.9)
   if (d3.event == null) {
-    return String(initial_width) + "px"
+    return initial_width;
   }
   else {
     //return String(d.name.length * (label_base_px + ((label_var_px / d3.event.scale) * 1.0))) + "px"
-    return String(Math.min(initial_width,
-        d.name.length * (label_orig_width_px / d3.event.scale) * 0.9)) + "px"
+    return Math.min(initial_width, d.name.length * (label_orig_width_px / d3.event.scale) * 0.9)
     //return String(d.name.length * (label_base_px + (label_var_px * 1.0))) + "px"
   }
 }
@@ -153,13 +164,17 @@ d3.json("{{ url_for('static', filename='au-states-topo.json') }}", function(erro
     .append('foreignObject')
     .attr('x', function(d) {return get_label_x_coord(d)})
     .attr('y', function(d) {return get_label_y_coord(d)})
-    .attr('width', function(d) {return get_svg_label_width(d)})
+    .attr('width', function(d) {return get_svg_label_width(d) + "px"})
     .attr('height', 2.5 * (label_base_px + label_var_px) + "px")
 
   // HTML Label within the SVG container. The label is a p within a div.
   // The URL in the href has a leading slash so that the path is transformed
   //  when the static site is made.
   labelForeignObjects.append("xhtml:body")
+    .classed('labelBody', true)
+    .style("margin", function(d) { return get_label_font_size(d)})
+    .style('width', function(d) {return get_svg_label_width(d)})
+    .style('height', 2.5 * (label_base_px + label_var_px))
     .append('div')
     .classed('htmlLabel', true)
     .append('p')
@@ -199,6 +214,12 @@ function zoomHandler() {
   // Resize Points
   d3.selectAll('circle')
     .attr('r', function(d) { return circle_base_radius / d3.event.scale; });
+
+  // Resize label containers
+  d3.selectAll(".labelBody")
+    .style("margin", function(d) { return get_label_font_size(d)})
+    .style('width', function(d) {return get_svg_label_width(d)})
+    .style('height', 2.5 * (label_base_px + label_var_px))
 
   // Resize Labels
   d3.selectAll(".htmlLabel").selectAll("p")
