@@ -12,7 +12,14 @@
 </style>
 {% endblock %}
 {% block content %}
-<div id="d3_container"></div>
+<div id="d3_container">
+  <svg id="d3_svg_container">
+    <g id="parent_grouper">
+      <g id="art"></g>
+      <g id="labels"></g>
+    </g>
+  </svg>
+</div>
 
 <p><div id="shown_list"></div></p>
 <p><div id="not_shown_list"></div></p>
@@ -131,18 +138,13 @@ var path = d3.geo.path()
     .projection(projection);
 
 // Set dimensions of SVG element
-var svg = d3.select("#d3_container").append("svg")
+d3.select("#d3_svg_container")
     .attr("width", width)
     .attr("height", height);
 
-svg_container = svg.append("g");
-// Drawings go in #art, and labels go in #labels
-var art = svg_container.append("g");
-var labels = svg_container.append("g");
-
 d3.json("{{ url_for('static', filename='au-states-topo.json') }}", function(error, data) {
   if (error) return console.error(error);
-  art.selectAll("path")
+  d3.select("#art").selectAll("path")
     .data(topojson.feature(data, data.objects.austates).features)
     .enter()
     .append("path")
@@ -158,38 +160,7 @@ d3.json("{{ url_for('static', filename='au-states-topo.json') }}", function(erro
     return x["speaker_count"] < speaker_count_display_threshold || x["lat"] == null;
   });
 
-  // Points
-  art.selectAll('circle')
-    .data(locations_to_plot)
-    .enter()
-    .append('circle')
-    .attr('cx', function(d) {return projection([d.lon, d.lat])[0]})
-    .attr('cy', function(d) {return projection([d.lon, d.lat])[1]})
-    .attr('r', circle_base_radius)
-    .attr('fill', 'steelblue');
-
-  // Label SVG container
-  var labelForeignObjects = labels.selectAll('foreignObject')
-    .data(locations_to_plot)
-    .enter()
-    .append('foreignObject')
-    .attr('x', function(d) {return get_label_x_coord(d)})
-    .attr('y', function(d) {return get_label_y_coord(d)})
-    // html label = margin + width
-    .attr('width', function(d) {return get_label_font_size(d) + get_svg_label_width(d) + "em"})
-    .attr('height', function(d) {return get_svg_label_height(d) + "em"})
-
-  // HTML Label within the SVG container. The label is a p within a div.
-  // The URL in the href has a leading slash so that the path is transformed
-  //  when the static site is made.
-  labelForeignObjects.append("xhtml:body")
-    .classed('labelBody', true)
-    .style("margin-left", function(d) { return get_label_font_size(d) + "em"})
-    .style('width', function(d) {return get_svg_label_width(d) + "em"})
-    .style('height', function(d) {return get_label_font_size(d) + "em"})
-    .style("font-size", function(d) {return get_label_font_size(d) + "em"})
-    .html(function(d) {return '<a class="' + d.css_class + '" href="/' + d.url + '">' + d.name + '</a>'})
-
+  // Legend
   d3.select("#shown_list").selectAll("p")
     .data([locations_to_plot.length])
     .enter()
@@ -215,6 +186,38 @@ d3.json("{{ url_for('static', filename='au-states-topo.json') }}", function(erro
     .append("span")
     .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
     .attr("class", function(d) { return d.css_class });
+
+  // Points
+  d3.select("#art").selectAll('circle')
+    .data(locations_to_plot)
+    .enter()
+    .append('circle')
+    .attr('cx', function(d) {return projection([d.lon, d.lat])[0]})
+    .attr('cy', function(d) {return projection([d.lon, d.lat])[1]})
+    .attr('r', circle_base_radius)
+    .attr('fill', 'steelblue');
+
+  // Label SVG container
+  d3.select("#labels").selectAll('foreignObject')
+    .data(locations_to_plot)
+    .enter()
+    .append('foreignObject')
+    .attr('x', function(d) {return get_label_x_coord(d)})
+    .attr('y', function(d) {return get_label_y_coord(d)})
+    // html label = margin + width
+    .attr('width', function(d) {return get_label_font_size(d) + get_svg_label_width(d) + "em"})
+    .attr('height', function(d) {return get_svg_label_height(d) + "em"})
+
+  // HTML Label within the SVG container. The label is a p within a div.
+  // The URL in the href has a leading slash so that the path is transformed
+  //  when the static site is made.
+  d3.select("#labels").selectAll('foreignObject').append("xhtml:body")
+    .classed('labelBody', true)
+    .style("margin-left", function(d) { return get_label_font_size(d) + "em"})
+    .style('width', function(d) {return get_svg_label_width(d) + "em"})
+    .style('height', function(d) {return get_label_font_size(d) + "em"})
+    .style("font-size", function(d) {return get_label_font_size(d) + "em"})
+    .html(function(d) {return '<a class="' + d.css_class + '" href="/' + d.url + '">' + d.name + '</a>'})
 });
 
 function zoomHandler() {
@@ -241,9 +244,9 @@ function zoomHandler() {
     .attr('height', function(d) {return get_svg_label_height(d) + "em"})
 
   // And zoom the SVG
-  svg_container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+  d3.select("#parent_grouper").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
 
-zoomListener(svg_container);
+zoomListener(d3.select("#parent_grouper"));
 </script>
 {% endblock %}
