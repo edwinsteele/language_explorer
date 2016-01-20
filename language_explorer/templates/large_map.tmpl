@@ -120,14 +120,14 @@ function render(data) {
     .attr('width', function(d) {return get_label_font_size(d) + get_svg_label_width(d) + "em"})
     .attr('height', function(d) {return get_svg_label_height(d) + "em"})
 
-  d3.selectAll('labelBody')
+  d3.selectAll('.labelBody')
     .style("margin-left", function(d) { return get_label_font_size(d) + "em"})
     .style('width', function(d) {return get_svg_label_width(d) + "em"})
-    //.style('height', function(d) {return get_label_font_size(d) + "em"})
-    .style('height', "1em")
+    .style('height', function(d) {return get_label_height(d) + "em"})
     // 1em is the size of the font, even after the font-size adjustments
     //  have been made
     .style("font-size", function(d) {return get_label_font_size(d) + "em"})
+    //.style("font-size", function(d) {return get_svg_label_height(d) + "em"})
 }
 
 function get_label_x_coord(d) {
@@ -156,19 +156,31 @@ function get_label_y_coord(d) {
 }
 
 function get_label_font_size(d) {
+  /*
   if (d.css_class.indexOf("speakers_many") >= 0) {
     initial_em_height = 1.5;
   }
   else {
     initial_em_height = 1.0;
   }
-  //initial_em_height = 1.0;
+  */
+  initial_em_height = 1.0;
   if (d3.event == null) {
     return initial_em_height;
   }
   else {
     return initial_em_height / d3.event.scale;
   }
+}
+
+function get_label_height(d) {
+  if (d.css_class.indexOf("speakers_many") >= 0) {
+    initial_em_height = 1.5;
+  }
+  else {
+    initial_em_height = 1.0;
+  }
+  return initial_em_height;
 }
 
 function get_svg_label_width(d) {
