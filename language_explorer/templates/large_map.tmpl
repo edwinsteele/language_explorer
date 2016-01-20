@@ -38,20 +38,86 @@ var width = 960,
     label_base_px = 1.5,
     label_var_px = 10.5  // font size = base + variable
 
-function render(dataToRender) {
-    var selector = d3.select('body')
-        .selectAll('div')
-        .data(dataToRender);
+function render(data) {
+  if (d3.event == null) {
+    scale = 1;
+  }
+  else {
+    scale = d3.event.scale;
+  }
+  d3.select("#art").selectAll("path")
+    .data(topojson.feature(data, data.objects.austates).features)
+    .enter()
+    .append("path")
+    .attr("d", path)
+    .attr("fill", "#fff")
+    .attr("fill-opacity", 0)
+    .attr("stroke", "#ddd")
 
-    var entering = selector.enter();
+  var locations_to_plot = locations.filter(function(x) {
+    return x["speaker_count"] >= speaker_count_display_threshold && x["lat"] != null;
+  });
+  var locations_to_hide = locations.filter(function(x) {
+    return x["speaker_count"] < speaker_count_display_threshold || x["lat"] == null;
+  });
 
-    entering.append('div')
-        .text(function(d) { return d; });
+  // Legend
+  d3.select("#shown_list").selectAll("p")
+    .data([locations_to_plot.length])
+    .enter()
+    .append("p")
+    .html(function(d) {return "Showing " + d + " languages on map:";});
 
-    selector.text(function(d) { return d; });
+  d3.select("#shown_list").selectAll("span")
+    .data(locations_to_plot)
+    .enter()
+    .append("span")
+    .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
+    .attr("class", function(d) { return d.css_class });
 
-    var exiting = selector.exit();
-    exiting.remove();
+  d3.select("#not_shown_list").selectAll("p")
+    .data([locations_to_hide.length])
+    .enter()
+    .append("p")
+    .html(function(d) {return "Not showing " + d + " languages on map (below population threshold or no location data):";});
+
+  d3.select("#not_shown_list").selectAll("span")
+    .data(locations_to_hide)
+    .enter()
+    .append("span")
+    .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
+    .attr("class", function(d) { return d.css_class });
+
+  // Points
+  d3.select("#art").selectAll('circle')
+    .data(locations_to_plot)
+    .enter()
+    .append('circle')
+    .attr('cx', function(d) {return projection([d.lon, d.lat])[0]})
+    .attr('cy', function(d) {return projection([d.lon, d.lat])[1]})
+    .attr('r', circle_base_radius / scale)
+    .attr('fill', 'steelblue');
+
+  // Label SVG container
+  d3.select("#labels").selectAll('foreignObject')
+    .data(locations_to_plot)
+    .enter()
+    .append('foreignObject')
+    .attr('x', function(d) {return get_label_x_coord(d)})
+    .attr('y', function(d) {return get_label_y_coord(d)})
+    // html label = margin + width
+    .attr('width', function(d) {return get_label_font_size(d) + get_svg_label_width(d) + "em"})
+    .attr('height', function(d) {return get_svg_label_height(d) + "em"})
+    // And an HTML label within the SVG container
+    .append("xhtml:body")
+    .classed('labelBody', true)
+    .style("margin-left", function(d) { return get_label_font_size(d) + "em"})
+    .style('width', function(d) {return get_svg_label_width(d) + "em"})
+    .style('height', function(d) {return get_label_font_size(d) + "em"})
+    .style("font-size", function(d) {return get_label_font_size(d) + "em"})
+    // The URL in the href has a leading slash so that the path is transformed
+    //  when the static site is made.
+    .html(function(d) {return '<a class="' + d.css_class + '" href="/' + d.url + '">' + d.name + '</a>'})
 }
 
 function get_label_x_coord(d) {
@@ -127,9 +193,6 @@ var locations = [
 {% endfor %}
 ];
 
-var zoomListener = d3.behavior.zoom()
-  .on("zoom", zoomHandler);
-
 var projection = d3.geo.mercator()
     .center([135, -26])
     .scale(600);
@@ -143,110 +206,22 @@ d3.select("#d3_svg_container")
     .attr("height", height);
 
 d3.json("{{ url_for('static', filename='au-states-topo.json') }}", function(error, data) {
-  if (error) return console.error(error);
-  d3.select("#art").selectAll("path")
-    .data(topojson.feature(data, data.objects.austates).features)
-    .enter()
-    .append("path")
-    .attr("d", path)
-    .attr("fill", "#fff")
-    .attr("fill-opacity", 0)
-    .attr("stroke", "#ddd")
+  var zoomListener = d3.behavior.zoom()
+    .on("zoom", function zoomHandler() {
+      console.log(d3.event.scale);
+      render(data)
+      d3.select("#parent_grouper")
+        .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+    });
 
-  var locations_to_plot = locations.filter(function(x) {
-    return x["speaker_count"] >= speaker_count_display_threshold && x["lat"] != null;
-  });
-  var locations_to_hide = locations.filter(function(x) {
-    return x["speaker_count"] < speaker_count_display_threshold || x["lat"] == null;
-  });
+  zoomListener(d3.select("#parent_grouper"));
 
-  // Legend
-  d3.select("#shown_list").selectAll("p")
-    .data([locations_to_plot.length])
-    .enter()
-    .append("p")
-    .html(function(d) {return "Showing " + d + " languages on map:";});
-
-  d3.select("#shown_list").selectAll("span")
-    .data(locations_to_plot)
-    .enter()
-    .append("span")
-    .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
-    .attr("class", function(d) { return d.css_class });
-
-  d3.select("#not_shown_list").selectAll("p")
-    .data([locations_to_hide.length])
-    .enter()
-    .append("p")
-    .html(function(d) {return "Not showing " + d + " languages on map (below population threshold or no location data):";});
-
-  d3.select("#not_shown_list").selectAll("span")
-    .data(locations_to_hide)
-    .enter()
-    .append("span")
-    .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
-    .attr("class", function(d) { return d.css_class });
-
-  // Points
-  d3.select("#art").selectAll('circle')
-    .data(locations_to_plot)
-    .enter()
-    .append('circle')
-    .attr('cx', function(d) {return projection([d.lon, d.lat])[0]})
-    .attr('cy', function(d) {return projection([d.lon, d.lat])[1]})
-    .attr('r', circle_base_radius)
-    .attr('fill', 'steelblue');
-
-  // Label SVG container
-  d3.select("#labels").selectAll('foreignObject')
-    .data(locations_to_plot)
-    .enter()
-    .append('foreignObject')
-    .attr('x', function(d) {return get_label_x_coord(d)})
-    .attr('y', function(d) {return get_label_y_coord(d)})
-    // html label = margin + width
-    .attr('width', function(d) {return get_label_font_size(d) + get_svg_label_width(d) + "em"})
-    .attr('height', function(d) {return get_svg_label_height(d) + "em"})
-
-  // HTML Label within the SVG container. The label is a p within a div.
-  // The URL in the href has a leading slash so that the path is transformed
-  //  when the static site is made.
-  d3.select("#labels").selectAll('foreignObject').append("xhtml:body")
-    .classed('labelBody', true)
-    .style("margin-left", function(d) { return get_label_font_size(d) + "em"})
-    .style('width', function(d) {return get_svg_label_width(d) + "em"})
-    .style('height', function(d) {return get_label_font_size(d) + "em"})
-    .style("font-size", function(d) {return get_label_font_size(d) + "em"})
-    .html(function(d) {return '<a class="' + d.css_class + '" href="/' + d.url + '">' + d.name + '</a>'})
+  if (error) {
+    return console.error(error);
+  }
+  else {
+    render(data);
+  }
 });
-
-function zoomHandler() {
-  console.log(d3.event.scale);
-
-  // Resize Points
-  d3.selectAll('circle')
-    .attr('r', function(d) { return circle_base_radius / d3.event.scale; });
-
-  // Resize label containers
-  d3.selectAll(".labelBody")
-    .style("margin-left", function(d) { return get_label_font_size(d) + "em"})
-    .style('width', function(d) {return get_svg_label_width(d) + "em"})
-    .style('height', function(d) {return get_label_font_size(d) + "em"})
-    .style("font-size", function(d) {return get_label_font_size(d) + "em"})
-
-  // Shift placement of labels to be closer to the points
-  // And resize labels given font size changes
-  d3.selectAll("foreignObject")
-    .attr('x', function(d) {return get_label_x_coord(d)})
-    .attr('y', function(d) {return get_label_y_coord(d)})
-    // html label = margin + width
-    .attr('width', function(d) {return get_label_font_size(d) + get_svg_label_width(d) + "em"})
-    .attr('height', function(d) {return get_svg_label_height(d) + "em"})
-
-  // And zoom the SVG
-  d3.select("#parent_grouper").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-}
-
-zoomListener(d3.select("#parent_grouper"));
 </script>
 {% endblock %}
