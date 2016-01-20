@@ -93,31 +93,41 @@ function render(data) {
     .data(locations_to_plot)
     .enter()
     .append('circle')
+    .attr('fill', 'steelblue');
+
+  d3.selectAll('circle')
     .attr('cx', function(d) {return projection([d.lon, d.lat])[0]})
     .attr('cy', function(d) {return projection([d.lon, d.lat])[1]})
     .attr('r', circle_base_radius / scale)
-    .attr('fill', 'steelblue');
 
   // Label SVG container
   d3.select("#labels").selectAll('foreignObject')
     .data(locations_to_plot)
     .enter()
     .append('foreignObject')
+    // And an HTML label within the SVG container
+    .append("xhtml:body")
+    .classed('labelBody', true)
+    .attr('id', function(d) { return d.name + '-labelBody' })
+    // The URL in the href has a leading slash so that the path is transformed
+    //  when the static site is made.
+    .html(function(d) {return '<a class="' + d.css_class + '" href="/' + d.url + '">' + d.name + '</a>'})
+
+  d3.selectAll('foreignObject')
     .attr('x', function(d) {return get_label_x_coord(d)})
     .attr('y', function(d) {return get_label_y_coord(d)})
     // html label = margin + width
     .attr('width', function(d) {return get_label_font_size(d) + get_svg_label_width(d) + "em"})
     .attr('height', function(d) {return get_svg_label_height(d) + "em"})
-    // And an HTML label within the SVG container
-    .append("xhtml:body")
-    .classed('labelBody', true)
+
+  d3.selectAll('labelBody')
     .style("margin-left", function(d) { return get_label_font_size(d) + "em"})
     .style('width', function(d) {return get_svg_label_width(d) + "em"})
-    .style('height', function(d) {return get_label_font_size(d) + "em"})
+    //.style('height', function(d) {return get_label_font_size(d) + "em"})
+    .style('height', "1em")
+    // 1em is the size of the font, even after the font-size adjustments
+    //  have been made
     .style("font-size", function(d) {return get_label_font_size(d) + "em"})
-    // The URL in the href has a leading slash so that the path is transformed
-    //  when the static site is made.
-    .html(function(d) {return '<a class="' + d.css_class + '" href="/' + d.url + '">' + d.name + '</a>'})
 }
 
 function get_label_x_coord(d) {
@@ -152,6 +162,7 @@ function get_label_font_size(d) {
   else {
     initial_em_height = 1.0;
   }
+  //initial_em_height = 1.0;
   if (d3.event == null) {
     return initial_em_height;
   }
