@@ -129,22 +129,29 @@ function render(data) {
     .style("font-size", function(d) {return get_html_label_font_size(d) + "em"})
 }
 
+function get_element_font_size(element) {
+  px_str = getComputedStyle(document.getElementById(element)).fontSize
+  // no need to remove the "px" as parseInt is smart enough to do it
+  return parseInt(px_str)
+
+}
+
 function get_svg_label_x_coord(d) {
   var orig_x = projection([d.lon, d.lat])[0] ;
-  // XXX - how do I get a pixel offset when font size is in EMs?
-  //return orig_x - (get_html_label_font_size(d) / 2);
-  // Haven't zoomed yet
+  circle_padding = 0;
   if (d3.event == null) {
-    return orig_x;
+    scale = 1;
   }
   else {
-    return orig_x - Math.min(6, (d3.event.scale * 1.5));
+    scale = d3.event.scale;
   }
+  return orig_x + (circle_base_radius / scale) + circle_padding;
 }
 
 function get_svg_label_y_coord(d) {
   var orig_y = projection([d.lon, d.lat])[1];
-  //return orig_y - get_html_label_font_size(d);
+  return orig_y - get_element_font_size(d.name + "-labelBody");
+  /*
   // Haven't zoomed yet
   if (d3.event == null) {
     return orig_y - label_base_px - label_var_px;
@@ -152,6 +159,7 @@ function get_svg_label_y_coord(d) {
   else {
     return orig_y - label_base_px - (label_var_px / d3.event.scale);
   }
+  */
 }
 
 function get_svg_label_width(d) {
@@ -166,11 +174,16 @@ function get_svg_label_width(d) {
 }
 
 function get_svg_label_height(d) {
+  // Safari and Firefox only paint foreignObjects inside the bounds of the
+  //  enclosing SVG element, so we need to add a bit more padding.
+  // Chrome paints the entire foreignObject, even when it exceeds the
+  //  bounds of the SVG element
+  extra_scaling_factor = 1.1;
   if (d.css_class.indexOf("speakers_many") >= 0) {
-    initial_em_height = 1.5;
+    initial_em_height = 1.5 * extra_scaling_factor;
   }
   else {
-    initial_em_height = 1.0;
+    initial_em_height = 1.0 * extra_scaling_factor;
   }
   if (d3.event == null) {
     return initial_em_height;
