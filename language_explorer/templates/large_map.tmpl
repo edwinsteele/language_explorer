@@ -114,26 +114,25 @@ function render(data) {
     .html(function(d) {return '<a class="' + d.css_class + '" href="/' + d.url + '">' + d.name + '</a>'})
 
   d3.selectAll('foreignObject')
-    .attr('x', function(d) {return get_label_x_coord(d)})
-    .attr('y', function(d) {return get_label_y_coord(d)})
+    .attr('x', function(d) {return get_svg_label_x_coord(d)})
+    .attr('y', function(d) {return get_svg_label_y_coord(d)})
     // html label = margin + width
-    .attr('width', function(d) {return get_label_font_size(d) + get_svg_label_width(d) + "em"})
+    .attr('width', function(d) {return get_svg_label_width(d) + "em"})
     .attr('height', function(d) {return get_svg_label_height(d) + "em"})
 
   d3.selectAll('.labelBody')
-    .style("margin-left", function(d) { return get_label_font_size(d) + "em"})
-    .style('width', function(d) {return get_svg_label_width(d) + "em"})
-    .style('height', function(d) {return get_label_height(d) + "em"})
+    .style("margin-left", function(d) { return get_html_margin_size(d) + "em"})
+    .style('width', function(d) {return get_html_label_width(d) + "em"})
+    .style('height', function(d) {return get_html_label_height(d) + "em"})
     // 1em is the size of the font, even after the font-size adjustments
     //  have been made
-    .style("font-size", function(d) {return get_label_font_size(d) + "em"})
-    //.style("font-size", function(d) {return get_svg_label_height(d) + "em"})
+    .style("font-size", function(d) {return get_html_label_font_size(d) + "em"})
 }
 
-function get_label_x_coord(d) {
+function get_svg_label_x_coord(d) {
   var orig_x = projection([d.lon, d.lat])[0] ;
   // XXX - how do I get a pixel offset when font size is in EMs?
-  //return orig_x - (get_label_font_size(d) / 2);
+  //return orig_x - (get_html_label_font_size(d) / 2);
   // Haven't zoomed yet
   if (d3.event == null) {
     return orig_x;
@@ -143,9 +142,9 @@ function get_label_x_coord(d) {
   }
 }
 
-function get_label_y_coord(d) {
+function get_svg_label_y_coord(d) {
   var orig_y = projection([d.lon, d.lat])[1];
-  //return orig_y - get_label_font_size(d);
+  //return orig_y - get_html_label_font_size(d);
   // Haven't zoomed yet
   if (d3.event == null) {
     return orig_y - label_base_px - label_var_px;
@@ -153,34 +152,6 @@ function get_label_y_coord(d) {
   else {
     return orig_y - label_base_px - (label_var_px / d3.event.scale);
   }
-}
-
-function get_label_font_size(d) {
-  /*
-  if (d.css_class.indexOf("speakers_many") >= 0) {
-    initial_em_height = 1.5;
-  }
-  else {
-    initial_em_height = 1.0;
-  }
-  */
-  initial_em_height = 1.0;
-  if (d3.event == null) {
-    return initial_em_height;
-  }
-  else {
-    return initial_em_height / d3.event.scale;
-  }
-}
-
-function get_label_height(d) {
-  if (d.css_class.indexOf("speakers_many") >= 0) {
-    initial_em_height = 1.5;
-  }
-  else {
-    initial_em_height = 1.0;
-  }
-  return initial_em_height;
 }
 
 function get_svg_label_width(d) {
@@ -208,6 +179,56 @@ function get_svg_label_height(d) {
     return (initial_em_height / d3.event.scale);
   }
 }
+
+function get_html_label_font_size(d) {
+  /*
+  if (d.css_class.indexOf("speakers_many") >= 0) {
+    initial_em_height = 1.5;
+  }
+  else {
+    initial_em_height = 1.0;
+  }
+  */
+  initial_em_height = 1.0;
+  if (d3.event == null) {
+    return initial_em_height;
+  }
+  else {
+    return initial_em_height / d3.event.scale;
+  }
+}
+
+function get_html_label_height(d) {
+  if (d.css_class.indexOf("speakers_many") >= 0) {
+    initial_em_height = 1.5;
+  }
+  else {
+    initial_em_height = 1.0;
+  }
+  return initial_em_height;
+}
+
+function get_html_label_width(d) {
+  // let's say 1em width per character
+  initial_width = d.name.length
+  if (d3.event == null) {
+    return initial_width;
+  }
+  else {
+    return initial_width / d3.event.scale
+  }
+}
+
+function get_html_margin_size(d) {
+  initial_size = 0.5;
+  if (d3.event == null) {
+    return initial_size;
+  }
+  else {
+    return initial_size / d3.event.scale;
+  }
+}
+
 // url field lacks a leading slash - this is added when the href
 // is constructed. See comments in that part of the code
 var locations = [
