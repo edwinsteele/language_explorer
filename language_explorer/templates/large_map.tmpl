@@ -24,7 +24,12 @@
 <p><div id="shown_list"></div></p>
 <p><div id="not_shown_list"></div></p>
 
-<form><button onclick='render([5, 15])'>Only Show Big Languages</button></form>
+<form>
+  <!-- XXX check whether number is usable on most platforms -->
+  <label>stuff below: <input type="number" id="speaker_count_threshold"
+     name="speaker_count_threshold" value="0" /></label>
+  <input type="button" value="Apply" onclick='render()'/>
+</form>
 <script type="text/javascript"
   src="{{ url_for('static', filename='d3.v359.min.js') }}"></script>
 <script type="text/javascript"
@@ -33,21 +38,22 @@
 
 var width = 960,
     height = 500,
-    //speaker_count_display_threshold = 50,  // Negative for ambiguous points
-    speaker_count_display_threshold = -3,  // Negative for ambiguous points
     circle_base_radius = 5;
 
-function render(data) {
-  var scale = (d3.event == null) ? 1 : d3.event.scale;
+function render() {
+  // var speaker_count_display_threshold = 50,  // Negative for ambiguous points
+  var speaker_count_display_threshold = -3;  // Negative for ambiguous points
+  var speaker_count_display_threshold = document.getElementById("speaker_count_threshold").value
 
-  d3.select("#art").selectAll("path")
-    .data(topojson.feature(data, data.objects.austates).features)
-    .enter()
-    .append("path")
-    .attr("d", path)
-    .attr("fill", "#fff")
-    .attr("fill-opacity", 0)
-    .attr("stroke", "#ddd")
+  // url field lacks a leading slash - this is added when the href
+  // is constructed. See comments in that part of the code
+  var locations = [
+  {% for iso, lat, lon, speaker_count, css_class in map_data %}
+    { name: "{{ iso }}", lat: {{ lat }}, lon: {{ lon }}, speaker_count: {{ speaker_count }}, css_class: "{{ css_class }}", url: "language/iso/{{ iso }}" },
+  {% endfor %}
+  ];
+
+  var scale = (d3.event == null) ? 1 : d3.event.scale;
 
   var locations_to_plot = locations.filter(function(x) {
     return x["speaker_count"] >= speaker_count_display_threshold && x["lat"] != null;
@@ -59,36 +65,37 @@ function render(data) {
   // Legend
   d3.select("#shown_list").selectAll("p")
     .data([locations_to_plot.length])
-    .enter()
-    .append("p")
+    .enter().append("p")
     .html(function(d) {return "Showing " + d + " languages on map:";});
 
-  d3.select("#shown_list").selectAll("span")
+  var s = d3.select("#shown_list").selectAll("span")
     .data(locations_to_plot)
-    .enter()
-    .append("span")
+
+  s.enter().append("span")
     .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
     .attr("class", function(d) { return d.css_class });
+  s.exit().remove();
 
   d3.select("#not_shown_list").selectAll("p")
     .data([locations_to_hide.length])
-    .enter()
-    .append("p")
+    .enter().append("p")
     .html(function(d) {return "Not showing " + d + " languages on map (below population threshold or no location data):";});
 
-  d3.select("#not_shown_list").selectAll("span")
+  var s = d3.select("#not_shown_list").selectAll("span")
     .data(locations_to_hide)
-    .enter()
-    .append("span")
+
+  s.enter().append("span")
     .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
     .attr("class", function(d) { return d.css_class });
+  s.exit().remove();
 
   // Points
-  d3.select("#art").selectAll('circle')
+  var circle = d3.select("#art").selectAll('circle')
     .data(locations_to_plot)
-    .enter()
-    .append('circle')
+
+  circle.enter().append('circle')
     .attr('fill', 'steelblue');
+  circle.exit().remove()
 
   d3.selectAll('circle')
     .attr('cx', function(d) {return projection([d.lon, d.lat])[0]})
@@ -96,17 +103,18 @@ function render(data) {
     .attr('r', circle_base_radius / scale)
 
   // Label SVG container
-  d3.select("#labels").selectAll('foreignObject')
+  var forobj = d3.select("#labels").selectAll('foreignObject')
     .data(locations_to_plot)
-    .enter()
-    .append('foreignObject')
+
+  forobj.enter().append('foreignObject')
     // And an HTML label within the SVG container
     .append("xhtml:body")
     .classed('labelBody', true)
     .attr('id', function(d) { return d.name + '-labelBody' })
     // The URL in the href has a leading slash so that the path is transformed
     //  when the static site is made.
-    .html(function(d) {return '<a class="' + d.css_class + '" href="/' + d.url + '">' + d.name + '</a>'})
+    .html(function(d) {return '<a class="' + d.css_class + '" href="/' + d.url + '">' + d.name + '</a>'});
+  forobj.exit().remove();
 
   d3.selectAll('foreignObject')
     .attr('x', function(d) {return get_svg_label_x_coord(d, scale)})
@@ -183,14 +191,6 @@ function get_html_margin_size(d, scale) {
   return initial_size / scale;
 }
 
-// url field lacks a leading slash - this is added when the href
-// is constructed. See comments in that part of the code
-var locations = [
-{% for iso, lat, lon, speaker_count, css_class in map_data %}
-{ name: "{{ iso }}", lat: {{ lat }}, lon: {{ lon }}, speaker_count: {{ speaker_count }}, css_class: "{{ css_class }}", url: "language/iso/{{ iso }}" },
-{% endfor %}
-];
-
 var projection = d3.geo.mercator()
     .center([135, -26])
     .scale(600);
@@ -217,7 +217,19 @@ d3.json("{{ url_for('static', filename='au-states-topo.json') }}", function(erro
     return console.error(error);
   }
   else {
-    render(data);
+    // This is the only place where we need the topojson so let's process
+    //  it at this lower level, leaving the render function to operate
+    //  independently of the topojson
+    d3.select("#art").selectAll("path")
+      .data(topojson.feature(data, data.objects.austates).features)
+      .enter()
+      .append("path")
+      .attr("d", path)
+      .attr("fill", "#fff")
+      .attr("fill-opacity", 0)
+      .attr("stroke", "#ddd")
+
+    render();
   }
 });
 </script>
