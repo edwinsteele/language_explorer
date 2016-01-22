@@ -25,26 +25,21 @@
 <p><div id="not_shown_list"></div></p>
 
 <form><button onclick='render([5, 15])'>Only Show Big Languages</button></form>
-<script type="text/javascript" src="{{ url_for('static', filename='d3.v359.min.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='topojson.min.js') }}"></script>
+<script type="text/javascript"
+  src="{{ url_for('static', filename='d3.v359.min.js') }}"></script>
+<script type="text/javascript"
+  src="{{ url_for('static', filename='topojson.min.js') }}"></script>
 <script type="text/javascript">
 
 var width = 960,
     height = 500,
     //speaker_count_display_threshold = 50,  // Negative for ambiguous points
     speaker_count_display_threshold = -3,  // Negative for ambiguous points
-    circle_base_radius = 5,
-    label_orig_width_px = 9,
-    label_base_px = 1.5,
-    label_var_px = 10.5  // font size = base + variable
+    circle_base_radius = 5;
 
 function render(data) {
-  if (d3.event == null) {
-    scale = 1;
-  }
-  else {
-    scale = d3.event.scale;
-  }
+  var scale = (d3.event == null) ? 1 : d3.event.scale;
+
   d3.select("#art").selectAll("path")
     .data(topojson.feature(data, data.objects.austates).features)
     .enter()
@@ -114,66 +109,41 @@ function render(data) {
     .html(function(d) {return '<a class="' + d.css_class + '" href="/' + d.url + '">' + d.name + '</a>'})
 
   d3.selectAll('foreignObject')
-    .attr('x', function(d) {return get_svg_label_x_coord(d)})
-    .attr('y', function(d) {return get_svg_label_y_coord(d)})
+    .attr('x', function(d) {return get_svg_label_x_coord(d, scale)})
+    .attr('y', function(d) {return get_svg_label_y_coord(d, scale)})
     // html label = margin + width
-    .attr('width', function(d) {return get_svg_label_width(d) + "em"})
-    .attr('height', function(d) {return get_svg_label_height(d) + "em"})
+    .attr('width', function(d) {return get_svg_label_width(d, scale) + "em"})
+    .attr('height', function(d) {return get_svg_label_height(d, scale) + "em"})
 
   d3.selectAll('.labelBody')
-    .style("margin-left", function(d) { return get_html_margin_size(d) + "em"})
-    .style('width', function(d) {return get_html_label_width(d) + "em"})
-    .style('height', function(d) {return get_html_label_height(d) + "em"})
+    .style("margin-left", function(d) { return get_html_margin_size(d, scale) + "em"})
+    .style('width', function(d) {return get_html_label_width(d, scale) + "em"})
+    .style('height', function(d) {return get_html_label_height(d, scale) + "em"})
     // 1em is the size of the font, even after the font-size adjustments
     //  have been made
-    .style("font-size", function(d) {return get_html_label_font_size(d) + "em"})
+    .style("font-size", function(d) {return get_html_label_font_size(d, scale) + "em"})
 }
 
 function get_element_font_size(element) {
   px_str = getComputedStyle(document.getElementById(element)).fontSize
   // no need to remove the "px" as parseInt is smart enough to do it
   return parseInt(px_str)
-
 }
 
-function get_svg_label_x_coord(d) {
-  var orig_x = projection([d.lon, d.lat])[0] ;
-  circle_padding = 0;
-  if (d3.event == null) {
-    scale = 1;
-  }
-  else {
-    scale = d3.event.scale;
-  }
-  return orig_x + (circle_base_radius / scale) + circle_padding;
+function get_svg_label_x_coord(d, scale) {
+  return projection([d.lon, d.lat])[0] + (circle_base_radius / scale) + 0;
 }
 
-function get_svg_label_y_coord(d) {
-  var orig_y = projection([d.lon, d.lat])[1];
-  return orig_y - get_element_font_size(d.name + "-labelBody");
-  /*
-  // Haven't zoomed yet
-  if (d3.event == null) {
-    return orig_y - label_base_px - label_var_px;
-  }
-  else {
-    return orig_y - label_base_px - (label_var_px / d3.event.scale);
-  }
-  */
+function get_svg_label_y_coord(d, scale) {
+  return projection([d.lon, d.lat])[1] - get_element_font_size(d.name + "-labelBody");
 }
 
-function get_svg_label_width(d) {
-  // let's say 1em width per character
-  initial_width = d.name.length
-  if (d3.event == null) {
-    return initial_width;
-  }
-  else {
-    return initial_width / d3.event.scale
-  }
+function get_svg_label_width(d, scale) {
+  // let's say 1em width per character i.e. d.name.length * 1
+  return d.name.length / scale;
 }
 
-function get_svg_label_height(d) {
+function get_svg_label_height(d, scale) {
   // Safari and Firefox only paint foreignObjects inside the bounds of the
   //  enclosing SVG element, so we need to add a bit more padding.
   // Chrome paints the entire foreignObject, even when it exceeds the
@@ -185,33 +155,15 @@ function get_svg_label_height(d) {
   else {
     initial_em_height = 1.0 * extra_scaling_factor;
   }
-  if (d3.event == null) {
-    return initial_em_height;
-  }
-  else {
-    return (initial_em_height / d3.event.scale);
-  }
+  return (initial_em_height / scale);
 }
 
-function get_html_label_font_size(d) {
-  /*
-  if (d.css_class.indexOf("speakers_many") >= 0) {
-    initial_em_height = 1.5;
-  }
-  else {
-    initial_em_height = 1.0;
-  }
-  */
-  initial_em_height = 1.0;
-  if (d3.event == null) {
-    return initial_em_height;
-  }
-  else {
-    return initial_em_height / d3.event.scale;
-  }
+function get_html_label_font_size(d, scale) {
+  initial_em_height = 1.0;  // em
+  return initial_em_height / scale;
 }
 
-function get_html_label_height(d) {
+function get_html_label_height(d, scale) {
   if (d.css_class.indexOf("speakers_many") >= 0) {
     initial_em_height = 1.5;
   }
@@ -221,25 +173,14 @@ function get_html_label_height(d) {
   return initial_em_height;
 }
 
-function get_html_label_width(d) {
-  // let's say 1em width per character
-  initial_width = d.name.length
-  if (d3.event == null) {
-    return initial_width;
-  }
-  else {
-    return initial_width / d3.event.scale
-  }
+function get_html_label_width(d, scale) {
+  // let's say 1em width per character i.e. d.name.length * 1
+  return d.name.length / scale;
 }
 
-function get_html_margin_size(d) {
-  initial_size = 0.5;
-  if (d3.event == null) {
-    return initial_size;
-  }
-  else {
-    return initial_size / d3.event.scale;
-  }
+function get_html_margin_size(d, scale) {
+  initial_size = 0.5;  // em
+  return initial_size / scale;
 }
 
 // url field lacks a leading slash - this is added when the href
@@ -265,7 +206,6 @@ d3.select("#d3_svg_container")
 d3.json("{{ url_for('static', filename='au-states-topo.json') }}", function(error, data) {
   var zoomListener = d3.behavior.zoom()
     .on("zoom", function zoomHandler() {
-      console.log(d3.event.scale);
       render(data)
       d3.select("#parent_grouper")
         .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
