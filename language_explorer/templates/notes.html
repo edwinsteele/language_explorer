@@ -1,9 +1,12 @@
 {% extends "layout.html" %}
-{% block title %}Investigations{% endblock %}
+{% block title %}Notes{% endblock %}
 {% include "legend.html" %}
 {% block content %}
-<h2>Possible scripture applicability by language common name</h2>
-    Languages with a common name where at least one has some scripture
+<h2>Notes<h2>
+Edwin's notes for investigations into interesting data points, potential anomalies and data of interest
+
+<h2>Languages with a common name where at least one has some scripture</h2>
+<h3>Current</h3>
     <ul>
         {% for sabn_item, sabn_common_name_list in sabn_info %}
             <li>{% for iso in sabn_item %}
@@ -11,22 +14,27 @@
             {% endfor %} (Names in common: {{ ", ".join(sabn_common_name_list) }})</li>
         {% endfor %}
     </ul>
-<h3>Notes</h3>
+<h3>Notes on Current Matches</h3>
 <ul>
-  <li>kdd & pjt: related. kdd speakers also use pjt</li>
-  <li>gbc & wrk: gbc code retired and split into wrk and wny</li>
-  <li>vku & yij: both classified as coastal ngayarda</li>
-  <li>bvr & dhg: classified differently (burraran vs yolŋu), but most speakers share a common L2</li>
-  <li>gnn & guf: both classified as yolŋu-dhuwal</li>
-  <li>gup & wlg: same classification (Ethn says wlg ethnic members generally speak gup) </li>
   <li>duj & gnn: both classified as yolŋu-dhuwal</li>
   <li>bvr & gge: same classification</li>
+  <li>vku & yij: both classified as coastal ngayarda</li>
+  <li>gbc & wrk: gbc code retired and split into wrk and wny</li>
   <li>aer & are: same classification</li>
+  <li>bvr & dhg: classified differently (burraran vs yolŋu), but most speakers share a common L2</li>
   <li>unp & wro: unp code retired and split into wro and xgu</li>
 </ul>
 
+<h3>Notes on Previous Matches</h3>
+<ul>
+  <li>gup & wlg: same classification (Ethn says wlg ethnic members generally speak gup) </li>
+  <li>kdd & pjt: related. kdd speakers also use pjt</li>
+  <li>gnn & guf: both classified as yolŋu-dhuwal</li>
+  <li>gup & wlg: same classification (Ethn says wlg ethnic members generally speak gup) </li>
+</ul>
+
 <h2>Arnhem Land Aboriginal Partnership</h2>
-<a href="http://www.theseedcompany.org/project/arnhem-land-aboriginal-partnership">ALAP</a>
+Current translation work: <a href="https://theseedcompany.org/projects/arnhem-land-aboriginal-partnership">Arnhem Land Aboriginal Partnership</a>
 <ul>
   <li>Halwangu {{ macros.format_iso_as_href("dax") }}</li>
   <li>Dhuwaya {{ macros.format_iso_as_href("duj") }}</li>
@@ -38,6 +46,7 @@
   <li>Wangurri {{ macros.format_iso_as_href("dhg") }}</li>
   <li>Golumala {{ macros.format_iso_as_href("dhg") }}</li>
 </ul>
+
 <h2>Census Ambiguity List</h2>
 List of languages where the Census name matches more than one language
     i.e. the census name cannot be unambiguously mapped to a language
@@ -48,8 +57,9 @@ List of languages where the Census name matches more than one language
     {% endfor %}</li>
 {% endfor %}
 </ul>
+
 <h2>Same Name, Different ISO</h2>
-The following iso keys are known by the same name/alias
+The following languages (iso keys) are known by the same name/alias
 <ul>
 {% for sndi_item, sndi_common_name_list in sndi_info %}
     <li>{% for iso in sndi_item %}
