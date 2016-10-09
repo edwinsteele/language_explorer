@@ -4,13 +4,14 @@
 # Assumes it is not running.
 
 # To allow deployment to a subdirectory of www.wordspeak.org
-DEPLOYMENT_PREFIX="/language_explorer"
+#DEPLOYMENT_PREFIX="/language_explorer"
+DEPLOYMENT_PREFIX=""
 VENV_BASE="/Users/esteele/.virtualenvs/language_explorer"
 BASE_DIR="/Users/esteele/Code/language_explorer"
 STATIC_ASSET_BASE="$BASE_DIR/language_explorer"
 STATIC_ASSET_DIRNAME="static"
-#MIRROR_OUTPUT_DIR="/Users/esteele/Sites/lex-mirror$DEPLOYMENT_PREFIX"
-MIRROR_OUTPUT_DIR="/Users/esteele/Sites/staging.wordspeak.org/$DEPLOYMENT_PREFIX"
+MIRROR_OUTPUT_DIR="/Users/esteele/Sites/lex-mirror$DEPLOYMENT_PREFIX"
+#MIRROR_OUTPUT_DIR="/Users/esteele/Sites/staging.wordspeak.org/$DEPLOYMENT_PREFIX"
 LIBRARY_OUTPUT_DIR="$MIRROR_OUTPUT_DIR/lib"
 LEX_PROTOCOL="http://"
 LEX_INSTANCE="127.0.0.1:8000"
@@ -71,3 +72,6 @@ cp -R $STATIC_ASSET_DIRNAME $MIRROR_OUTPUT_DIR
 popd
 
 pkill -f gunicorn
+
+echo ""
+echo "\nTo sync to external site, run: rsync -av ${MIRROR_OUTPUT_DIR}/ language-explorer.wordspeak.org:/home/esteele/Sites/language-explorer.wordspeak.org"
