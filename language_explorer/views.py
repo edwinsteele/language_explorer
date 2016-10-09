@@ -24,8 +24,8 @@ def show_all_languages():
     )
 
 
-@app.route('/investigations')
-def show_investigations():
+@app.route('/notes')
+def show_notes():
     sndi_list = lp.get_same_name_different_iso_list()
     common_name_list = []
     # Same Name Different ISO
@@ -63,7 +63,7 @@ def show_investigations():
                       if len(matching_iso_list) > 1])
 
     return render_template(
-        'investigations.html',
+        'notes.html',
         lp=lp,
         sndi_info=sndi_info,
         sabn_info=sabn_info,
@@ -85,6 +85,8 @@ def show_table():
 @app.route('/map')
 def show_map():
     map_data = lp.get_map_data()
+    map_data = [d for d in map_data if d[0] in (
+        "kkp", "gvn", "kjn", "kvs", "aea", "adt", "bia")]
     # lp needed for iso formatting
     return render_template(
         'large_map.tmpl',
