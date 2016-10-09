@@ -9,7 +9,16 @@
 <link rel="stylesheet" type="text/css" href="{{  url_for('static', filename='DataTables-1.10.9/css/jquery.dataTables.min.css') }}">
 {% include "legend.html" %}
 <h1>Language Table</h1>
-
+Notes:
+<ul>
+	<li>Columns can be sorted (a sort can only be active on one column at a time). Click on the column header to switch from ascending to descending. The arrow shows direction</li>
+	<li>Columns can be filtered (filters can be active on multiple columns simultaneously). Provide text to match in the text field above the column header <i>Search (column name)</i>. To match any number enter [0-9] . Tech note: Text field accepts perl regex.</li>
+</ul>
+Examples:
+<ul>
+	<li>Language groups with the most people that cannot read an english bible, where census data cleanly maps to a language group. Filter <i>Translations</i> for <b>No</b> (matches "No scripture"). Sort by <i>Cannot Read English Bible Count</i></li>
+		<li>Language groups of more than 100 people where most have good english but there's no scripture in their heart language. Filter <i>Speakers (Joshua Project)</i> for <b>[0-9][0-9][0-9]</b> (matches any three numbers). Sort by <i>Potential English Bible Users (%)</i></li> 
+</ul>
 <table class="bordered_table" id="datatable_table">
   <thead>
       <tr>
