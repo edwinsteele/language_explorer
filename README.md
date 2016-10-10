@@ -22,7 +22,6 @@ in their native tongue.
 * [Joshua Project](http://www.joshuaproject.net) - Import of Harvest database
 * [WALS](http://wals.info) - Import of WALS 2013 database
 * [Australian Census 2011](http://www.abs.gov.au/websitedbs/censushome.nsf/home/census) - Import of custom table data
-* [Ethnologue](http://www.ethnologue.com/) - Web scrape of relevant Australian Aboriginal language and bible translation data
 * [SIL](http://www-01.sil.org/iso639-3/) - Import of ISO 639-3 retired code elements mappings
 * [Find A Bible](http://findabible.net) - Web scrape of relevant Australian Aboriginal bible translation data
 * [Austlang](http://austlang.aiatsis.gov.au/php/public/public_home.php) - Web scrape of Australian Aboriginal language data
@@ -32,7 +31,7 @@ directory.
 
 # A live instance of this tool
 
-I have deployed a live instance of this tool at <https://wordspeak.org/language_explorer>.
+I have deployed a live instance of this tool at https://language-explorer.wordspeak.org.
 The purpose of this deployment is only casual review of the output of the
 aggregation engine and to show what is possible with this style of aggregation and analysis.
 
