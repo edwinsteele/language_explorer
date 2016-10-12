@@ -11,7 +11,10 @@ census = Census2011Adapter(settings.CENSUS_CSV_SOURCE, lp)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template(
+        'index.html',
+        lp=lp,
+    )
 
 
 @app.route('/language/all')
