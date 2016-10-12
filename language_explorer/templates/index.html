@@ -1,5 +1,83 @@
 {% extends "layout.html" %}
-{% block title %}Index{% endblock %}
+{% block title %}Language Explorer{% endblock %}
 {% block content %}
-Insert text
+<h1>What is this?</h1>
+
+Language Explorer is a <b>proof-of-concept</b> data analysis tool to help identify language groups in particular need of bible translation based on various data sources and linguistic databases. This instance focuses on the languages of Aboriginal Australia - I love our Aboriginal people, and want to see them have access to the bible, preferably in their native tongue.
+
+<h1>Where do I start?</h1>
+
+<h2>Background</h2>
+There are navigation links and fields <b>at the bottom of each page</b>. I'll refer to those links collectively, in the sections below, as the <i>navigation section</i>.
+
+When the name and iso-639 language code is displayed in the tool, the colouring and formatting imply meaning in accordance with the following legend:
+<p>
+{% include "legend.html" %}
+</p>
+
+
+<h2>For a specific language group</h2>
+The tool aims to have a page for each Aboriginal language group. If there are current speakers, the language group should be accessible in the tool. If there are no known speakers, the language group may be listed (many are, but I know that many are not, too). On the page for an individual group, data from the available sources is presented along with a map showing an approximate location for the speakers. In many cases the language group is clustered in a small area so the map is helpful but in some cases it is spread over a large area so the map can be misleading. Finally the page has links to the available data sources (including those whose data are not included in the tool). To look for a specific language group:
+<ul>
+	<li>Use the <i>Search</i> field in the navigation section. You can search by name or by ISO-639 language code. Anglicised spelling is a bit hit-and-miss so if you can't find what you're looking for, try alternate spelling.</li>
+	<li>Follow the <i>All languages</i> link in the navigation section. This will get you a list, which is sorted by ISO 639 language code.</li>
+	<li>Follow the <i>Map</i> link in the navigation section. You can pan and zoom to explore language groups, using their location as specified by the Tindale and WALS data sources. This is very much a work in progress, so it may be broken or may have an incomplete data set</li>
+	<li>Go straight to one of the examples: {{ macros.format_iso_as_href("awk") }} or {{ macros.format_iso_as_href("bvr") }} or {{ macros.format_iso_as_href("wrm") }}</li>
+</ul>
+
+<h2>For Data Analysis</h2>
+The tool provides a method to analyse important data for language groups to help assess the state of bible translation, and the ability of a language group to fallback to an English translation of scripture in the absence of the preferred situation of a translation in their heart language. To perform this sort of analysis follow the <i>Language Table</i> link in the navigation section. This shows a table of all language groups known to the tool, where each column can be filtered, and the table can be sorted by a single column. When using the table:
+
+<ul>
+	<li>Columns can be sorted (a sort can only be active on one column at a time). Click on the column header to switch from ascending to descending. The arrow shows direction</li>
+	<li>Columns can be filtered (filters can be active on multiple columns simultaneously). Provide text to match in the text field above the column header <i>Search (column name)</i>. To match any number enter [0-9] . Tech note: Text field accepts perl regex.</li>
+</ul>
+Examples:
+<ul>
+	<li>Language groups with the most people that cannot read an english bible, where census data cleanly maps to a language group. Filter <i>Translations</i> for <b>No</b> (matches "No scripture"). Sort by <i>Cannot Read English Bible Count</i></li>
+		<li>Language groups of more than 100 people where most have good english but there's no scripture in their heart language. Filter <i>Speakers (Joshua Project)</i> for <b>[0-9][0-9][0-9]</b> (matches any three numbers). Sort by <i>Potential English Bible Users (%)</i></li> 
+</ul>
+
+
+<h1>Data sources</h1>
+
+<ul>
+	<li><a href="http://www.joshuaproject.net">Joshua Project</a> - Import of Harvest database</li>
+	<li><a href="http://wals.info">WALS</a> - Import of WALS 2013 database</li>
+	<li><a href="http://www.abs.gov.au/websitedbs/censushome.nsf/home/census">Australian Census 2011</a> - Import of custom table data</li>
+	<li><a href="http://www-01.sil.org/iso639-3/">SIL</a> - Import of ISO 639-3 retired code elements mappings</li>
+	<li><a href="http://findabible.net">Find A Bible</a> - Web scrape of relevant Australian Aboriginal bible translation data</li>
+	<li><a href="http://austlang.aiatsis.gov.au/php/public/public_home.php">Austlang</a> - Web scrape of Australian Aboriginal language data</li>
+	<li><a href="http://archives.samuseum.sa.gov.au/tindaletribes/index.html">Tindale's Catalogue of Australian Aboriginal Tribes</a> - Web Scrape</li>
+</ul>
+
+Some more information is available in the <a href="https://github.com/edwinsteele/language_explorer/blob/master/docs/DataSources.md">DataSources.md file</a>.
+
+<h1>Disclaimer on data quality</h1>
+As a proof-of-concept, the focus has been on the integration of discrete
+data sources, and while care has been taken to identify errors during the
+data import, it would be inappropriate to consider this as a tool to drive
+decision making without review of the aggregation process and scrutiny of
+the data itself. The purpose of this deployment is only casual review of the output of the
+aggregation engine and to show what is possible with this style of aggregation and analysis.
+
+<h1>Licencing</h1>
+
+I have not attempted to licence the data that is imported into the database and
+subsequently displayed in the tool so <b>if you are from an organisation whose
+data I am using, and I am violating your licence agreement by displaying it in
+this proof-of-concept instance, <a href="mailto:edwin@wordspeak.org">Please contact me</a></b>.
+I don't wish to cause problems with this tool.
+
+<p>This software itself is licenced under the terms of the <a href="https://github.com/edwinsteele/language_explorer/blob/master/LICENSE">Licence file in the Github repository</a>.</p>
+
+<h1>Deployment</h1>
+
+Should you wish to deploy this yourself, it's not going to be a smooth process.
+It is repeatable for me, and there is some documentation in the DataSources.md
+and install.md documents in the "docs" directory. Contact me if you have any
+problems - I'm happy to help. All the source code is available in <a href="https://github.com/edwinsteele/language_explorer">my GitHub repository</a>.
+
+<p>-- <a href="mailto:edwin@wordspeak.org">Edwin Steele (edwin@wordspeak.org)</a>.
+
 {% endblock %}
