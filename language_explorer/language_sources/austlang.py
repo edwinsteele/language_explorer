@@ -31,6 +31,12 @@ class AustlangAdapter(CachingWebLanguageSource):
             "International Organization for Standardization")).parent \
             .text.rpartition(":")[2].strip()
         if iso_text:
+            # Austlang id 977 incorrectly states the iso is xmg when it
+            #  should be xmh. Externalise this check, and the Nji one below
+            #  at some stage
+            if iso_text == "xmg" and austlang_id == 977:
+                iso_text = "xmh"
+
             logging.info("Found ISO text %s for Austlang id %s",
                          iso_text, austlang_id)
             # We need to convert to lowercase as Gudanji has the ISO as Nji
