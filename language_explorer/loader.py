@@ -27,15 +27,24 @@ tindale = TindaleAdapter(settings.CACHE_ROOT, p)
 def load_data_from_db_driven_sources(iso_list):
     """To be run whenever new isos are added to our db"""
     for lang in iso_list:
-        joshuaproject.persist_L1_speaker_count(p, lang)
-        # joshuaproject.persist_dialects(p, lang)
+        if lang in joshuaproject.EXCLUDED_AU_LANGUAGES:
+            logging.info("Skipping ISO %s while persisting L1 speaker count"
+                         "as it is in the EXCLUDED_AU_LANGUAGES list", lang)
+        else:
+            joshuaproject.persist_L1_speaker_count(p, lang)
+            # joshuaproject.persist_dialects(p, lang)
 
     for source in (joshuaproject, wals):
         for lang in iso_list:
-            source.persist_language(p, lang)
-            source.persist_alternate_names(p, lang)
-            source.persist_classification(p, lang)
-            source.persist_translation(p, lang)
+            if lang in source.EXCLUDED_AU_LANGUAGES:
+                logging.info("Skipping ISO %s while processing %s data"
+                             "as it is in the EXCLUDED_AU_LANGUAGES list",
+                             lang, source)
+            else:
+                source.persist_language(p, lang)
+                source.persist_alternate_names(p, lang)
+                source.persist_classification(p, lang)
+                source.persist_translation(p, lang)
 
     wals.persist_latitude_longitudes(p)
 
@@ -83,7 +92,6 @@ def main():
         census.persist_L1_speaker_count(p, lang)
         census.persist_english_competency(p, lang)
 
-    # XXX - can census create ISOs?
     all_known_isos = load_data_for_new_isos(all_known_isos)
 
     # FAB can't provide an ISO list, so ask the database! For this
