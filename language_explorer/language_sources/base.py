@@ -15,6 +15,7 @@ class AbstractLanguageSource(object):
         "cmn",  # Chinese Mandarin
         "asf",  # Australian Sign Language
         "pih",  # Pitcairn/Norfolk Island
+        "xmg",  # Mengaka - Cameroon (signature match to Austlang Kugu Mangk)
     ])
 
     def get_primary_name_for_iso(self, iso):
