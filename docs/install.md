@@ -3,8 +3,8 @@ This is mostly my notes to help with getting this going after a period of absenc
 # Install/Setup
 
 1. create virtualenv for this project, language_explorer
-2. ``source ~/.virtualenvs/language_explorer/bin/activate``
-3. ``pip install -r requirements.txt --allow-external PyX``
+2. `source ~/.virtualenvs/language_explorer/bin/activate`
+3. `pip install -r requirements.txt`
 4. **Staging/Prod:** ``pip install ~/language_explorer-0.1.0.tar.gz``
 5. **Staging:** ``export LANGUAGE_EXPLORER_DEPLOYMENT=staging``
 6. **Development:** ``export LANGUAGE_EXPLORER_DEPLOYMENT=dev``
