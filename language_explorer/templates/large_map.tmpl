@@ -3,6 +3,7 @@
 {% include "legend.html" %}
 {% block head_js %}
 <meta charset="utf-8">
+<h1>--- Work in Progress ---</h1>
 <style type="text/css">
 .labelBody {
   margin-top: 0;
@@ -107,13 +108,19 @@ function render() {
     .data(locations_to_plot)
 
   forobj.enter().append('foreignObject')
+    .classed('labelFO', true);
+
+  var label_bodies = d3.selectAll(".labelFO").selectAll('xhtml:body')
+    .data(locations_to_plot)
+
     // And an HTML label within the SVG container
-    .append("xhtml:body")
+  label_bodies.enter().append("xhtml:body")
     .classed('labelBody', true)
     .attr('id', function(d) { return d.name + '-labelBody' })
     // The URL in the href has a leading slash so that the path is transformed
     //  when the static site is made.
     .html(function(d) {return '<a class="' + d.css_class + '" href="/' + d.url + '">' + d.name + '</a>'});
+  label_bodies.exit().remove();
   forobj.exit().remove();
 
   d3.selectAll('foreignObject')
