@@ -10,7 +10,7 @@ VENV_BASE="/Users/esteele/.virtualenvs/language_explorer"
 BASE_DIR="/Users/esteele/Code/language_explorer"
 STATIC_ASSET_BASE="$BASE_DIR/language_explorer"
 STATIC_ASSET_DIRNAME="static"
-MIRROR_OUTPUT_DIR="/Users/esteele/Sites/lex-mirror$DEPLOYMENT_PREFIX"
+MIRROR_OUTPUT_DIR="/usr/local/var/www/lex-mirror"
 #MIRROR_OUTPUT_DIR="/Users/esteele/Sites/staging.wordspeak.org/$DEPLOYMENT_PREFIX"
 LIBRARY_OUTPUT_DIR="$MIRROR_OUTPUT_DIR/lib"
 LEX_PROTOCOL="http://"
@@ -46,6 +46,10 @@ find $MIRROR_OUTPUT_DIR -type f | \
 	xargs gsed -i 's/href="\(\/[a-z][a-z/]*\)">/href="\1.html">/'
 find $MIRROR_OUTPUT_DIR -type f | \
 	xargs gsed -i 's/action="\(\/[a-z][a-z/]*\)"/action="\1.html"/'
+
+# Convert map source json so that languages have a correct link
+
+gsed -i 's/url: "\(language/iso/[a-z][a-z][a-z]\)"/url: "\1.html"/' $MIRROR_OUTPUT_DIR/map.html
 
 # Adjust hrefs, action and src elements to be prefixed with the deployment
 #  prefix (if one is used). Note that we only attempt to prefix with the
