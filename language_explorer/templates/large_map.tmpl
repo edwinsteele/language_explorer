@@ -32,9 +32,9 @@
   <input type="button" value="Apply" onclick='render()'/>
 </form>
 <script type="text/javascript"
-  src="{{ url_for('static', filename='d3.v359.min.js') }}"></script>
+  src="{{ url_for('static', filename='d3.v5.min.js') }}"></script>
 <script type="text/javascript"
-  src="{{ url_for('static', filename='topojson.min.js') }}"></script>
+  src="{{ url_for('static', filename='topojson.v3.min.js') }}"></script>
 <script type="text/javascript">
 
 var width = 960,
@@ -90,53 +90,31 @@ function render() {
     .attr("class", function(d) { return d.css_class });
   s.exit().remove();
 
-  // Points
-  var circle = d3.select("#art").selectAll('circle')
+  var svg = d3.select("svg")
+  var node = svg.append("g")
+      .attr("class", "nodes")
+      .selectAll("g")
+      .data(locations_to_plot)
+      .enter().append("g")
+
+  var circles = node.append("circle")
     .data(locations_to_plot)
-
-  circle.enter().append('circle')
-    .attr('fill', 'steelblue');
-  circle.exit().remove()
-
-  d3.selectAll('circle')
+    .attr('fill', 'steelblue')
     .attr('cx', function(d) {return projection([d.lon, d.lat])[0]})
     .attr('cy', function(d) {return projection([d.lon, d.lat])[1]})
     .attr('r', circle_base_radius / scale)
 
-  // Label SVG container
-  var forobj = d3.select("#labels").selectAll('foreignObject')
-    .data(locations_to_plot)
+  var labels = node.append("text")
+      .text(function(d) {
+        return d.name;
+      })
+      .attr('x', function(d) {return get_svg_label_x_coord(d, scale)})
+      .attr('y', function(d) {return get_svg_label_y_coord(d, scale)});
+      //.attr('y', function(d) {return 100})
 
-  forobj.enter().append('foreignObject')
-    .classed('labelFO', true);
+  node.append("title")
+      .text(function(d) { return d.name + "zzzz"; });
 
-  var label_bodies = d3.selectAll(".labelFO").selectAll('xhtml:body')
-    .data(locations_to_plot)
-
-    // And an HTML label within the SVG container
-  label_bodies.enter().append("xhtml:body")
-    .classed('labelBody', true)
-    .attr('id', function(d) { return d.name + '-labelBody' })
-    // The URL in the href has a leading slash so that the path is transformed
-    //  when the static site is made.
-    .html(function(d) {return '<a class="' + d.css_class + '" href="/' + d.url + '">' + d.name + '</a>'});
-  label_bodies.exit().remove();
-  forobj.exit().remove();
-
-  d3.selectAll('foreignObject')
-    .attr('x', function(d) {return get_svg_label_x_coord(d, scale)})
-    .attr('y', function(d) {return get_svg_label_y_coord(d, scale)})
-    // html label = margin + width
-    .attr('width', function(d) {return get_svg_label_width(d, scale) + "em"})
-    .attr('height', function(d) {return get_svg_label_height(d, scale) + "em"})
-
-  d3.selectAll('.labelBody')
-    .style("margin-left", function(d) { return get_html_margin_size(d, scale) + "em"})
-    .style('width', function(d) {return get_html_label_width(d, scale) + "em"})
-    .style('height', function(d) {return get_html_label_height(d, scale) + "em"})
-    // 1em is the size of the font, even after the font-size adjustments
-    //  have been made
-    .style("font-size", function(d) {return get_html_label_font_size(d, scale) + "em"})
 }
 
 function get_element_font_size(element) {
@@ -150,7 +128,8 @@ function get_svg_label_x_coord(d, scale) {
 }
 
 function get_svg_label_y_coord(d, scale) {
-  return projection([d.lon, d.lat])[1] - get_element_font_size(d.name + "-labelBody");
+  //return projection([d.lon, d.lat])[1] - get_element_font_size(d.name + "-labelBody");
+  return projection([d.lon, d.lat])[1]
 }
 
 function get_svg_label_width(d, scale) {
@@ -198,11 +177,11 @@ function get_html_margin_size(d, scale) {
   return initial_size / scale;
 }
 
-var projection = d3.geo.mercator()
+var projection = d3.geoMercator()
     .center([135, -26])
     .scale(600);
 
-var path = d3.geo.path()
+var path = d3.geoPath()
     .projection(projection);
 
 // Set dimensions of SVG element
@@ -210,8 +189,11 @@ d3.select("#d3_svg_container")
     .attr("width", width)
     .attr("height", height);
 
-d3.json("{{ url_for('static', filename='au-states-topo.json') }}", function(error, data) {
-  var zoomListener = d3.behavior.zoom()
+var au_map = d3.json("{{ url_for('static', filename='au-states-topo.json') }}");
+
+au_map.then(function(data) {
+  /*
+  var zoomListener = d3.zoom()
     .on("zoom", function zoomHandler() {
       render(data)
       d3.select("#parent_grouper")
@@ -219,25 +201,21 @@ d3.json("{{ url_for('static', filename='au-states-topo.json') }}", function(erro
     });
 
   zoomListener(d3.select("#parent_grouper"));
+  */
 
-  if (error) {
-    return console.error(error);
-  }
-  else {
-    // This is the only place where we need the topojson so let's process
-    //  it at this lower level, leaving the render function to operate
-    //  independently of the topojson
-    d3.select("#art").selectAll("path")
+  // This is the only place where we need the topojson so let's process
+  //  it at this lower level, leaving the render function to operate
+  //  independently of the topojson
+  d3.select("#art").selectAll("path")
       .data(topojson.feature(data, data.objects.austates).features)
-      .enter()
+    .enter()
       .append("path")
       .attr("d", path)
       .attr("fill", "#fff")
       .attr("fill-opacity", 0)
       .attr("stroke", "#ddd")
 
-    render();
-  }
+  render(data);
 });
 </script>
 {% endblock %}
