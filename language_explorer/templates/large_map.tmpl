@@ -1,9 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Language Map{% endblock %}
-{% include "legend.html" %}
 {% block head_js %}
 <meta charset="utf-8">
-<h1>--- Work in Progress ---</h1>
 <style type="text/css">
 </style>
 {% endblock %}
@@ -17,15 +15,31 @@
   </svg>
 </div>
 
-<p><div id="shown_list"></div></p>
-<p><div id="not_shown_list"></div></p>
+<p>Showing <span id="shown_count"></span> languages:<div id="shown_list"></div></p>
+<p>Hiding <span id="hidden_count"></span> languages:<div id="not_shown_list"></div></p>
 
 <form>
-  <!-- XXX check whether number is usable on most platforms -->
-  <label>stuff below: <input type="number" id="speaker_count_threshold"
-     name="speaker_count_threshold" value="0" /></label>
-  <input type="button" value="Apply" onclick='render()'/>
+  <h2>Filters</h2>
+  <label>Minimum Speakers:
+    <select id="min_speaker_count" name="min_speaker_count" onchange="render()">
+      <option value="0" selected>No min</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+      <option value="500">500</option>
+      <option value="1000">1000</option>
+    </select>
+  </label>
+  <label>Maximum Speakers:
+    <select id="max_speaker_count" name="max_speaker_count" onchange="render()">
+      <option value="50">50</option>
+      <option value="100">100</option>
+      <option value="500">500</option>
+      <option value="1000">1000</option>
+      <option value="999999" selected>No max</option>
+    </select>
+  </label>
 </form>
+{% include "legend.html" %}
 <script type="text/javascript"
   src="{{ url_for('static', filename='d3.v5.min.js') }}"></script>
 <script type="text/javascript"
@@ -41,29 +55,28 @@ var locations = [
 ];
 
 function get_locations_to_show() {
-  var speaker_count_display_threshold = document.getElementById("speaker_count_threshold").value
+  var min_speaker_count = Number(document.getElementById("min_speaker_count").value)
+  var max_speaker_count = Number(document.getElementById("max_speaker_count").value)
   return locations.filter(function(x) {
-    return x["speaker_count"] >= speaker_count_display_threshold && x["lat"] != null;
+    return x["speaker_count"] >= min_speaker_count &&
+           x["speaker_count"] < max_speaker_count &&
+           x["lat"] != null;
   });
 }
 
 function get_locations_to_hide() {
-  var speaker_count_display_threshold = document.getElementById("speaker_count_threshold").value
+  var min_speaker_count = Number(document.getElementById("min_speaker_count").value)
+  var max_speaker_count = Number(document.getElementById("max_speaker_count").value)
   return locations.filter(function(x) {
-    return x["speaker_count"] < speaker_count_display_threshold || x["lat"] == null;
+    return x["speaker_count"] < min_speaker_count ||
+           x["speaker_count"] >= max_speaker_count ||
+           x["lat"] == null;
   });
 }
 
 function render_text_description(locations_to_show, locations_to_hide) {
-  // Legend
-  d3.select("#shown_list").selectAll("p")
-    .data([locations_to_show.length])
-    .enter().append("p")
-    .html(function(d) {return "Showing " + d + " languages on map:";});
-  d3.select("#not_shown_list").selectAll("p")
-    .data([locations_to_hide.length])
-    .enter().append("p")
-    .html(function(d) {return "Not showing " + d + " languages on map (below population threshold or no location data):";});
+  document.getElementById("shown_count").textContent = locations_to_show.length.toString()
+  document.getElementById("hidden_count").textContent = locations_to_hide.length.toString()
 
   var s = d3.select("#shown_list").selectAll("span")
     .data(locations_to_show)
