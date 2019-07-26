@@ -5,19 +5,14 @@
 <meta charset="utf-8">
 <h1>--- Work in Progress ---</h1>
 <style type="text/css">
-.labelBody {
-  margin-top: 0;
-  margin-bottom: 0;
-  margin-right: 0;
-}
 </style>
 {% endblock %}
 {% block content %}
 <div id="d3_container">
-  <svg id="d3_svg_container">
+  <svg id="d3_svg_container" width="960" height="500">
     <g id="parent_grouper">
       <g id="art"></g>
-      <g id="labels"></g>
+      <g id="nodes"></g>
     </g>
   </svg>
 </div>
@@ -37,40 +32,38 @@
   src="{{ url_for('static', filename='topojson.v3.min.js') }}"></script>
 <script type="text/javascript">
 
-var width = 960,
-    height = 500,
-    circle_base_radius = 5;
-
-function render() {
-  // var speaker_count_display_threshold = 50,  // Negative for ambiguous points
-  var speaker_count_display_threshold = -3;  // Negative for ambiguous points
-  var speaker_count_display_threshold = document.getElementById("speaker_count_threshold").value
-
-  // url field lacks a leading slash - this is added when the href
-  // is constructed. See comments in that part of the code
-  var locations = [
-  {% for iso, lat, lon, speaker_count, css_class in map_data %}
+var circle_base_radius = 5;
+// url field lacks a leading slash - this is added when the href
+// is constructed. See comments in that part of the code
+var locations = [
+{% for iso, lat, lon, speaker_count, css_class in map_data %}
     { name: "{{ iso }}", lat: {{ lat }}, lon: {{ lon }}, speaker_count: {{ speaker_count }}, css_class: "{{ css_class }}", url: "language/iso/{{ iso }}" },
-  {% endfor %}
-  ];
+{% endfor %}
+];
 
-  var scale = (d3.event == null) ? 1 : d3.event.scale;
-
-  var locations_to_plot = locations.filter(function(x) {
+function get_locations_to_show() {
+  var speaker_count_display_threshold = document.getElementById("speaker_count_threshold").value
+  return locations.filter(function(x) {
     return x["speaker_count"] >= speaker_count_display_threshold && x["lat"] != null;
   });
-  var locations_to_hide = locations.filter(function(x) {
+}
+
+function get_locations_to_hide() {
+  var speaker_count_display_threshold = document.getElementById("speaker_count_threshold").value
+  return locations.filter(function(x) {
     return x["speaker_count"] < speaker_count_display_threshold || x["lat"] == null;
   });
+}
 
+function render_text_description(locations_to_show, locations_to_hide) {
   // Legend
   d3.select("#shown_list").selectAll("p")
-    .data([locations_to_plot.length])
+    .data([locations_to_show.length])
     .enter().append("p")
     .html(function(d) {return "Showing " + d + " languages on map:";});
 
   var s = d3.select("#shown_list").selectAll("span")
-    .data(locations_to_plot)
+    .data(locations_to_show)
 
   s.enter().append("span")
     .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
@@ -89,92 +82,27 @@ function render() {
     .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
     .attr("class", function(d) { return d.css_class });
   s.exit().remove();
+}
 
-  var svg = d3.select("svg")
-  var node = svg.append("g")
-      .attr("class", "nodes")
-      .selectAll("g")
-      .data(locations_to_plot)
-      .enter().append("g")
+function render() {
+  var scale = (d3.event == null) ? 1 : d3.event.scale;
+  var locations_to_show = get_locations_to_show()
+  var locations_to_hide = get_locations_to_hide()
 
-  var circles = node.append("circle")
-    .data(locations_to_plot)
+  render_text_description(locations_to_show, locations_to_hide);
+
+  var s = d3.select("#nodes").selectAll("g")
+      .data(locations_to_show)
+
+  s.enter().append("circle")
     .attr('fill', 'steelblue')
     .attr('cx', function(d) {return projection([d.lon, d.lat])[0]})
     .attr('cy', function(d) {return projection([d.lon, d.lat])[1]})
     .attr('r', circle_base_radius / scale)
-
-  var labels = node.append("text")
-      .text(function(d) {
-        return d.name;
-      })
-      .attr('x', function(d) {return get_svg_label_x_coord(d, scale)})
-      .attr('y', function(d) {return get_svg_label_y_coord(d, scale)});
-      //.attr('y', function(d) {return 100})
-
-  node.append("title")
+    .append("title")
       .text(function(d) { return d.name + "zzzz"; });
+  s.exit().remove()
 
-}
-
-function get_element_font_size(element) {
-  px_str = getComputedStyle(document.getElementById(element)).fontSize
-  // no need to remove the "px" as parseInt is smart enough to do it
-  return parseInt(px_str)
-}
-
-function get_svg_label_x_coord(d, scale) {
-  return projection([d.lon, d.lat])[0] + (circle_base_radius / scale) + 0;
-}
-
-function get_svg_label_y_coord(d, scale) {
-  //return projection([d.lon, d.lat])[1] - get_element_font_size(d.name + "-labelBody");
-  return projection([d.lon, d.lat])[1]
-}
-
-function get_svg_label_width(d, scale) {
-  // let's say 1em width per character i.e. d.name.length * 1
-  return d.name.length / scale;
-}
-
-function get_svg_label_height(d, scale) {
-  // Safari and Firefox only paint foreignObjects inside the bounds of the
-  //  enclosing SVG element, so we need to add a bit more padding.
-  // Chrome paints the entire foreignObject, even when it exceeds the
-  //  bounds of the SVG element
-  extra_scaling_factor = 1.1;
-  if (d.css_class.indexOf("speakers_many") >= 0) {
-    initial_em_height = 1.5 * extra_scaling_factor;
-  }
-  else {
-    initial_em_height = 1.0 * extra_scaling_factor;
-  }
-  return (initial_em_height / scale);
-}
-
-function get_html_label_font_size(d, scale) {
-  initial_em_height = 1.0;  // em
-  return initial_em_height / scale;
-}
-
-function get_html_label_height(d, scale) {
-  if (d.css_class.indexOf("speakers_many") >= 0) {
-    initial_em_height = 1.5;
-  }
-  else {
-    initial_em_height = 1.0;
-  }
-  return initial_em_height;
-}
-
-function get_html_label_width(d, scale) {
-  // let's say 1em width per character i.e. d.name.length * 1
-  return d.name.length / scale;
-}
-
-function get_html_margin_size(d, scale) {
-  initial_size = 0.5;  // em
-  return initial_size / scale;
 }
 
 var projection = d3.geoMercator()
@@ -184,24 +112,17 @@ var projection = d3.geoMercator()
 var path = d3.geoPath()
     .projection(projection);
 
-// Set dimensions of SVG element
-d3.select("#d3_svg_container")
-    .attr("width", width)
-    .attr("height", height);
-
 var au_map = d3.json("{{ url_for('static', filename='au-states-topo.json') }}");
 
 au_map.then(function(data) {
-  /*
   var zoomListener = d3.zoom()
     .on("zoom", function zoomHandler() {
       render(data)
       d3.select("#parent_grouper")
-        .attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+        .attr("transform", d3.event.transform);
     });
 
   zoomListener(d3.select("#parent_grouper"));
-  */
 
   // This is the only place where we need the topojson so let's process
   //  it at this lower level, leaving the render function to operate
