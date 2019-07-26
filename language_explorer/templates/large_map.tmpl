@@ -60,23 +60,20 @@ function render_text_description(locations_to_show, locations_to_hide) {
     .data([locations_to_show.length])
     .enter().append("p")
     .html(function(d) {return "Showing " + d + " languages on map:";});
-
-  var s = d3.select("#shown_list").selectAll("span")
-    .data(locations_to_show)
-
-  s.enter().append("span")
-    .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
-    .attr("class", function(d) { return d.css_class });
-  s.exit().remove();
-
   d3.select("#not_shown_list").selectAll("p")
     .data([locations_to_hide.length])
     .enter().append("p")
     .html(function(d) {return "Not showing " + d + " languages on map (below population threshold or no location data):";});
 
+  var s = d3.select("#shown_list").selectAll("span")
+    .data(locations_to_show)
+  s.enter().append("span")
+    .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
+    .attr("class", function(d) { return d.css_class });
+  s.exit().remove();
+
   var s = d3.select("#not_shown_list").selectAll("span")
     .data(locations_to_hide)
-
   s.enter().append("span")
     .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
     .attr("class", function(d) { return d.css_class });
@@ -94,7 +91,6 @@ function render() {
   var s = d3.select("#nodes").selectAll("circle")
     .data(locations_to_show)
     .attr('r',  circle_radius)
-
   s.enter().append("circle")
     .attr('fill', 'steelblue')
     .attr('cx', function(d) {return projection([d.lon, d.lat])[0]})
@@ -103,7 +99,6 @@ function render() {
     .append("title")
       .text(function(d) { return d.name + "zzzz"; });
   s.exit().remove()
-
 }
 
 var projection = d3.geoMercator()
@@ -128,14 +123,13 @@ au_map.then(function(data) {
   // This is the only place where we need the topojson so let's process
   //  it at this lower level, leaving the render function to operate
   //  independently of the topojson
-  d3.select("#art").selectAll("path")
-      .data(topojson.feature(data, data.objects.austates).features)
-    .enter()
-      .append("path")
-      .attr("d", path)
-      .attr("fill", "#fff")
-      .attr("fill-opacity", 0)
-      .attr("stroke", "#ddd")
+  var s = d3.select("#art").selectAll("path")
+    .data(topojson.feature(data, data.objects.austates).features)
+  s.enter().append("path")
+    .attr("d", path)
+    .attr("fill", "#fff")
+    .attr("fill-opacity", 0)
+    .attr("stroke", "#ddd")
 
   render(data);
 });
