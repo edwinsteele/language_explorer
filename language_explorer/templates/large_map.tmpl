@@ -32,7 +32,6 @@
   src="{{ url_for('static', filename='topojson.v3.min.js') }}"></script>
 <script type="text/javascript">
 
-var circle_base_radius = 5;
 // url field lacks a leading slash - this is added when the href
 // is constructed. See comments in that part of the code
 var locations = [
@@ -85,7 +84,8 @@ function render_text_description(locations_to_show, locations_to_hide) {
 }
 
 function render() {
-  var scale = (d3.event == null) ? 1 : d3.event.scale;
+  var scale = (d3.event == null) ? 1 : d3.event.transform.k;
+  var circle_radius = 5.0 / scale;
   var locations_to_show = get_locations_to_show()
   var locations_to_hide = get_locations_to_hide()
 
@@ -93,12 +93,13 @@ function render() {
 
   var s = d3.select("#nodes").selectAll("circle")
     .data(locations_to_show)
+    .attr('r',  circle_radius)
 
   s.enter().append("circle")
     .attr('fill', 'steelblue')
     .attr('cx', function(d) {return projection([d.lon, d.lat])[0]})
     .attr('cy', function(d) {return projection([d.lon, d.lat])[1]})
-    .attr('r', circle_base_radius / scale)
+    .attr('r',  circle_radius)
     .append("title")
       .text(function(d) { return d.name + "zzzz"; });
   s.exit().remove()
@@ -117,9 +118,9 @@ var au_map = d3.json("{{ url_for('static', filename='au-states-topo.json') }}");
 au_map.then(function(data) {
   var zoomListener = d3.zoom()
     .on("zoom", function zoomHandler() {
-      render(data)
       d3.select("#parent_grouper")
         .attr("transform", d3.event.transform);
+      render(data)
     });
 
   zoomListener(d3.select("#parent_grouper"));
