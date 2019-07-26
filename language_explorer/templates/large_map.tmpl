@@ -105,20 +105,15 @@ var projection = d3.geoMercator()
     .center([135, -26])
     .scale(600);
 
-var path = d3.geoPath()
-    .projection(projection);
-
 var au_map = d3.json("{{ url_for('static', filename='au-states-topo.json') }}");
 
 au_map.then(function(data) {
-  var zoomListener = d3.zoom()
-    .on("zoom", function zoomHandler() {
-      d3.select("#parent_grouper")
-        .attr("transform", d3.event.transform);
-      render(data)
-    });
 
-  zoomListener(d3.select("#parent_grouper"));
+  var svg = d3.select("#parent_grouper")
+    .call(d3.zoom().on("zoom", function () {
+      svg.attr("transform", d3.event.transform);
+      render(data)
+    }));
 
   // This is the only place where we need the topojson so let's process
   //  it at this lower level, leaving the render function to operate
@@ -126,7 +121,7 @@ au_map.then(function(data) {
   var s = d3.select("#art").selectAll("path")
     .data(topojson.feature(data, data.objects.austates).features)
   s.enter().append("path")
-    .attr("d", path)
+    .attr("d", d3.geoPath().projection(projection))
     .attr("fill", "#fff")
     .attr("fill-opacity", 0)
     .attr("stroke", "#ddd")
