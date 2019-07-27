@@ -88,8 +88,8 @@ def show_table():
 @app.route('/map')
 def show_map():
     map_data = lp.get_map_data()
-    map_data = [d for d in map_data if d[0] in (
-        "kkp", "gvn", "kjn", "kvs", "aea", "adt", "bia")]
+    #map_data = [d for d in map_data if d[0] in (
+    #    "kkp", "gvn", "kjn", "kvs", "aea", "adt", "bia")]
     # lp needed for iso formatting
     return render_template(
         'large_map.tmpl',
