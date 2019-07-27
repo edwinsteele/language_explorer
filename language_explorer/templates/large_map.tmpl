@@ -124,21 +124,27 @@ function render_text_description(locations_to_show, unmappable_languages) {
   document.getElementById("hidden_count").textContent = locations.length - locations_to_show.length
   document.getElementById("unmappable_count").textContent = unmappable_languages.length.toString()
 
-  var s = d3.select("#shown_list").selectAll("span") // UPDATE
+  let feature = d3.select("#shown_list")
+    .selectAll("span")
     .data(locations_to_show)
-  s.exit().remove(); // EXIT
-  s.enter().append("span") // ENTER
-    .merge(s) // ENTER + UPDATE
-      .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
-      .attr("class", function(d) { return d.css_class });
 
-  var s = d3.select("#unmappable_list").selectAll("span") // UPDATE
+  feature.exit().remove();
+
+  let featureEnter = feature.enter().append("span")
+  feature.merge(featureEnter)
+    .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
+    .attr("class", d => d.css_class);
+
+  feature = d3.select("#unmappable_list")
+    .selectAll("span")
     .data(unmappable_languages)
-  s.exit().remove(); // EXIT
-  s.enter().append("span") // ENTER
-    .merge(s) // ENTER + UPDATE
-      .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
-      .attr("class", function(d) { return d.css_class });
+
+  feature.exit().remove();
+
+  featureEnter = feature.enter().append("span")
+  feature.merge(featureEnter)
+    .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
+    .attr("class", d => d.css_class);
 }
 
 function render() {
