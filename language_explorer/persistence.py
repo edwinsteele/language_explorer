@@ -561,8 +561,12 @@ class LanguagePersistence(object):
 
         returns a lists of tuples, each is (iso, lat, lon)
         """
+        EXCLUDED_ISOS = [
+            "dze",  # was split - no map or bible data
+        ]
         map_data = []
-        rows = self.lang_db[self.LANGUAGE_TABLE].all()
+        rows = [r for r in self.lang_db[self.LANGUAGE_TABLE].all()
+                if r["iso"] not in EXCLUDED_ISOS]
         for row in rows:
             # Take Tindale, then fall back to WALS
             # Just check lon - we update in pairs so if it's null
@@ -601,7 +605,7 @@ class LanguagePersistence(object):
                              lon,
                              speaker_count,
                              self.get_css_class_for_iso(row["iso"])))
-        return map_data
+        return sorted(map_data, key=lambda x: x[0])
 
     def get_table_data(self):
         table_data = []
