@@ -39,10 +39,10 @@
     </select>
   </label>
   <br>
-  <label>No scripture<input type="checkbox" name="scripture_none" value="1" checked></label>
-  <label>Some books<input type="checkbox" name="scripture_some" value="1" checked></label>
-  <label>New testament<input type="checkbox" name="scripture_nt" value="1" checked></label>
-  <label>Whole bible<input type="checkbox" name="scripture_wb" value="1" checked></label>
+  <label>No scripture<input type="checkbox" name="scripture_none" value="1" checked onchange="render()"></label>
+  <label>Some books<input type="checkbox" name="scripture_some" value="1" checked onchange="render()"></label>
+  <label>New testament<input type="checkbox" name="scripture_nt" value="1" checked onchange="render()"></label>
+  <label>Whole bible<input type="checkbox" name="scripture_wb" value="1" checked onchange="render()"></label>
 </form>
 {% include "legend.html" %}
 <script type="text/javascript"
@@ -85,35 +85,43 @@ function get_locations_to_show() {
   var min_speaker_count = Number(document.getElementById("min_speaker_count").value)
   var max_speaker_count = Number(document.getElementById("max_speaker_count").value)
   return locations.filter(function(x) {
+    console.log(x.name, x.css_class)
+    if (x.css_class.includes("scripture_none") &&
+        !document.forms[0].elements["scripture_none"].checked) {
+      return false
+    }
+    if (x.css_class.includes("scripture_book") &&
+        !document.forms[0].elements["scripture_some"].checked) {
+      return false
+    }
+    if (x.css_class.includes("scripture_portions") &&
+        !document.forms[0].elements["scripture_some"].checked) {
+      return false
+    }
+    if (x.css_class.includes("scripture_nt") &&
+        !document.forms[0].elements["scripture_nt"].checked) {
+      console.log("in scripture_nt branch, returning false")
+      return false
+    }
+    if (x.css_class.includes("scripture_wb") &&
+        !document.forms[0].elements["scripture_wb"].checked) {
+      return false
+    }
     return x["speaker_count"] >= min_speaker_count &&
            x["speaker_count"] < max_speaker_count &&
            x["lat"] != null;
   });
 }
 
-function get_locations_to_hide() {
-  var min_speaker_count = Number(document.getElementById("min_speaker_count").value)
-  var max_speaker_count = Number(document.getElementById("max_speaker_count").value)
-  return locations.filter(function(x) {
-    return x["speaker_count"] < min_speaker_count ||
-           x["speaker_count"] >= max_speaker_count ||
-           x["lat"] == null;
-  });
-}
-
-function render_text_description(locations_to_show, locations_to_hide) {
+function render_text_description(locations_to_show) {
   document.getElementById("shown_count").textContent = locations_to_show.length.toString()
-  document.getElementById("hidden_count").textContent = locations_to_hide.length.toString()
+  document.getElementById("hidden_count").textContent = locations.length - locations_to_show.length
 
+  console.log(locations_to_show)
   var s = d3.select("#shown_list").selectAll("span")
     .data(locations_to_show)
-  s.enter().append("span")
     .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
     .attr("class", function(d) { return d.css_class });
-  s.exit().remove();
-
-  var s = d3.select("#not_shown_list").selectAll("span")
-    .data(locations_to_hide)
   s.enter().append("span")
     .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
     .attr("class", function(d) { return d.css_class });
@@ -125,9 +133,8 @@ function render() {
   var circle_radius = 5.0 / scale;
   var stroke_width = 1.0 / scale;
   var locations_to_show = get_locations_to_show()
-  var locations_to_hide = get_locations_to_hide()
 
-  render_text_description(locations_to_show, locations_to_hide);
+  render_text_description(locations_to_show);
 
   var s = d3.select("#nodes").selectAll("circle")
     .data(locations_to_show)
