@@ -16,13 +16,15 @@
 </div>
 
 <p>Showing <span id="shown_count"></span> languages:<div id="shown_list"></div></p>
-<p>Hiding <span id="hidden_count"></span> languages:<div id="not_shown_list"></div></p>
+<p>Hiding <span id="hidden_count"></span> languages.</p>
+<p>Unable to map <span id="unmappable_count"></span> languages (no location data):<div id="unmappable_list"></div></p>
 
 <form>
   <h3>Include</h3>
   <label>Minimum Speakers:
     <select id="min_speaker_count" name="min_speaker_count" onchange="render()">
       <option value="-3" selected>No min</option> <!-- negative includes unknown -->
+      <option value="10">10</option>
       <option value="50">50</option>
       <option value="100">100</option>
       <option value="500">500</option>
@@ -31,6 +33,7 @@
   </label>
   <label>Maximum Speakers:
     <select id="max_speaker_count" name="max_speaker_count" onchange="render()">
+      <option value="10">10</option>
       <option value="50">50</option>
       <option value="100">100</option>
       <option value="500">500</option>
@@ -65,7 +68,7 @@ function get_circle_colour(lang) {
   if (lang.css_class.includes("scripture_none")) {
     return "red"
   }
-  if (lang.css_class.includes("scription_book")) {
+  if (lang.css_class.includes("scripture_book")) {
     return "orange"
   }
   if (lang.css_class.includes("scripture_portions")) {
@@ -74,7 +77,7 @@ function get_circle_colour(lang) {
   if (lang.css_class.includes("scripture_nt")) {
     return "greenyellow"
   }
-  if (lang.css_class.includes("scription_wb")) {
+  if (lang.css_class.includes("scripture_wb")) {
     return "green"
   }
   // No idea...
@@ -85,7 +88,6 @@ function get_locations_to_show() {
   var min_speaker_count = Number(document.getElementById("min_speaker_count").value)
   var max_speaker_count = Number(document.getElementById("max_speaker_count").value)
   return locations.filter(function(x) {
-    console.log(x.name, x.css_class)
     if (x.css_class.includes("scripture_none") &&
         !document.forms[0].elements["scripture_none"].checked) {
       return false
@@ -100,7 +102,6 @@ function get_locations_to_show() {
     }
     if (x.css_class.includes("scripture_nt") &&
         !document.forms[0].elements["scripture_nt"].checked) {
-      console.log("in scripture_nt branch, returning false")
       return false
     }
     if (x.css_class.includes("scripture_wb") &&
@@ -108,17 +109,31 @@ function get_locations_to_show() {
       return false
     }
     return x["speaker_count"] >= min_speaker_count &&
-           x["speaker_count"] < max_speaker_count &&
-           x["lat"] != null;
+           x["speaker_count"] < max_speaker_count;
   });
 }
 
-function render_text_description(locations_to_show) {
+function get_unmappable_languages() {
+  return locations.filter(function(x) {
+    return x["lat"] == null;
+  });
+}
+
+function render_text_description(locations_to_show, unmappable_languages) {
   document.getElementById("shown_count").textContent = locations_to_show.length.toString()
   document.getElementById("hidden_count").textContent = locations.length - locations_to_show.length
+  document.getElementById("unmappable_count").textContent = unmappable_languages.length.toString()
 
   var s = d3.select("#shown_list").selectAll("span") // UPDATE
     .data(locations_to_show)
+  s.exit().remove(); // EXIT
+  s.enter().append("span") // ENTER
+    .merge(s) // ENTER + UPDATE
+      .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
+      .attr("class", function(d) { return d.css_class });
+
+  var s = d3.select("#unmappable_list").selectAll("span") // UPDATE
+    .data(unmappable_languages)
   s.exit().remove(); // EXIT
   s.enter().append("span") // ENTER
     .merge(s) // ENTER + UPDATE
@@ -132,7 +147,7 @@ function render() {
   var stroke_width = 1.0 / scale;
   var locations_to_show = get_locations_to_show()
 
-  render_text_description(locations_to_show);
+  render_text_description(locations_to_show, get_unmappable_languages());
 
   var s = d3.select("#nodes").selectAll("circle") // UPDATE
     .data(locations_to_show)
