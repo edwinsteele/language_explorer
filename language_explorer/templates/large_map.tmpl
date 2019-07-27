@@ -19,10 +19,10 @@
 <p>Hiding <span id="hidden_count"></span> languages:<div id="not_shown_list"></div></p>
 
 <form>
-  <h2>Filters</h2>
+  <h3>Include</h3>
   <label>Minimum Speakers:
     <select id="min_speaker_count" name="min_speaker_count" onchange="render()">
-      <option value="0" selected>No min</option>
+      <option value="-3" selected>No min</option> <!-- negative includes unknown -->
       <option value="50">50</option>
       <option value="100">100</option>
       <option value="500">500</option>
@@ -38,6 +38,11 @@
       <option value="999999" selected>No max</option>
     </select>
   </label>
+  <br>
+  <label>No scripture<input type="checkbox" name="scripture_none" value="1" checked></label>
+  <label>Some books<input type="checkbox" name="scripture_some" value="1" checked></label>
+  <label>New testament<input type="checkbox" name="scripture_nt" value="1" checked></label>
+  <label>Whole bible<input type="checkbox" name="scripture_wb" value="1" checked></label>
 </form>
 {% include "legend.html" %}
 <script type="text/javascript"
@@ -53,6 +58,28 @@ var locations = [
     { name: "{{ iso }}", lat: {{ lat }}, lon: {{ lon }}, speaker_count: {{ speaker_count }}, css_class: "{{ css_class }}", url: "language/iso/{{ iso }}" },
 {% endfor %}
 ];
+
+
+function get_circle_colour(lang) {
+  // check whether it's easier to apply CSS to svg elements
+  if (lang.css_class.includes("scripture_none")) {
+    return "red"
+  }
+  if (lang.css_class.includes("scription_book")) {
+    return "orange"
+  }
+  if (lang.css_class.includes("scripture_portions")) {
+    return "yellow"
+  }
+  if (lang.css_class.includes("scripture_nt")) {
+    return "greenyellow"
+  }
+  if (lang.css_class.includes("scription_wb")) {
+    return "green"
+  }
+  // No idea...
+  return "grey"
+}
 
 function get_locations_to_show() {
   var min_speaker_count = Number(document.getElementById("min_speaker_count").value)
@@ -96,6 +123,7 @@ function render_text_description(locations_to_show, locations_to_hide) {
 function render() {
   var scale = (d3.event == null) ? 1 : d3.event.transform.k;
   var circle_radius = 5.0 / scale;
+  var stroke_width = 1.0 / scale;
   var locations_to_show = get_locations_to_show()
   var locations_to_hide = get_locations_to_hide()
 
@@ -105,10 +133,12 @@ function render() {
     .data(locations_to_show)
     .attr('r',  circle_radius)
   s.enter().append("circle")
-    .attr('fill', 'steelblue')
+    .attr('fill', function(d) {return get_circle_colour(d)})
     .attr('cx', function(d) {return projection([d.lon, d.lat])[0]})
     .attr('cy', function(d) {return projection([d.lon, d.lat])[1]})
     .attr('r',  circle_radius)
+    .attr('stroke', 'black')
+    .attr('stroke-width', stroke_width)
     .append("title")
       .text(function(d) { return d.name + "zzzz"; });
   s.exit().remove()
