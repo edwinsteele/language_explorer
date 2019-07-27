@@ -149,19 +149,25 @@ function render() {
 
   render_text_description(locations_to_show, get_unmappable_languages());
 
-  var s = d3.select("#nodes").selectAll("circle") // UPDATE
+  let feature = d3.select("#nodes")
+    .selectAll("circle")
     .data(locations_to_show)
-  s.exit().remove()  // EXIT
-  s.enter().append("circle")  // ENTER
-    .merge(s) // ENTER + UPDATE
+
+  feature.exit().remove();
+
+  let featureEnter = feature.enter().append("circle")
+
+  featureEnter.append("title")
+
+  feature.merge(featureEnter)
       .attr('fill', function(d) {return get_circle_colour(d)})
       .attr('cx', function(d) {return projection([d.lon, d.lat])[0]})
       .attr('cy', function(d) {return projection([d.lon, d.lat])[1]})
       .attr('r',  circle_radius)
       .attr('stroke', 'black')
       .attr('stroke-width', stroke_width)
-      .append("title")
-        .text(function(d) { return d.name + "zzzz"; });
+    .select("title")
+      .text(d => d.name);
 }
 
 var projection = d3.geoMercator()
