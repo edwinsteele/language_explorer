@@ -117,15 +117,13 @@ function render_text_description(locations_to_show) {
   document.getElementById("shown_count").textContent = locations_to_show.length.toString()
   document.getElementById("hidden_count").textContent = locations.length - locations_to_show.length
 
-  console.log(locations_to_show)
-  var s = d3.select("#shown_list").selectAll("span")
+  var s = d3.select("#shown_list").selectAll("span") // UPDATE
     .data(locations_to_show)
-    .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
-    .attr("class", function(d) { return d.css_class });
-  s.enter().append("span")
-    .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
-    .attr("class", function(d) { return d.css_class });
-  s.exit().remove();
+  s.exit().remove(); // EXIT
+  s.enter().append("span") // ENTER
+    .merge(s) // ENTER + UPDATE
+      .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
+      .attr("class", function(d) { return d.css_class });
 }
 
 function render() {
@@ -136,19 +134,19 @@ function render() {
 
   render_text_description(locations_to_show);
 
-  var s = d3.select("#nodes").selectAll("circle")
+  var s = d3.select("#nodes").selectAll("circle") // UPDATE
     .data(locations_to_show)
-    .attr('r',  circle_radius)
-  s.enter().append("circle")
-    .attr('fill', function(d) {return get_circle_colour(d)})
-    .attr('cx', function(d) {return projection([d.lon, d.lat])[0]})
-    .attr('cy', function(d) {return projection([d.lon, d.lat])[1]})
-    .attr('r',  circle_radius)
-    .attr('stroke', 'black')
-    .attr('stroke-width', stroke_width)
-    .append("title")
-      .text(function(d) { return d.name + "zzzz"; });
-  s.exit().remove()
+  s.exit().remove()  // EXIT
+  s.enter().append("circle")  // ENTER
+    .merge(s) // ENTER + UPDATE
+      .attr('fill', function(d) {return get_circle_colour(d)})
+      .attr('cx', function(d) {return projection([d.lon, d.lat])[0]})
+      .attr('cy', function(d) {return projection([d.lon, d.lat])[1]})
+      .attr('r',  circle_radius)
+      .attr('stroke', 'black')
+      .attr('stroke-width', stroke_width)
+      .append("title")
+        .text(function(d) { return d.name + "zzzz"; });
 }
 
 var projection = d3.geoMercator()
