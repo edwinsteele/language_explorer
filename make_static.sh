@@ -48,8 +48,7 @@ find $MIRROR_OUTPUT_DIR -type f | \
 	xargs gsed -i 's/action="\(\/[a-z][a-z/]*\)"/action="\1.html"/'
 
 # Convert map source json so that languages have a correct link
-
-gsed -i 's/url: "\(language/iso/[a-z][a-z][a-z]\)"/url: "\1.html"/' $MIRROR_OUTPUT_DIR/map.html
+gsed -i 's/url: "\(language\/iso\/[a-z][a-z][a-z]\)"/url: "\1.html"/' $MIRROR_OUTPUT_DIR/map.html
 
 # Adjust hrefs, action and src elements to be prefixed with the deployment
 #  prefix (if one is used). Note that we only attempt to prefix with the
@@ -67,6 +66,11 @@ if [ -n "$DEPLOYMENT_PREFIX" ]; then
 	find $MIRROR_OUTPUT_DIR -type f -name "*.html" | \
 		xargs gsed -i 's/d3\.json("\//d3.json("\'$DEPLOYMENT_PREFIX'\//'
 fi
+
+# Show version and link to source
+current_git_commit=$(git log -n1 --abbrev-commit --format=%h)
+find $MIRROR_OUTPUT_DIR -type f | \
+	xargs gsed -i "s/>######</>$current_git_commit</"
 
 
 # Copy libraries
