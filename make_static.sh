@@ -78,4 +78,4 @@ popd
 pkill -f gunicorn
 
 echo ""
-echo "\nTo sync to external site, run: rsync -av ${MIRROR_OUTPUT_DIR}/ language-explorer.wordspeak.org:/home/esteele/Sites/language-explorer.wordspeak.org"
+echo "\nTo sync to external site, run: rsync -av ${MIRROR_OUTPUT_DIR}/ language-explorer.wordspeak.org:/var/www/htdocs/language-explorer.wordspeak.org"
