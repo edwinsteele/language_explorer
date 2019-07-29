@@ -6,8 +6,37 @@
 </style>
 {% endblock %}
 {% block content %}
+Filterable map of languages. Larger circles indicate larger speaker population. Legend in page footer.
+<form>
+  <br><strong>Show groups with: </strong>
+  <label>Minimum speakers:
+    <select id="min_speaker_count" name="min_speaker_count" onchange="render()">
+      <option value="-3" selected>No min</option> <!-- negative includes unknown -->
+      <option value="10">10</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+      <option value="500">500</option>
+      <option value="1000">1000</option>
+    </select>
+  </label>
+  <label>Maximum speakers:
+    <select id="max_speaker_count" name="max_speaker_count" onchange="render()">
+      <option value="10">10</option>
+      <option value="50">50</option>
+      <option value="100">100</option>
+      <option value="500">500</option>
+      <option value="1000">1000</option>
+      <option value="999999" selected>No max</option>
+    </select>
+  </label>
+  <br><strong>Show groups with: </strong>
+  <label>No scripture<input type="checkbox" name="scripture_none" value="1" checked onchange="render()"></label>
+  <label>Some books<input type="checkbox" name="scripture_some" value="1" checked onchange="render()"></label>
+  <label>New testament<input type="checkbox" name="scripture_nt" value="1" checked onchange="render()"></label>
+  <label>Whole bible<input type="checkbox" name="scripture_wb" value="1" checked onchange="render()"></label>
+</form>
 <div id="d3_container">
-  <svg id="d3_svg_container" width="960" height="500">
+  <svg id="d3_svg_container" width="960" height="450">
     <g id="parent_grouper">
       <g id="art"></g>
       <g id="nodes"></g>
@@ -19,34 +48,6 @@
 <p>Hiding <span id="hidden_count"></span> languages.</p>
 <p>Unable to map <span id="unmappable_count"></span> languages (no location data):<div id="unmappable_list"></div></p>
 
-<form>
-  <h3>Include</h3>
-  <label>Minimum Speakers:
-    <select id="min_speaker_count" name="min_speaker_count" onchange="render()">
-      <option value="-3" selected>No min</option> <!-- negative includes unknown -->
-      <option value="10">10</option>
-      <option value="50">50</option>
-      <option value="100">100</option>
-      <option value="500">500</option>
-      <option value="1000">1000</option>
-    </select>
-  </label>
-  <label>Maximum Speakers:
-    <select id="max_speaker_count" name="max_speaker_count" onchange="render()">
-      <option value="10">10</option>
-      <option value="50">50</option>
-      <option value="100">100</option>
-      <option value="500">500</option>
-      <option value="1000">1000</option>
-      <option value="999999" selected>No max</option>
-    </select>
-  </label>
-  <br>
-  <label>No scripture<input type="checkbox" name="scripture_none" value="1" checked onchange="render()"></label>
-  <label>Some books<input type="checkbox" name="scripture_some" value="1" checked onchange="render()"></label>
-  <label>New testament<input type="checkbox" name="scripture_nt" value="1" checked onchange="render()"></label>
-  <label>Whole bible<input type="checkbox" name="scripture_wb" value="1" checked onchange="render()"></label>
-</form>
 {% include "legend.html" %}
 <script type="text/javascript"
   src="{{ url_for('static', filename='d3.v5.min.js') }}"></script>
@@ -185,7 +186,7 @@ function render() {
 }
 
 var projection = d3.geoMercator()
-    .center([135, -26])
+    .center([150, -29])
     .scale(600);
 
 var au_map = d3.json("{{ url_for('static', filename='au-states-topo.json') }}");
