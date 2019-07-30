@@ -604,7 +604,8 @@ class LanguagePersistence(object):
                              lat,
                              lon,
                              speaker_count,
-                             self.get_css_class_for_iso(row["iso"])))
+                             self.get_css_class_for_iso(row["iso"]),
+                             self.get_primary_name_for_display(row["iso"])))
         return sorted(map_data, key=lambda x: x[0])
 
     def get_table_data(self):

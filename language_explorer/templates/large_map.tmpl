@@ -56,17 +56,19 @@ Larger circles indicate larger speaker population. Mouse over circles for info.
   src="{{ url_for('static', filename='topojson.v3.min.js') }}"></script>
 <script type="text/javascript">
 
-// url field lacks a leading slash - this is added when the href
-// is constructed. See comments in that part of the code
+/*
+  url field lacks a leading slash - this is added when the href
+  is constructed. See comments in that part of the code
+*/
 var locations = [
-{% for iso, lat, lon, speaker_count, css_class in map_data %}
-    { name: "{{ iso }}", lat: {{ lat }}, lon: {{ lon }}, speaker_count: {{ speaker_count }}, css_class: "{{ css_class }}", url: "language/iso/{{ iso }}" },
+{% for iso, lat, lon, speaker_count, css_class, label in map_data %}
+    { name: "{{ iso }}", lat: {{ lat }}, lon: {{ lon }}, speaker_count: {{ speaker_count }}, css_class: "{{ css_class }}", url: "language/iso/{{ iso }}", label: "{{ label }}" },
 {% endfor %}
 ];
 
 
 function get_circle_colour(lang) {
-  // check whether it's easier to apply CSS to svg elements
+  /* check whether it's easier to apply CSS to svg elements */
   if (lang.css_class.includes("scripture_none")) {
     return "red"
   }
@@ -186,7 +188,7 @@ function render() {
       .attr('stroke-width', stroke_width)
   feature.merge(featureEnter)
     .select("title")
-      .text(d => d.name);
+      .text(function(d) {return d.label + ' (' + d.name + ')'});
 }
 
 var projection = d3.geoMercator()
