@@ -137,7 +137,7 @@ Longitude: {{ "%.2f"|format(tindale_lon) }}
       {% endfor %}
   </li>
   <li>AUSTLANG: {%  for austlang_key, austlang_label in austlang_refs %}
-      <a href="http://austlang.aiatsis.gov.au/php/public/language_profile_all.php?id={{ austlang_key }}">{{ austlang_label }}</a>
+      <a href="https://collection.aiatsis.gov.au/austlang/language/{{ austlang_label }}">{{ austlang_label }}</a>
       {% endfor %}
 </ul>
 

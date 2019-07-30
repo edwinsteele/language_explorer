@@ -16,6 +16,7 @@ logging.basicConfig(level=logging.DEBUG)
 class AustlangAdapter(CachingWebLanguageSource):
     SOURCE_NAME = constants.AUSTLANG_SOURCE_ABBREV
     ABS_SOURCE_NAME = constants.AUSTLANG_ABS_SOURCE_ABBREV
+    # XXX - These changed during 2019 - will need reworking
     ALL_LANGUAGES_URL = 'http://austlang.aiatsis.gov.au/php/' \
                         'public/query_submit.php?' \
                         'stateFields=^TAS^VIC^NSW^ACT^SA^NT^WA^QLD^TSI'
