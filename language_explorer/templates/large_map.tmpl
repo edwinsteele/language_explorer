@@ -144,7 +144,7 @@ function render_text_description(locations_to_show, unmappable_languages) {
 
   let featureEnter = feature.enter().append("span")
   feature.merge(featureEnter)
-    .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
+    .html(function(d) {return '<a href="/' + d.url + '">' + d.label + ' (' + d.name + ')</a> '})
     .attr("class", d => d.css_class);
 
   feature = d3.select("#unmappable_list")
@@ -155,7 +155,7 @@ function render_text_description(locations_to_show, unmappable_languages) {
 
   featureEnter = feature.enter().append("span")
   feature.merge(featureEnter)
-    .html(function(d) {return '<a href="/' + d.url + '">' + d.name + '</a> '})
+    .html(function(d) {return '<a href="/' + d.url + '">' + d.label + ' (' + d.name + ')</a> '})
     .attr("class", d => d.css_class);
 }
 
