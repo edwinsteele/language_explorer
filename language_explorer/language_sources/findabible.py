@@ -14,6 +14,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 class FindABibleAdapter(CachingWebLanguageSource):
     SOURCE_NAME = constants.FIND_A_BIBLE_SOURCE_ABBREV
+    # XXX Findabible redid their site post-2014, so this needs reworking
     ONE_LANGUAGE_URL_TEMPLATE = "http://208.72.3.146/find_a_bible/" \
                                 "default.aspx?Language=%s"
     NO_RECORD_TEXT = "We have no record of a scripture work in this language."
