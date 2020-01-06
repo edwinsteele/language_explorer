@@ -50,7 +50,7 @@ transaction==1.4.1
 translationstring==1.1
 unicsv==1.0.0
 venusian==1.0a8
-waitress==0.8.8
+waitress==1.4.2
 git+https://github.com/clld/wals3.git@1de7f959b93ab3ddf4571097e66739c70a6e940f#egg=wals3
 webassets==0.9
 wsgiref==0.1.2
